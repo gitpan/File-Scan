@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+1.06  Wed Apr 28 18:54:42 WEST 2004
+	- added two new virus signatures (W32/Bagle.aa@MM!vbs and
+	  W32/Bagle.aa@MM!hta).
+	- the W32/Bagle.j@MM virus signature has been updated to detect
+	  W32/Bagle.aa@MM variant.
+
 1.05  Tue Apr 27 16:14:29 WEST 2004
 	- the following virus signatures has been commented
 	  W32/Borges.cmp, W95/Puma, W95/Rekoj.GR, W95/Miam.dr,
