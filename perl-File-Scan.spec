@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define version 0.32
+%define version 0.33
 %define release 1
 
 # Derived values
@@ -60,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}
 
 %changelog
+* Tue Jul 15 2002 Michael McLagan <michael.mclagan@linux.org>
+- Updated to 0.33
 * Tue Jul 08 2002 Michael McLagan <michael.mclagan@linux.org>
 - Updated to 0.32
 * Tue Jun 25 2002 Michael McLagan <michael.mclagan@linux.org>

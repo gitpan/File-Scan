@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.33  Mon Jul 15 11:26:24 GMT 2002
+	- rename W32/Frethem.f@MM virus signature to W32/Frethem.fl@MM
+	- added two new virus signatures (W32/Duni.worm.b and W32/Plex@MM) 
+	  and W32/Frethem.f@MM virus signature was updated
+
 0.32  Mon Jul  8 11:52:39 WEST 2002
 	- added five new virus signatures (JS/Kak@M, W97M/Gorum,
 	  W32/Gorum.gen@MM, BSD/Scalper.worm and W97M/VMPCK.dd) and
