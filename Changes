@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+1.33  Tue Oct 12 13:45:27 WEST 2004
+	- the W32/Mabutu.b@MM virus signature has been updated.
+
 1.32  Thu Oct  7 14:50:08 WEST 2004
 	- the W32/Lovgate.x@MM virus signature has been updated.
 
