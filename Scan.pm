@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Feb 18 14:09:43 WET 2004
+# Last Modification: Wed Feb 25 15:19:27 WET 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.84';
+$VERSION = '0.85';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/02/18 14:15:08
+# generated in: 2004/02/25 15:28:03
 
 sub get_app_sign {
 	$_ = pop;
@@ -387,6 +387,9 @@ sub scan_binary {
 				if($total==43008) {
 					/\x7a\x49\x4e\x47\x0e\x3b\x4f\x4d\x6b\xbe\xdd\xfe\xb2\x4e\x11\x52\x36\x30\x32\x38\x08\x2d\x20\x47\x61\x62\x6c\x65\xeb\x70\x34\x3a\x50\x20\x1f/s and $virus = "W32/Palyh\@MM", last LINE;
 				}
+				if($total>=10240 && $total<=15360) {
+					/\x51\x55\x49\x54.{7,12}\x44\x41\x54\x41.{0,4}\x45\x50\x43\x47.{2,5}\x42\x3a\x3c.{2,7}\x5a\x4e\x56\x59.{10,16}\x55\x52\x59\x42\x20.{1,7}\x52\x55.{0,10}\x54/s and $virus = "W32/Mydoom\@MM", last LINE;
+				}
 				if($total==15360) {
 					/\x57\x00\x69\x00\x6e\x00\x33\x00\x32\x00\x2e\x00\x6d\x00\x65\x00\x72\x00\x63\x00\x75\x00\x72\x00\x79\x00\x20\x00\x43\x00\x6f\x00\x64\x00\x65\x00\x64\x00\x20\x00\x62\x00\x79\x00\x20\x00\x49\x00\x6e\x00\x64\x00\x75\x00\x73\x00\x74\x00\x72\x00\x79\x00\x20\x00\x40\x00\x20\x00\x41\x00\x4e\x00\x56\x00\x58\x00\x67\x00\x72\x00\x6f\x00\x75\x00\x70/s and $virus = "W32/Merkur\@MM", last LINE;
 				}
@@ -433,9 +436,6 @@ sub scan_binary {
 				}
 				if($total>=30720 && $total<=43008) {
 					/\x73\x72\x63\x3d\x33[^\x44]*\x44\x63\x69\x64\x3a\x57\x38\x64\x71\x77\x71\x38[^\x71]*\x71\x39\x31\x4f\x31\x33/s and $virus = "W32/Frethem.fl\@MM", last LINE;
-				}
-				if($total==1024 || $total==6144) {
-					/[\x0a\xc7]\x28\x73\x79\x6e\x63.{2,6}\x2e.?\x31.{1,17}\x20\x61\x6e\x64\x79[\x3b\x29]/s and $virus = "W32/Mydoom\@MM", last LINE;
 				}
 				if($total==267264) {
 					/\x7a\x68\x61\x6e\x67\x70\x6f\x00\x58\x2d\x4d\x61\x69\x6c\x65\x72/s and $virus = "W32/Zhangpo\@MM", last LINE;
