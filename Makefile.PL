@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Wed May 14 18:01:31 WEST 2003
+# Last Modification: Tue Jul  1 13:18:30 WEST 2003
 
 use strict;
 
@@ -194,7 +194,7 @@ sub scan_text {
 ENDOFCODE2
 
 	$code .= ($] < 5.006) ? "\tsysopen(FILE, \$file, 0)" : "\topen(FILE, \"<\", \$file)";
-	$code .= " or return(&set_error(\"Can't open \$file: \$!\"));\n";
+	$code .= " or return(&_set_error(\"Can't open \$file: \$!\"));\n";
 
 	$code .= <<ENDOFCODE3;
 	LINE: while(read(FILE, \$buff, \$size)) {
@@ -238,11 +238,12 @@ ENDOFCODE3
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
-	&set_skip(\$skip) if(\$skip);
+	&_set_skip(\$skip) if(\$skip);
 	return(\$virus);
 }
 
 sub scan_binary {
+	my \$self = shift;
 	my \$file = shift;
 
 	my (\$skip, \$suspicious, \$type, \$subtype, \$total) = (0, 0, 0, 0, 0);
@@ -251,7 +252,7 @@ sub scan_binary {
 ENDOFCODE4
 
 	$code .= ($] < 5.006) ? "\tsysopen(FILE, \$file, 0)" : "\topen(FILE, \"<\", \$file)";
-	$code .= " or return(&set_error(\"Can't open \$file: \$!\"));\n";
+	$code .= " or return(&_set_error(\"Can't open \$file: \$!\"));\n";
 
 	$code .= <<ENDOFCODE5;
 	binmode(FILE);
@@ -264,6 +265,12 @@ ENDOFCODE5
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first, "");
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
+			if(exists(\$self->{'callback'})) {
+				if(my \$ret = \$self->{'callback'}->(\$file, \$begin) || "") {
+					&ret_callback(\$ret);
+					\$ret and last LINE;
+				}
+			}
 			&get_app_sign(\$type, \$subtype, \$begin);
 			unless(\$type) { \$skip = 1; last LINE; }
 		}
@@ -298,9 +305,9 @@ ENDOFCODE6
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
-	&set_skip(\$skip) if(\$skip);
+	&_set_skip(\$skip) if(\$skip);
 	\$suspicious = 0 if(\$virus);
-	&set_suspicious(\$suspicious) if(\$suspicious);
+	&_set_suspicious(\$suspicious) if(\$suspicious);
 	return(\$virus);
 }
 ENDOFCODE7

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Jun 26 16:18:08 WEST 2003
+# Last Modification: Tue Jul  1 11:50:16 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -16,12 +16,12 @@ require Exporter;
 use File::Copy;
 use SelfLoader;
 
-use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
+use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.58';
+$VERSION = '0.59';
 
-($ERROR, $SKIPPED, $SUSPICIOUS) = ("", 0, 0);
+($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
 SelfLoader->load_stubs();
 
@@ -46,79 +46,98 @@ sub scan {
 	my $self = shift;
 	my $file = shift;
 
-	&set_error();
-	&set_skip();
-	&set_suspicious();
+	&_set_error();
+	&_set_skip();
+	&_set_suspicious();
+	&ret_callback();
 
-	(-e $file) or return(&set_error("No such file or directory: $file"));
+	(-e $file) or return(&_set_error("No such file or directory: $file"));
 	my $fsize = -s $file;
-	$fsize or return(&set_skip(2));
+	$fsize or return(&_set_skip(2));
 	my $res = "";
 	if(-f $file && -T $file) {
-		return(&set_skip(3)) if($fsize < 23);
-		return(&set_skip(4))
+		return(&_set_skip(3)) if($fsize < 23);
+		return(&_set_skip(4))
 			if($self->{'max_txt_size'} && ($fsize > $self->{'max_txt_size'} * 1024));
 		$res = &scan_text($file);
 	} else {
-		return(&set_skip(5))
+		return(&_set_skip(5))
 			if($self->{'max_bin_size'} && ($fsize > $self->{'max_bin_size'} * 1024));
-		$res = &scan_binary($file);
+		$res = &scan_binary($self, $file);
 	}
 	if($res) {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
 			my $newname = join("\.", $file, $self->{'extension'});
 			if(move($file, $newname)) { $file = $newname; }
-			else { &set_error("Failed to move '$file' to '$newname'"); }
+			else { &_set_error("Failed to move '$file' to '$newname'"); }
 		}
 		if($self->{'copy'}) {
 			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
-				mkdir($self->{'copy'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'copy'}, "' $!"));
+				mkdir($self->{'copy'}, $self->{'mkdir'}) or &_set_error(join("", "Failed to create directory '", $self->{'copy'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $cpdir = join("/", $self->{'copy'}, $f);
-			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
+			copy($file, $cpdir) or &_set_error("Failed to copy '$file' to $cpdir");
 		}
 		if($self->{'move'}) {
 			if(!(-d $self->{'move'}) && $self->{'mkdir'}) {
-				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
+				mkdir($self->{'move'}, $self->{'mkdir'}) or &_set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $mvfile = join("/", $self->{'move'}, $f);
 			if(move($file, $mvfile)) { $file = $mvfile; }
-			else { &set_error("Failed to move '$file' to '$mvfile'"); }
+			else { &_set_error("Failed to move '$file' to '$mvfile'"); }
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
-				unlink($1) or &set_error("Could not delete $1: $!");
+				unlink($1) or &_set_error("Could not delete $1: $!");
 			}
 		}
 	}
 	return($res);
 }
 
-sub set_error {
+sub set_callback {
+	my $self = shift;
+	my $subref = shift || undef;
+
+	if(defined($subref) && ref($subref) eq "CODE") {
+		$self->{'callback'} = $subref;
+	} elsif(exists($self->{'callback'})) {
+		delete($self->{'callback'});
+	}
+	return();
+}
+
+sub _set_error {
 	$ERROR = shift || "";  
 	return();
 }
 
-sub set_skip {
+sub _set_skip {
 	$SKIPPED = shift || 0;
 	return();
 }
 
-sub set_suspicious {
+sub _set_suspicious {
 	$SUSPICIOUS = shift || 0;
+	return();
+}
+
+sub ret_callback {
+	$CALLBACK = shift || "";
 	return();
 }
 
 sub error { $ERROR; }
 sub skipped { $SKIPPED; }
 sub suspicious { $SUSPICIOUS; }
+sub callback { $CALLBACK; }
 
 1;
 
 __DATA__
-# generated in: 2003/06/26 16:59:51
+# generated in: 2003/07/01 14:16:12
 
 sub get_app_sign {
 	$_ = pop;
@@ -148,7 +167,7 @@ sub scan_text {
 	my ($buff, $save, $virus, $script) = ("", "", "", "");
 	my $skip = 0;
 	my $size = 1024;
-	open(FILE, "<", $file) or return(&set_error("Can't open $file: $!"));
+	open(FILE, "<", $file) or return(&_set_error("Can't open $file: $!"));
 	LINE: while(read(FILE, $buff, $size)) {
 		unless($save) { last LINE if($skip = &exception($buff)); }
 		study;
@@ -190,23 +209,30 @@ sub scan_text {
 		$save = substr($buff, (length($buff)/2));
 	}
 	close(FILE);
-	&set_skip($skip) if($skip);
+	&_set_skip($skip) if($skip);
 	return($virus);
 }
 
 sub scan_binary {
+	my $self = shift;
 	my $file = shift;
 
 	my ($skip, $suspicious, $type, $subtype, $total) = (0, 0, 0, 0, 0);
 	my ($virus, $buff, $save) = ("", "", "");
 	my $size = 1024;
-	open(FILE, "<", $file) or return(&set_error("Can't open $file: $!"));
+	open(FILE, "<", $file) or return(&_set_error("Can't open $file: $!"));
 	binmode(FILE);
 	LINE: while(read(FILE, $buff, $size)) {
 		$total += length($buff);
 		unless($save) {
 			my $begin = substr($buff, 0, 8, "");
 			unless(length($begin) >= 8) { $skip = 3; last LINE; }
+			if(exists($self->{'callback'})) {
+				if(my $ret = $self->{'callback'}->($file, $begin) || "") {
+					&ret_callback($ret);
+					$ret and last LINE;
+				}
+			}
 			&get_app_sign($type, $subtype, $begin);
 			unless($type) { $skip = 1; last LINE; }
 		}
@@ -313,6 +339,9 @@ sub scan_binary {
 				}
 				if($total==205824) {
 					/\x7a\x65\x72\x6f\x2e\x65\x78\x65\x7f\x07\x32\xf2\x97\x06\x44\x6c\x44\x69\x72\x30\x18\x4b\xb5\x85\x58\xf8\x61\x7a\x61\x61\x5c\x27\x67\x31\x43\x56\x3a\xd7\x77\x84\x03\x17\xf1\x63\x70\x6c\x6f\x5c\x6b\x27\x0b\x7a\x10\x0f\x76\x31\x0a\xee\xa2\x19\x77\x09\x2e\x21\x60\x86\x4d\xc1\x5f\x2f\x17\x10\x08\x2c\x7b\x01\xa2\x2e\x68\x6f\x74\x0f\x86\x6f\x9c\x77\x32\x3e\x46\x6f\x6c\xc0\x96\x22\x07\x63\x36\x0c\x49\x6f\x73\xb4\xf5\x5f\x4a\x27\x73\x6b\x79\x4c\x61\x62/s and $virus = "W32/Duni.worm.b", last LINE;
+				}
+				if($total==70656) {
+					/\x6c\x6f\x76\x65\x6c\x6f\x72\x6e\x40\x79\x61\x68\x6f\x6f\x2e\x63\x6f\x6d/s and $virus = "W32/Lovelorn\@MM", last LINE;
 				}
 				/\x57\x69\x6e\x33\x32\x2e[^\x20]+\x20\x62\x79\x20\x42\x6c\x61\x63\x6b\x20\x4a\x61\x63\x6b\x00/s and $virus = "W32/Bika.gen", last LINE;
 				if($total==2048) {
@@ -493,9 +522,9 @@ sub scan_binary {
 		$save = substr($buff, (length($buff)/2));
 	}
 	close(FILE);
-	&set_skip($skip) if($skip);
+	&_set_skip($skip) if($skip);
 	$suspicious = 0 if($virus);
-	&set_suspicious($suspicious) if($suspicious);
+	&_set_suspicious($suspicious) if($suspicious);
 	return($virus);
 }
 
@@ -510,10 +539,19 @@ File::Scan - Perl extension for Scanning files for Viruses
   use File::Scan;
 
   $fs = File::Scan->new([, OPTION ...]);
+  $fs->set_callback(
+    sub {
+      my $filename = shift;
+      my $bytes = shift;
+      ...
+      return("Callback Value");
+    }
+  );
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
   if(my $c = $fs->skipped) { print "file skipped ($c)\n"; }
   if($fs->suspicious) { print "suspicious file\n"; }
+  if(my $res = $fs->callback) { print "$res\n"; }
 
 =head1 DESCRIPTION
 
@@ -528,7 +566,14 @@ virus scanners.
 This method create a new File::Scan object. The following keys are 
 available:
 
-=over 6
+=over 7
+
+=item callback => 'subroutine reference'
+
+if the item is set then use a callback subroutine reference to provide
+extra information and functionalities. The callback subroutine have two
+arguments: filename and first 1024 bytes read from the file. This only
+work for binary files.
 
 =item extension => 'string'
 
@@ -568,6 +613,11 @@ default value is 10240 kbytes. Set to 0 for no limit.
 This method scan a file for viruses and return the name of virus if a
 virus is found.
 
+=head2 set_callback([SUBREF])
+
+This method is another way to install a callback subroutine reference. 
+Take a look in callback kay.
+
 =head2 skipped()
 
 This method return a code number if the file was skipped and 0 if not. The
@@ -604,6 +654,10 @@ the binary file size is greater that the 'max_bin_size' argument
 =head2 suspicious()
 
 This method return 1 if the file is suspicious and 0 if not.
+
+=head2 callback()
+
+This method return the result from the callback subroutine.
 
 =head2 error()
 

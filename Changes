@@ -1,5 +1,14 @@
 Revision history for Perl extension File::Scan.
 
+0.59  Tue Jul  1 14:15:24 WEST 2003
+	- added W32/Lovelorn@MM virus signature.
+	- added set_callback method to provide extra information and
+	  functionalities.
+	- added callback argument to the constructor
+	- updated the documentation
+	- examples/scan.pl: the version was updated to 0.12
+	- examples/scan.pl: added support to zip compressed files
+
 0.58  Thu Jun 26 16:56:58 WEST 2003
 	- added W32/Sobig.e@MM virus signature.
 

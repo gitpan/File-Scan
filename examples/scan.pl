@@ -2,8 +2,11 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Fri Jun 20 11:47:59 WEST 2003
-# Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>
+# Last Change: Tue Jul  1 12:03:31 WEST 2003
+#
+# Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
+# This program is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
 #
 #############################################################################
 
@@ -27,6 +30,10 @@ my $DELETE = 0;
 my $FOLLOW = 0;
 my $MAXTXTSIZE = 0;
 my $MAXBINSIZE = 0;
+my $UNZIP_PROG = "/usr/bin/unzip";
+my $TMP_DIR = "/tmp";
+
+my $pattern = '^[\t ]+(inflating|extracting): (.+)[\n\r]';
 
 my %skipcodes = (
 	1 => "file not vulnerable",
@@ -44,6 +51,8 @@ Getopt::Long::GetOptions($opt,
 	"cp=s"         => \$CP_DIR,
 	"mv=s"         => \$MV_DIR,
 	"mkdir=s"      => \$MK_DIR,
+	"unzip=s"      => \$UNZIP_PROG,
+	"tmp=s"        => \$TMP_DIR,
 	"del"          => sub { $DELETE = 1; },
 	"follow"       => sub { $FOLLOW = 1; },
 	"maxtxtsize=i" => \$MAXTXTSIZE,
@@ -110,6 +119,22 @@ sub check_path {
 		move      => $MV_DIR,
 		delete    => $DELETE,
 		@args);
+	$fs->set_callback(
+		sub {
+			my $file = shift;
+			local $_ = shift;
+			if(/^\x50\x4b\x03\x04/o) {
+				# Extract compressed files in a ZIP archive
+				my $files = &unzip_file($UNZIP_PROG, $TMP_DIR, $file);
+				for my $f (@{$files}) {
+					&check($fs, $f);
+					unlink($f);
+				}
+				return("ZIP archive");
+			}
+			return("");
+		}
+	);
 	for my $p (@{$argv}) {
 		if(-d $p) {
 			($p eq "/") or $p =~ s{\/+$}{}g;
@@ -122,6 +147,26 @@ sub check_path {
 		}
 	}
 	return();
+}
+
+#---unzip_file--------------------------------------------------------------
+
+sub unzip_file {
+	my $program = shift;
+	my $tmp_dir = shift;
+	my $file = shift;   
+
+	my $line = join(" ", $program, "-P ''", "-d", $tmp_dir, "-j", "-n", $file);
+	my @files = ();
+	open(UNZIP, "$line|") or die("$!");
+	while(<UNZIP>) {
+		if(my ($f) = (/$pattern/)[1]) {
+			$f =~ s/ +$//g;
+			push(@files, $f);
+		}
+	}
+	close(UNZIP);
+	return(\@files);
 }
 
 #---dir_handle--------------------------------------------------------------
@@ -160,9 +205,10 @@ sub check {
 	} elsif($fs->suspicious) {
 		$suspicious++;
 		print "$file Suspicious file\n";
+	} elsif(my $r = $fs->callback) {
+		print "$file $r\n";
 	} else { &display_msg($file, $res); }
-
-	return();
+	return($res);
 }
 
 #---short_usage-------------------------------------------------------------
@@ -180,6 +226,8 @@ usage: $0 [options] file|directory
   --follow
   --maxtxtsize=size
   --maxbinsize=size
+  --unzip=/path/to/program
+  --tmp=/path/to/dir
   --version
   --help
         
@@ -225,6 +273,10 @@ Possible options are:
  
   --maxbinsize=<size>   scan only the binary file if the file size is less
                         then maxbinsize (size in kbytes)
+
+  --unzip=<string>      path to unzip program
+
+  --tmp=<string>        path to temporary directory
 
   --version             print version number
 
