@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed May  5 14:37:58 WEST 2004
+# Last Modification: Fri May  7 14:51:04 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.10';
+$VERSION = '1.11';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/05/05 14:42:09
+# generated in: 2004/05/07 14:55:32
 
 sub get_app_sign {
 	$_ = pop;
@@ -416,7 +416,7 @@ sub scan_binary {
 					/\x51.{1,3}\x54.{14,36}\x41.{1,7}\x52.{0,4}\x43.{3,7}\x4f\x3a.{2,6}\x4d\x41.{0,4}\x49\x4c/s and $virus = "W32/Mimail\@MM", last LINE;
 				}
 				if(($total>=10240 && $total<=15360) || $total==45056) {
-					/[\xee\x95\x00\x95]\x51\x55\x49\x54[\x8e\xfa\x0d\xa7].{7,27}\x41.{6,35}\x20.{0,55}\x54[\x4f\x6f\x7e]/s and $virus = "W32/Mydoom\@MM", last LINE;
+					/[\xee\x95\x00\x95\x2d]\x51\x55\x49\x54[\x8e\xfa\x0d\xa7\x83].{7,27}\x41.{6,35}\x20.{0,55}\x54[\x4f\x6f\x7e]/s and $virus = "W32/Mydoom\@MM", last LINE;
 				}
 				if($total==35840) {
 					/\x73\x6d\x74\x70\x2e\x79\x65\x61\x68\x2e\x6e\x65.+\x2d\x20\x47\x45\x54\x20\x4f\x49\x43\x51/s and $virus = "W32/GOP\@MM", last LINE;
