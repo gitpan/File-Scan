@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.53  Fri May 16 14:07:36 WEST 2003
+	- added BackDoor-AQJ virus signature.
+	- Fixed a typo in POD.
+	  Thanks to Kevin C. Krinke <kckrinke@opendoorsoftware.com>
+
 0.52  Wed May 14 18:14:48 WEST 2003
 	- added two new virus signatures (W32/Fizzer.gen@MM and
 	  W32/Fizzer.dll).

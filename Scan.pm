@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed May 14 17:52:40 WEST 2003
+# Last Modification: Fri May 16 11:43:48 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.52';
+$VERSION = '0.53';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2003/05/14 18:16:01
+# generated in: 2003/05/16 14:08:40
 
 sub get_app_sign {
 	$_ = pop;
@@ -405,6 +405,9 @@ sub scan_binary {
 				if($total==44032) {
 					/\xbd\xff\x57\x4f\x52\x4b\x2d\x53\x45\x58\x59\x33\x0f\x54\x55\x05\xa3\xde\x3b\x13\x4b\x61\x7a\x61\xd3\x5e\x07\x30\xe1\xef\x50\x9f\x76\x62\x73\x4b\x36\x94\x01\x68\x3a\x03/s and $virus = "W32/Oror.aa\@MM", last LINE;
 				}
+				if($total==66560) {
+					/\x4e\x65\x74\x4d\x65\x65\x74\x69\x6e\x67\x20\x52\x65\x6d\x6f\x74\x65\x20\x44\x65\x73\x6b\x74\x6f\x70\x20\x28\x52\x50\x43\x29\x20\x53\x68\x61\x72\x69\x6e\x67\x00\x73\x6d\x74\x70\x2e\x31\x36\x33\x2e\x63\x6f\x6d\x00\x00\x00\x00/s and $virus = "BackDoor-AQJ", last LINE;
+				}
 				if($total==35840) {
 					/\x73\x6d\x74\x70\x2e\x79\x65\x61\x68\x2e\x6e\x65.+\x2d\x20\x47\x45\x54\x20\x4f\x49\x43\x51/s and $virus = "W32/GOP\@MM", last LINE;
 				}
@@ -505,7 +508,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs = File::Scan->new([, OPTION ...]);
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
-  if(my $c $fs->skipped) { print "file skipped ($c)\n"; }
+  if(my $c = $fs->skipped) { print "file skipped ($c)\n"; }
   if($fs->suspicious) { print "suspicious file\n"; }
 
 =head1 DESCRIPTION
@@ -563,7 +566,7 @@ virus is found.
 
 =head2 skipped()
 
-This method return a code number if the file was skipped and 0 if not. The 
+This method return a code number if the file was skipped and 0 if not. The
 following skipped codes are available:
 
 =over 6

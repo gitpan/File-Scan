@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed May 14 17:52:40 WEST 2003
+# Last Modification: Fri May 16 11:43:48 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.52';
+$VERSION = '0.53';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -133,7 +133,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs = File::Scan->new([, OPTION ...]);
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
-  if(my $c $fs->skipped) { print "file skipped ($c)\n"; }
+  if(my $c = $fs->skipped) { print "file skipped ($c)\n"; }
   if($fs->suspicious) { print "suspicious file\n"; }
 
 =head1 DESCRIPTION
@@ -191,7 +191,7 @@ virus is found.
 
 =head2 skipped()
 
-This method return a code number if the file was skipped and 0 if not. The 
+This method return a code number if the file was skipped and 0 if not. The
 following skipped codes are available:
 
 =over 6
