@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Apr 23 11:51:33 WEST 2003
+# Last Modification: Sat Apr 26 18:14:11 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.50';
+$VERSION = '0.51';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2003/04/23 15:13:28
+# generated in: 2003/04/26 19:07:45
 
 sub get_app_sign {
 	$_ = pop;
@@ -379,6 +379,9 @@ sub scan_binary {
 				}
 				if($total==31744) {
 					/\x4e\x00\x61\x00\x76\x00\x69\x00\x64\x00\x61\x00\x64\x00\x20\x00\x56\x00\x65\x00\x72\x00\x73\x00\x69\x00\x6f\x00\x6e\x00\x20\x00\d+.+\x43\x00\x6f\x00\x70\x00\x79\x00\x72\x00\x69\x00\x67\x00\x68\x00\x74\x00\x20\x00\x28\x00\x43\x00\x29\x00\x20\x00\d\x00\d\x00\d\x00\d\x00/s and $virus = "W32/Navidad.gen\@M", last LINE;
+				}
+				if($total==102400) {
+					/\x90\x60\xe9\x3d\x04\x00\x00\x87\xc3\xa3\x9f\x9f\x8a\x9f\x5a\xcf\xd8\xe3\x9f\xa2\x7c\xca\x3c\x6f\xde\xe3\x9f\x22\x5c\x9b\xe8\xe3\x9f\x9f\x28\x3c\x9b\xe8\xe3\x9f\xae\x24\x05\xa2\x9f\x9f\x66\x24\xd2\xd8\xe3\x9f\x9f\x9f\x9f\x9f\x2c\x24\xa3\xe9\xe3\x9f\xef\x9e/s and $virus = "W32/Lovgate.g\@M", last LINE;
 				}
 				if($total==12288) {
 					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;

@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.51  Sat Apr 26 19:04:21 WEST 2003
+	- added W32/Lovgate.g@M virus signature.
+	  Thanks to Anita Dias <anafonso@mail.esb.ucp.pt>
+
 0.50  Wed Apr 23 15:12:58 WEST 2003
 	- added two new virus signatures (BackDoor-ARG and
 	  BackDoor-ARG.dr).
