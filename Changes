@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+1.07  Wed Apr 28 19:51:56 WEST 2004
+	- the W32/Netsky@MM virus signature has been updated to detect
+	  W32/Netsky.ab@MM variant.
+
 1.06  Wed Apr 28 18:54:42 WEST 2004
 	- added two new virus signatures (W32/Bagle.aa@MM!vbs and
 	  W32/Bagle.aa@MM!hta).

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Apr 28 18:38:17 WEST 2004
+# Last Modification: Wed Apr 28 19:51:36 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.06';
+$VERSION = '1.07';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/04/28 18:58:41
+# generated in: 2004/04/28 19:55:38
 
 sub get_app_sign {
 	$_ = pop;
@@ -493,7 +493,7 @@ sub scan_binary {
 					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;
 				}
 				if($total>=14336 && $total<=18432) {
-					/[\x7c\x4c]\x05?[\x20\xfc]\x46\x3c?\x52.{0,4}\x4f[\x57\x4d][\x3a\x2b\x12\x11\xad].{12,35}\x54/s and $virus = "W32/Netsky\@MM", last LINE;
+					/[\x7c\x4c]\x05?[\x20\xfc]\x46\x3c?\x52.{0,4}\x4f[\x57\x4d][\x3a\x2b\x12\x11\xad\xb6].{12,49}\x54/s and $virus = "W32/Netsky\@MM", last LINE;
 				}
 				if($total==44032) {
 					/\xbd\xff\x57\x4f\x52\x4b\x2d\x53\x45\x58\x59\x33\x0f\x54\x55\x05\xa3\xde\x3b\x13\x4b\x61\x7a\x61\xd3\x5e\x07\x30\xe1\xef\x50\x9f\x76\x62\x73\x4b\x36\x94\x01\x68\x3a\x03/s and $virus = "W32/Oror.aa\@MM", last LINE;
