@@ -1,5 +1,24 @@
 Revision history for Perl extension File::Scan.
 
+1.05  Tue Apr 27 16:14:29 WEST 2004
+	- the following virus signatures has been commented
+	  W32/Borges.cmp, W95/Puma, W95/Rekoj.GR, W95/Miam.dr,
+	  W32/Enviar.gen@M and W32/Javel.512 because in the two last years
+	  there hasn't been any occurrences.
+	- minor feature enhancements in Makefile.PL.
+	- added W32/Netsky.x@MM virus signature.
+	- the New Malware.b signature has been removed because it is the 
+	  W32/Mydoom.j@MM virus.
+	- the W32/Mydoom@MM virus signature has been updated to detect
+	  W32/Mydoom.j@MM variant.
+	- the W32/Netsky@MM virus signature has been updated to detect
+	  W32/Netsky.m@MM, W32/Netsky.w@MM and W32/Netsky.z@MM variant.
+	- the W32/Netsky.c@MM virus signature has been updated to detect
+	  W32/Netsky.d@MM (Petite packed) variant.
+	- examples/scan.pl: the version was updated to 0.17.
+	- examples/scan.pl: the report now show the File::Scan module
+	  version.
+
 1.04  Mon Apr 26 20:43:05 WEST 2004
 	- added W32/Torvil@MM virus signature
 	- the W32/Bagle.j@MM virus signature has been updated to detect

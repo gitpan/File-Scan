@@ -2,9 +2,9 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Sat Nov 15 18:26:52 WET 2003
+# Last Change: Tue Apr 27 16:08:18 WEST 2004
 #
-# Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
+# Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 #
@@ -16,7 +16,7 @@ use MIME::Base64 qw(decode_base64);
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.16";
+my $VERSION = "0.17";
 
 my $infected = 0;
 my $objects = 0;
@@ -79,6 +79,7 @@ sub main {
 
 Results of virus scanning:
 --------------------------
+ Module Version: $File::Scan::VERSION
 Objects scanned: $objects 
         Skipped: $skipped
      Suspicious: $suspicious

@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Wed Mar  3 13:23:02 WET 2004
+# Last Modification: Tue Apr 27 14:35:56 WEST 2004
 
 use strict;
 
@@ -115,8 +115,9 @@ sub load_signatures {
 		$elem[3] =~ s/le/\<\=/ig;
 		$elem[3] =~ s/gt/\>/ig;
 		$elem[3] =~ s/ge/\>\=/ig;
-		$elem[3] =~ s/or/ \|\| \$total/ig;
-		$elem[3] =~ s/and/ \&\& \$total/ig;
+		$elem[3] =~ s/([\=\!\<\>][\=]?\d+)/\$total$1/g;
+		$elem[3] =~ s/or/ \|\| /ig;
+		$elem[3] =~ s/and/ \&\& /ig;
 		if(exists($script{$elem[1]})) {
 			my (@tmp) = ($elem[4] =~ /$pattern/og);
 			my $len = int(length(join("", @tmp))/2);
@@ -337,7 +338,7 @@ sub subgene {
 	for my $limit (keys(%{$pat})) {
 		my $tabs = $tab;
 		if($limit) {
-			$code .= $tabs . "if(\$total$limit) \{\n";
+			$code .= $tabs . "if($limit) \{\n";
 			$tabs .= "\t";
 		}
 		while(my($key, $value) = each(%{$pat->{$limit}})) {
