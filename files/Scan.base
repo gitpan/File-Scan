@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Mar 16 17:08:08 WET 2002
+# Last Modification: Tue Mar 19 14:03:57 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED);
 
 @ISA = qw(Exporter);
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -223,8 +223,8 @@ Henrique Dias <hdias@esb.ucp.pt>
 
 =head1 CREDITS
 
-Thanks to Rui de Castro, Sergio Castro, Ricardo Oliveira and Antonio
-Campelo for the help.
+Thanks to Rui de Castro, Sergio Castro, Ricardo Oliveira, Antonio
+Campelo and Branca Silveira for the help.
 
 Thanks to Fernando Martins for the personal collection of viruses.
 

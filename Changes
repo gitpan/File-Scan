@@ -1,11 +1,18 @@
 Revision history for Perl extension File::Scan.
 
+0.14  Tue Mar 19 14:01:57 WET 2002
+	- added new virus signature and LoveLetter virus signature
+	  was updated
+	- minor bugfixes in scan_text method
+	- the Makefile.PL was changed
+
 0.13  Sat Mar 16 17:08:08 WET 2002
 	- added more three new virus signatures
         - minor bugfixes
 
 0.12  Mon Mar 11 10:56:36 WET 2002
 	- added three new virus signatures
+	- added new type 
 
 0.11  Sat Mar  9 17:30:07 WET 2002
 	- added new virus signatures

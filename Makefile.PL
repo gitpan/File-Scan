@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
+# Last Modification: Tue Mar 19 13:57:57 WET 2002
 
 use strict;
 
@@ -11,13 +12,16 @@ my $signs = "files/signatures.txt";
 my $script_lang = {
 	'in'  => {
 		"HTMLVBS" => "< *script[^>]+language *=[\"' ]*vbscript[\"']*[^>]*\>",
-#		"HTMLJS"  => "< *script[^>]+language *=[\"' ]*javascript[\"']*[^>]*\>",
+		"HTMLJS"  => "< *script[^>]+language *=[\"' ]*javascript[\"']*[^>]*\>",
 	},
 	'out' => {
 		"BAT"     => "Batch",
 		"JS"      => "JavaScript",
 		"VBS"     => "VBScript",
 		"TEST"    => "Test"
+	},
+	'mix' => {
+		"MIXVBS"  => "HTMLVBS/VBS"
 	}
 };
 
@@ -112,7 +116,7 @@ sub get_code {
 
 	my $today = &string_date();
 	my $code = <<ENDOFCODE1;
-# last change: $today
+# generated in: $today
 
 sub scan_text {
 	my \$file = shift;
@@ -136,22 +140,32 @@ ENDOFCODE1
 	for my $sl (keys(%{$script_lang->{'in'}})) {
 		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/ios) { \$script = \"$sl\"; }\n";
 	}
-	$code .= "\t\t\tunless(\$script) {\n";
-	for my $sl (keys(%{$script_lang->{'out'}})) {
-		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
-			$code .= "\t\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+	$code .= "\t\t}\n\t\tif(\$script) {\n";
+	for my $sl (keys(%{$script_lang->{'in'}})) {
+		if(scalar(keys(%{$patterns->{$sl}->{'0'}}))) {
+			$code .= "\t\t\tif(\$script eq \"$sl\") {\n";
+			while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
+				$code .= "\t\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+			}
+			$code .= "\t\t\t}\n";
 		}
 	}
-	$code .= "\t\t\t}\n\t\t}\n";
-
-	for my $sl (keys(%{$script_lang->{'in'}})) {
-		$code .= "\t\tif(\$script eq \"$sl\") {\n";
+	$code .= "\t\t} else {\n";
+	for my $sl (keys(%{$script_lang->{'out'}})) {
 		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
 			$code .= "\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
 		}
+	}
+	$code .= "\t\t}\n";
+	if(scalar(keys(%{$script_lang->{'mix'}}))) {
+		$code .= "\t\tunless(\$script eq \"HTMLJS\") {\n";
+		for my $sl (keys(%{$script_lang->{'mix'}})) {
+			while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
+				$code .= "\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+			}
+		}
 		$code .= "\t\t}\n";
 	}
-
 	$code .= <<ENDOFCODE2;
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
