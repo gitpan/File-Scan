@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Tue Sep  2 14:54:14 WEST 2003
+# Last Modification: Tue Sep  9 16:27:28 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.64';
+$VERSION = '0.65';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2003/09/02 15:50:50
+# generated in: 2003/09/09 16:35:56
 
 sub get_app_sign {
 	$_ = pop;
@@ -355,6 +355,7 @@ sub scan_binary {
 				}
 				if($total==7168) {
 					/\x62\x65\x67\x69\x6e\x20\x36\x34\x34\x20\x48\x61\x70\x70\x79\x39\x39\x2e\x65\x78\x65.+\x65\x6e\x64.+\x53\x6b\x61/s and $virus = "W32/Ska\@M", last LINE;
+					/\xfd\xff\xff\xff\x4d\x41\x49\x4c\x20\x46\x52\x4f\x4d\x3a\x20\x3c\x61\x64\x6d\x69\x6e\x40\x64\x75\x6d\x61\x2e\x67\x6f\x76\x2e\x72\x75\x3e\x03\x78\xdd\xdf\x20\x52\x43\x50\x54\x20\x54\x4f/s and $virus = "W32/Pate.b", last LINE;
 				}
 			} elsif($subtype == 4) {
 				if($total<=4096) {
