@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Sep 11 16:19:10 WEST 2004
+# Last Modification: Wed Sep 15 15:16:47 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.28';
+$VERSION = '1.29';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/09/11 17:52:10
+# generated in: 2004/09/15 15:25:05
 
 sub get_app_sign {
 	$_ = pop;
@@ -303,6 +303,9 @@ sub scan_binary {
 			}
 		} elsif($type == 4) {
 			if($subtype == 1) {
+				if($total==10240) {
+					/\x2d\x2d\x20\x42\x61\x67\x39\x20\x41\x75\x74\x68\x4f\x22\x32\x39\x61\xb7\x6f\xee\x2e\x30\x34\x02\x09\x47\x65\x72\x6d\x44\x79\x2e\x7d\x6f\xff/s and $virus = "W32/Bagle.aa\@MM", last LINE;
+				}
 				if($total==4096) {
 					/\x60\xe8\x01\x00\x00\x00\xe8\x83\xc4\x04\xe8\x01\x00\x00\x00\xe9\x5d\x81\xed\xd9\x21\x40\x00\xe8\x1b\x02\x00\x00\xe8\xeb\x08\xeb\x02\xcd\x20\xff\x24\x24\x9a\x66\xbe\x47\x46\xe8\x01\x00\x00\x00\x9a\x59\x8d\x95\x2b\x22\x40\x00\xe8\x01\x00\x00\x00\x69\x58\x66/s and $virus = "W32/Bagle.dll.gen", last LINE;
 				}
