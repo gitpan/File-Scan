@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.72  Tue Nov  4 11:36:56 WET 2003
+	- the W32/Mimail@MM virus signature has been updated again
+
 0.71  Mon Nov  3 15:16:42 WET 2003
 	- the W32/Mimail@MM virus signature was updated
 

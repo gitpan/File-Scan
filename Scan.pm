@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Nov  3 15:14:39 WET 2003
+# Last Modification: Tue Nov  4 11:36:27 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.71';
+$VERSION = '0.72';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2003/11/03 15:18:48
+# generated in: 2003/11/04 11:37:33
 
 sub get_app_sign {
 	$_ = pop;
@@ -408,7 +408,7 @@ sub scan_binary {
 					/\x73\x72\x63\x3d\x33[^\x44]*\x44\x63\x69\x64\x3a\x57\x38\x64\x71\x77\x71\x38[^\x71]*\x71\x39\x31\x4f\x31\x33/s and $virus = "W32/Frethem.fl\@MM", last LINE;
 				}
 				if($total==9216 || $total==10240) {
-					/\x35\x51\x55\x49\x54\x0d.{0,4}\x23\x02\x2e\x0d.{7}\x47\x44\x41\x54\x41.{0,4}\x24\x52\x43\x50.{1,5}\x54\x4f\x3a.\x0e\x4d\x41.{0,4}\x49\x4c\x12\x52\x4f\x4d\x10.{0,4}\x48\x45\x4c\x4f\x20\xfd\x6c/s and $virus = "W32/Mimail\@MM", last LINE;
+					/\x51\x55\x49\x54\x0d.{0,4}\x23\x02\x2e\x0d.{7}\x47\x44\x41\x54\x41.{0,4}\x24\x52\x43\x50.{1,5}\x54\x4f\x3a.\x0e\x4d\x41.{0,4}\x49\x4c\x12.{0,4}\x52\x4f\x4d\x10.{0,4}\x48\x45\x4c\x4f\x20\xfd\x6c/s and $virus = "W32/Mimail\@MM", last LINE;
 				}
 				if($total==267264) {
 					/\x7a\x68\x61\x6e\x67\x70\x6f\x00\x58\x2d\x4d\x61\x69\x6c\x65\x72/s and $virus = "W32/Zhangpo\@MM", last LINE;
