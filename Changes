@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.60  Mon Jul 28 15:05:22 WEST 2003
+	- added W32/Yaha.u@MM virus signature.
+	  Thanks to Jacky Hui Chun Kit <ckhui@school.net.hk>
+
 0.59  Tue Jul  1 14:15:24 WEST 2003
 	- added W32/Lovelorn@MM virus signature.
 	- added set_callback method to provide extra information and

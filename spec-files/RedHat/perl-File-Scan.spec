@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define version 0.59
+%define version 0.60
 %define release 1
 
 # Derived values
@@ -60,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}
 
 %changelog
+* Mon Jul 28 2003 Henrique Dias <hdias@aesbuc.pt>
+- Updated to 0.60
 * Mon Jul 01 2003 Henrique Dias <hdias@aesbuc.pt>
 - Updated to 0.59
 * Fri Jun 26 2003 Henrique Dias <hdias@aesbuc.pt>
