@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+0.34  Mon Jul 22 12:23:16 WEST 2002
+	- added new appliaction signature to Makefile.PL
+	- added four new virus signatures (W32/Sentral.dr, VBS/Funtime,
+	  W32/Idele, JS/Germinal) and W32/Plex@MM, W32/Yaha.gen@MM and
+	  W32/Chiton.ab.dr virus signatures was updated.
+
 0.33  Mon Jul 15 11:26:24 GMT 2002
 	- rename W32/Frethem.f@MM virus signature to W32/Frethem.fl@MM
 	- added two new virus signatures (W32/Duni.worm.b and W32/Plex@MM) 

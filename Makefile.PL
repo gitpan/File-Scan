@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Tue Jul  2 11:56:14 WEST 2002
+# Last Modification: Mon Jul 22 10:47:56 WEST 2002
 
 use strict;
 
@@ -40,6 +40,7 @@ my $app_signatures = {
 					{ type => '4d5a900003',
 					  sign => '\x4d\x5a\x90\x00\x03', }, ],
 				},
+	'4d534654'         => { sign     => '\x4d\x53\x46\x54', },
 	'49545346'         => { sign     => '\x49\x54\x53\x46', },
 	'd0cf11e0a1b11ae1' => { sign     => '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1', },
 	'474554'           => { sign     => '\x47\x45\x54', },
