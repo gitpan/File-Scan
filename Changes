@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.69  Fri Oct 10 15:06:36 WEST 2003
+	- the W32/Swen@MM virus signature was updated
+
 0.68  Tue Sep 30 11:27:18 WEST 2003
 	- examples/procmail/scanvirus.pl: the version was updated to 0.04
 	- examples/procmail/scanvirus.pl: the problem with "die" in
