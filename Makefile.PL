@@ -59,7 +59,13 @@ sub load_signatures {
 		chomp;
 		my @elem = split(/::/);
 		$elem[2] =~ s/\@/\\\@/g;
-		$elem[3] =~ s/ //g;
+		$elem[3] =~ s/ +//g;
+		$elem[3] =~ s/lt/\</ig;
+		$elem[3] =~ s/le/\<\=/ig;
+		$elem[3] =~ s/gt/\>/ig;
+		$elem[3] =~ s/ge/\>\=/ig;
+		$elem[3] =~ s/or/\|\|/ig;
+		$elem[3] =~ s/and/\&\&/ig;
 		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g if($elem[1]);
 		$hash->{$elem[1]}->{$elem[3]}->{$elem[2]} = $elem[4];
 	}

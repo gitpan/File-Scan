@@ -1,0 +1,62 @@
+Write signatures for binary files
+Henrique Dias <hdias@esb.ucp.pt>
+Last Change: Mon Feb 18 11:20:44 WET 2002
+
+This document provides suggestions for write signatures for viruses.
+
+Creates a hex dump file of a given infected binary file (You can use
+xxd program).
+
+$xxd file.exe > file.hex
+
+Edit the file.hex with your favorite text editor.
+
+(Exemple from a file infected whith SirCam)
+
+0000000: 4d5a 5000 0200 0000 0400 0f00 ffff 0000  MZP.............
+0000010: b800 0000 0000 0000 4000 1a00 0000 0000  ........@.......
+0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000030: 0000 0000 0000 0000 0000 0000 0001 0000  ................
+0000040: ba10 000e 1fb4 09cd 21b8 014c cd21 9090  ........!..L.!..
+...
+00215d0: 0000 0000 0000 0000 0000 0000 263d 4f38  ............&=O8
+00215e0: c282 37b8 f324 4203 179b 3a83 0100 00cc  ..7..$B...:.....
+00215f0: 0000 0000 1900 0000 01a0 5343 616d 3332  ..........SCam32
+0021600: 0010 834d 494d 4570 6172 7400 1073 5379  ...MIMEpart..sSy
+
+Look for a pattern or strings that they can identify the virus.
+
+From the example you can use "SCam32" in hex "5343616d3332". This 
+signatures can identify the SirCam virus in a binary file.
+
+Now you need add this signature to the file signature database.
+
+Format of file signature:
+date::file_type::name::condition::signature
+
+File Types:
+------------------------
+0	text files
+1	other files
+2	4d5a900003000000
+3	4d5a000002000000
+4	4d5a500002000000
+------------------------
+
+If you look at first line of hex file, the file_type is 4.
+
+Conditions:
+---------------------------------------------
+0		Scan all file
+lt/le n		Stop scan after read n bytes 
+gt/ge n		Scan only before read n bytes
+or
+and
+---------------------------------------------
+
+The result line:
+20020218::4::SirCam::0::5343616d3332
+
+For better virus name look at:
+http://vil.nai.com/vil/default.asp
+http://www.antivirus.com/vinfo/virusencyclo/

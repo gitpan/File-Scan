@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Fri Feb 15 10:56:34 WET 2002
+# Last Change: Mon Feb 18 11:04:46 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.02";
+my $VERSION = "0.03";
 
 my $infected = 0;
 my $objects = 0;
@@ -20,16 +20,19 @@ my $EXTENSION = "";
 my $CP_DIR = "";
 my $MV_DIR = "";
 my $DELETE = 0;
+my $FOLLOW = 0;
 
 die(short_usage()) unless(scalar(@ARGV));
 
 my $opt = {};
 Getopt::Long::GetOptions($opt,
-	"help" => \&usage,
-	"ext"  => \$EXTENSION,
-	"cp"   => \$CP_DIR,
-	"mv"   => \$MV_DIR,
-	"del"  => sub { $DELETE = 1; },
+	"help"    => \&usage,
+	"version" => \&print_version,
+	"ext"     => \$EXTENSION,
+	"cp"      => \$CP_DIR,
+	"mv"      => \$MV_DIR,
+	"del"     => sub { $DELETE = 1; },
+	"follow"  => sub { $FOLLOW = 1; },
 ) or die(short_usage());
 
 &main();
@@ -64,7 +67,7 @@ sub display_msg {
 	my $virus = shift;
 
 	$objects++;
-	my $string = "...";
+	my $string = "No viruses were found";
 	if($virus) {
 		$infected++;
 		$string = "Infection: $virus";
@@ -113,7 +116,7 @@ sub dir_handle {
 	for my $item (readdir(DIRHANDLE)) {
 		next if($item =~ /^\./);
 		my $f = "$dir_path/$item";
-		next if(-l $f);
+		next if(!$FOLLOW && (-l $f));
 		if(-d $f) {
 			&dir_handle($fs, $f);
 		} else {
@@ -137,10 +140,25 @@ usage: $0 [options] file|directory
   --cp=/path/to/dir
   --mv=/path/to/dir
   --del
+  --follow
+  --version
   --help
         
 EOUSAGE
 
+}
+
+#---print_version-----------------------------------------------------------
+
+sub print_version {
+	print STDERR <<"VERSION";
+
+version $VERSION
+
+Copyright 2002, Henrique Dias
+
+VERSION
+	exit 1;
 }
 
 #---usage-------------------------------------------------------------------
@@ -158,6 +176,10 @@ Possible options are:
   --cp=<dir>     copy the infected file to the specified directory
 
   --del          delete the infected file
+
+  --follow       follow symbolic links
+
+  --version      print version number
 
   --help         Print this message and exit
 

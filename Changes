@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+0.04  Sat Feb 16 17:25:32 WET 2002
+	- added docs directory for specific documentation and file 
+	  write_sign_bin.txt
+	- added new signatures
+	- examples/scan.pl: add --version and --follow options
+
 0.03  Fri Feb 15 13:28:34 WET 2002
 	- improved the speed of scan_text function in 24%
 	- examples/scan.pl: fixed the problem with symbolic links in
@@ -13,4 +19,3 @@ Revision history for Perl extension File::Scan.
 0.01  Mon Feb 11 15:32:08 2002
 	- original version; created by h2xs 1.20 with options
 		-A -X -n File::Scan
-

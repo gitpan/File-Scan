@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 $ERROR = "";
 
