@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Sat Mar 23 18:03:41 WET 2002
+# Last Modification: Wed Mar 27 13:02:08 WET 2002
 
 use strict;
 
@@ -136,6 +136,22 @@ sub get_code {
 	my $code = <<ENDOFCODE1;
 # generated in: $today
 
+sub get_app_sign {
+	\$_ = shift;
+ENDOFCODE1
+	while(my($key, $value) = each(%app_signatures)) {
+		$code .= "\tif(/\^$value/so) \{ return(\"$key\"); \}\n";
+	}
+	$code .= <<ENDOFCODE2;
+	return();
+}
+
+sub exception {
+	\$_ = shift;
+	if(/^%PDF-/o) { return(1); }
+	return(0);
+}
+
 sub scan_text {
 	my \$file = shift;
 
@@ -148,13 +164,11 @@ sub scan_text {
 	open(FILE, "<\$file") or return(&set_error("\$!"));
 	LINE: while(read(FILE, \$buff, \$size)) {
 		study;
-		unless(\$save) {
-			if(\$buff =~ /^%PDF-/o) { \$skip = 1; last LINE; }
-		}
+		unless(\$save) { last LINE if(\$skip = &exception(\$buff)); }
 		\$save .= \$buff;
 		unless(\$script) {
 			\$_ = lc(\$save);
-ENDOFCODE1
+ENDOFCODE2
 	for my $sl (keys(%{$script_lang->{'in'}})) {
 		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/os) { \$script = \"$sl\"; }\n";
 	}
@@ -184,7 +198,7 @@ ENDOFCODE1
 		}
 		$code .= "\t\t}\n";
 	}
-	$code .= <<ENDOFCODE2;
+	$code .= <<ENDOFCODE3;
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
@@ -211,13 +225,7 @@ sub scan_binary {
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first);
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
-			\$_ = \$begin;
-ENDOFCODE2
-	while(my($key, $value) = each(%app_signatures)) {
-		$code .= "\t\t\tif(/\^$value/so) \{ \$vtype = \"$key\"; \}\n";
-	}
-	$code .= <<ENDOFCODE3;
-			unless(\$vtype) { \$skip = 1; last LINE; }
+			unless(\$vtype = &get_app_sign(\$begin)) { \$skip = 1; last LINE; }
 		}
 		\$save .= \$buff;
 		unless(\$suspicious) {

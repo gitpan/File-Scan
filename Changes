@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.17  Thu Mar 28 12:42:20 WET 2002
+	- added new virus signatures and Magistr virus signature
+	  was updated
+	- minor feature enhancements in Makefile.PL
+
 0.16  Sat Mar 23 18:21:13 WET 2002
 	- added more three new virus signatures
 	- improved the speed
