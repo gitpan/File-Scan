@@ -2,8 +2,8 @@ THE PROGRAMS IN THIS DIRECTORY ARE EXAMPLES.
 
 Instalation:
 
-Copy .procmailrc and scanvirus.pl files for your home
+1. Copy .procmailrc and scanvirus.pl files for your home
 
-Edit the scanvirus.pl file whith your favorite editor
+2. Edit the scanvirus.pl file whith your favorite editor
 
-Change configuration
+3. Change configuration

@@ -1,10 +1,16 @@
 Revision history for Perl extension File::Scan.
 
+0.27  Mon May 20 12:24:41 WEST 2002
+	- added two new virus signatures (VBS/Chick.d@M and W32/Choke.c.worm)
+	- changed the VBS/BritneyPic@MM virus name to VBS/Chick.a@M
+	  and signature was updated
+	- the perl-File-Scan.spec file was updated
+
 0.26  Tue May 14 11:29:26 WEST 2002
 	- added four new virus signatures (W32/Trilisa@MM, 
 	  IRC/Theme.worm.dr, W32/Haiku@MM and W32/Zhangpo)
 	- procmail recipe example for scan incoming mail was added
-	- Provide perl-File-Scan.spec to build .rpm for RedHat 7.2.
+	- provide perl-File-Scan.spec to build .rpm for RedHat 7.2.
 	  Thanks to Michael McLagan <michael.mcLagan@linux.org>
 
 0.25  Sat May  4 19:41:19 WEST 2002

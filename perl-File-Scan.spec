@@ -1,35 +1,36 @@
 %define class File
 %define subclass Scan
-%define version 0.26
+%define version 0.27
 %define release 1
 
 # Derived values
-%define real_name %{class}-%{subclass}
-%define name perl-%{real_name}
+%define module %{class}-%{subclass}
+%define perlver %(rpm -q perl --queryformat '%%{version}' 2>/dev/null)
 
-Summary: 	Perl module %{class}::%{subclass}
-Name: 		%{name}
-Version: 	%{version}
-Release: 	%{release}
-Group: 		Development/Perl
-License:        See documentation
-Source: 	http://www.cpan.org/modules/by-module/%{class}/%{real_name}-%{version}.tar.gz
-Url: 		http://www.cpan.org/modules/by-module/%{class}
-Packager:       Michael McLagan <Michael.McLagan@linux.org>
-BuildRequires:	perl >= 5.6.1
-BuildArch: 	noarch
-BuildRoot: 	%{_tmppath}/%{name}-root/
-Requires: 	perl >= 5.6.1
+Summary:	Perl module %{class}::%{subclass}
+Name:		perl-%{module}
+Version:	%{version}
+Release:	%{release}
+Group:		Development/Perl
+License:	See documentation
+Vendor:		Henrique Dias <hdias@esb.ucp.pt>
+Source:		http://www.cpan.org/modules/by-module/%{module}-%{version}.tar.gz
+Url:		http://www.cpan.org/modules/by-module/%{class}
+BuildRequires:	perl
+BuildArch:	noarch
+BuildRoot:	%{_tmppath}/%{name}-root/
+Requires:	perl = %{perlver}
+Provides:	%{module} = %{version}
 
 %description
-Perl module which implements the %{class}::%{subclass} class.  
+Perl module which implements the %{class}::%{subclass} class. 
 
 %prep
-%setup -q -n %{real_name}-%{version}
+%setup -q -n %{module}-%{version}
 
 %build
 %{__perl} Makefile.PL
-make OPTIMIZE="$RPM_OPT_FLAGS"
+%{__make} OPTIMIZE="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -40,15 +41,12 @@ mkdir -p $RPM_BUILD_ROOT%{_bindir}
 install -m 755 examples/scan.pl $RPM_BUILD_ROOT%{_bindir}/virusscan
 
 # Clean up some files we don't want/need
-rm -rf `find $RPM_BUILD_ROOT -name "perllocal.pod"`
-rm -rf `find $RPM_BUILD_ROOT -name ".packlist" -o -name "*.bs"`
+rm -rf `find $RPM_BUILD_ROOT -name "perllocal.pod" -o \
+		-name ".packlist" -o \
+		-name "*.bs"`
 
 # Remove all empty directories
-for i in `find $RPM_BUILD_ROOT -type d | tac`; do
-   if [ -d $i ]; then 
-      rmdir --ign -p $i;
-   fi
-done
+find $RPM_BUILD_ROOT%{_prefix} -type d | tac | xargs rmdir --ign
 
 %clean
 HERE=`pwd`
@@ -62,9 +60,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}
 
 %changelog
-* Mon May 14 2002 Michael McLagan  <michael.mclagan@linux.org>
+* Sat May 20 2002 Michael McLagan <michael.mclagan@linux.org>
+- Updated to 0.27
+* Mon May 14 2002 Michael McLagan <michael.mclagan@linux.org>
 - Updated to 0.26
-* Sun May 05 2002 Michael McLagan  <michael.mclagan@linux.org>
+  Inserted code to adapt to perl version
+  Replaced real_name macro with module
+* Sun May 05 2002 Michael McLagan <michael.mclagan@linux.org>
 - Updated to 0.25
   Fixed a couple of items in spec file
 * Tue Apr 30 2002 Michael McLagan <michael.mclagan@linux.org>

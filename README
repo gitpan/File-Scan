@@ -1,4 +1,4 @@
-This is the README file for the PERL module File::Scan for Version 0.26
+This is the README file for the PERL module File::Scan for Version 0.27
 
 File::Scan - Perl extension for Scanning files for Viruses
 
@@ -20,7 +20,7 @@ Rpm Packages
 
   Platform: RedHat 7.2
   Author: Michael McLagan
-  Url: http://ftp.redhat.com:/pub/contrib/noarch/noarch/
+  Url: ftp://ftp.redhat.com/pub/contrib/noarch/noarch/
 
 To get the most recent version:
 
