@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.35  Fri Aug 30 12:19:17 WEST 2002
+	- added seven new virus signatures (BackDoor-AJH, W32/Stopin.b@MM,
+	  W32/Cecile.dr, W32/Bika.gen, VBS/Hatred.gen, W32/EnerKaz.worm.a
+	  and W32/Hokilo.worm).
+
 0.34  Mon Jul 22 12:23:16 WEST 2002
 	- added new appliaction signature to Makefile.PL
 	- added four new virus signatures (W32/Sentral.dr, VBS/Funtime,
