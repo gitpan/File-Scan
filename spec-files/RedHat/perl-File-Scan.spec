@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define version 0.38
+%define version 0.39
 %define release 1
 
 # Derived values
@@ -13,7 +13,7 @@ Version:	%{version}
 Release:	%{release}
 Group:		Development/Perl
 License:	See documentation
-Vendor:		Henrique Dias <hdias@esb.ucp.pt>
+Vendor:		Henrique Dias <hdias@aesbuc.pt>
 Source:		http://www.cpan.org/modules/by-module/%{module}-%{version}.tar.gz
 Url:		http://www.cpan.org/modules/by-module/%{class}
 BuildRequires:	perl
@@ -60,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}
 
 %changelog
+* Sat Dec 28 2002 Henrique Dias <hdias@esb.ucp.pt>
+- Updated to 0.39
 * Tue Nov 12 2002 Henrique Dias <hdias@esb.ucp.pt>
 - Updated to 0.38
 * Fri Oct 02 2002 Henrique Dias <hdias@esb.ucp.pt>

@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define _version 0.38
+%define _version 0.39
 %define _release 1
 
 # Derived values
@@ -29,7 +29,7 @@ Version:	%{_version}
 Release:	%{distro_release}
 Group:		%{distro_group}
 License:	GPL/Artistic License - see documentation
-Vendor:		Henrique Dias <hdias@esb.ucp.pt>
+Vendor:		Henrique Dias <hdias@aesbuc.pt>
 Packager:	Pascal Bleser <guru@unixtech.be>
 Source:		http://www.cpan.org/modules/by-module/%{module}-%{version}.tar.gz
 Url:		http://www.cpan.org/modules/by-module/%{class}
@@ -168,6 +168,8 @@ fi
 %endif
 
 %changelog
+* Sat Dec 28 2002 Henrique Dias <hdias@aesbuc.pt>
+- Updated to 0.39
 * Fri Nov 12 2002 Henrique Dias <hdias@esb.ucp.pt>
 - Updated to 0.38
 - fixed a small bug in spec-file

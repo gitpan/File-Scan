@@ -1,8 +1,8 @@
 #
 # Scan.pm
-# Last Modification: Tue Nov 12 16:26:52 WET 2002
+# Last Modification: Sat Dec 28 19:40:02 WET 2002
 #
-# Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
+# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 #
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.38';
+$VERSION = '0.39';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -69,7 +69,7 @@ sub scan {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
 			my $newname = "$file\." . $self->{'extension'};
 			if(move($file, $newname)) { $file = $newname; }
-			else { &set_error("Failed to move '$file' to $newname"); }
+			else { &set_error("Failed to move '$file' to '$newname'"); }
 		}
 		if($self->{'copy'}) {
 			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
@@ -81,12 +81,12 @@ sub scan {
 		}
 		if($self->{'move'}) {
 			if(!(-d $self->{'move'}) && $self->{'mkdir'}) {
-				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error("Failed to create directory '" . $self->{'move'} . "' $!");
+				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $mvfile = $self->{'move'} . "/$f";
 			if(move($file, $mvfile)) { $file = $mvfile; }
-			else { &set_error("Failed to move '$file' to $mvfile"); }
+			else { &set_error("Failed to move '$file' to '$mvfile'"); }
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
@@ -232,7 +232,7 @@ This method return a error message if a error happens.
 
 =head1 AUTHOR
 
-Henrique Dias <hdias@esb.ucp.pt>
+Henrique Dias <hdias@aesbuc.pt>
 
 =head1 CREDITS
 

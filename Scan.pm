@@ -1,8 +1,8 @@
 #
 # Scan.pm
-# Last Modification: Tue Nov 12 16:26:52 WET 2002
+# Last Modification: Sat Dec 28 19:40:02 WET 2002
 #
-# Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
+# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 #
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.38';
+$VERSION = '0.39';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -69,7 +69,7 @@ sub scan {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
 			my $newname = "$file\." . $self->{'extension'};
 			if(move($file, $newname)) { $file = $newname; }
-			else { &set_error("Failed to move '$file' to $newname"); }
+			else { &set_error("Failed to move '$file' to '$newname'"); }
 		}
 		if($self->{'copy'}) {
 			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
@@ -81,12 +81,12 @@ sub scan {
 		}
 		if($self->{'move'}) {
 			if(!(-d $self->{'move'}) && $self->{'mkdir'}) {
-				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error("Failed to create directory '" . $self->{'move'} . "' $!");
+				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $mvfile = $self->{'move'} . "/$f";
 			if(move($file, $mvfile)) { $file = $mvfile; }
-			else { &set_error("Failed to move '$file' to $mvfile"); }
+			else { &set_error("Failed to move '$file' to '$mvfile'"); }
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/11/12 16:55:57
+# generated in: 2002/12/28 19:43:25
 
 sub get_app_sign {
 	$_ = pop;
@@ -375,6 +375,9 @@ sub scan_binary {
 				if($total==11264) {
 					/\x49\x00\x20\x00\x63\x00\x6f\x00\x6d\x00\x65\x00\x20\x00\x69\x00\x6e\x00\x20\x00\x70\x00\x69\x00\x65\x00\x63\x00\x65\x00\x2e\x00\x20\x00\x20\x00\x20\x00\x4d\x00\x79\x00\x20\x00\x6e\x00\x61\x00\x6d\x00\x65\x00\x20\x00\x69\x00\x73\x00\x20\x00\x4a\x00\x65\x00\x72\x00\x72\x00\x79/s and $virus = "W32/Choke.c.worm", last LINE;
 				}
+				if($total==15360) {
+					/\x57\x00\x69\x00\x6e\x00\x33\x00\x32\x00\x2e\x00\x6d\x00\x65\x00\x72\x00\x63\x00\x75\x00\x72\x00\x79\x00\x20\x00\x43\x00\x6f\x00\x64\x00\x65\x00\x64\x00\x20\x00\x62\x00\x79\x00\x20\x00\x49\x00\x6e\x00\x64\x00\x75\x00\x73\x00\x74\x00\x72\x00\x79\x00\x20\x00\x40\x00\x20\x00\x41\x00\x4e\x00\x56\x00\x58\x00\x67\x00\x72\x00\x6f\x00\x75\x00\x70/s and $virus = "W32/Merkur\@MM", last LINE;
+				}
 				if($total==14336) {
 					/\x47\x00\x6f\x00\x62\x00\x6f\x00.+\x74\x00\x65\x00\x61\x00\x6d\x00\x76\x00\x69\x00\x72\x00\x75\x00\x73.+\x4b\x00\x61\x00\x72\x00\x65\x00\x6e/s and $virus = "W32/Gokar\@MM", last LINE;
 				}
@@ -579,7 +582,7 @@ This method return a error message if a error happens.
 
 =head1 AUTHOR
 
-Henrique Dias <hdias@esb.ucp.pt>
+Henrique Dias <hdias@aesbuc.pt>
 
 =head1 CREDITS
 

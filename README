@@ -1,4 +1,4 @@
-This is the README file for the PERL module File::Scan for Version 0.38
+This is the README file for the PERL module File::Scan for Version 0.39
 
 File::Scan - Perl extension for Scanning files for Viruses
 
@@ -38,10 +38,10 @@ You can access the File::Scan documentation with perldoc File::Scan
 For examples look at examples directory (includes a virus scanner).
 
 For submitting new virus or virus patterns please send a mail to
-hdias@esb.ucp.pt (please compress the files if they will have virus).
+hdias@aesbuc.pt (please compress the files if they will have virus).
 
 Questions, bug reports, useful code bits, and suggestions for File::Scan
-hould just be sent to me at hdias@esb.ucp.pt
+hould just be sent to me at hdias@aesbuc.pt
 
 Copyright (c) 2002 Henrique Dias. All rights reserved.
 This program is free software; you can redistribute it and/or

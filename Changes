@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.39  Sat Dec 28 19:47:47 WET 2002
+	- added W32/Merkur@MM virus signature.
+	- my email address has changed to hdias@aesbuc.pt.
+
 0.38  Tue Nov 12 16:55:02 WET 2002
 	- added W32/Braid@MM virus signature.
 	- spec-files directory was added.

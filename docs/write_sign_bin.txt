@@ -1,6 +1,6 @@
 Write signatures for binary files
-Henrique Dias <hdias@esb.ucp.pt>
-Last Change: Mon Apr 22 12:29:35 WEST 2002
+Henrique Dias <hdias@aesbuc.pt>
+Last Change: Sat Dec 28 19:46:22 WET 2002
 
 This document provides suggestions for write signatures for viruses.
 

@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Mon Jul 22 10:47:56 WEST 2002
+# Last Modification: Sat Dec 28 19:46:59 WET 2002
 
 use strict;
 
@@ -58,7 +58,7 @@ my $code = &get_code($hash);
 my @ppd;
 if ($] >= 5.00503) {
 	@ppd = (
-		'AUTHOR'   => 'Henrique Dias <hdias@esb.ucp.pt>',
+		'AUTHOR'   => 'Henrique Dias <hdias@aesbuc.pt>',
 		'ABSTRACT' => 'Extension for Scanning files for Viruses',
 	);
 }

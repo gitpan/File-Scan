@@ -2,8 +2,8 @@
 #############################################################################
 #
 # Get the most recent version of File::Scan module from CPAN
-# Last Change: Sat Apr 27 16:57:27 WEST 2002
-# Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
+# Last Change: Sat Dec 28 19:45:31 WET 2002
+# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>
 #
 #############################################################################
 use strict;

@@ -2,8 +2,8 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Thu Jun 12 10:30:46 WEST 2002
-# Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
+# Last Change: Sat Dec 28 20:10:40 WET 2002
+# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>
 #
 #############################################################################
 use strict;
