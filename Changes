@@ -1,8 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+1.39  Tue Dec 21 18:38:04 WET 2004
+	- added two new virus signatures (W32/Netsky.z@MM and
+	  W32/Zafi.d@MM).
+	- added '4d5a000000' new application signature to Makefile.PL
+
 1.38  Mon Nov 22 19:51:18 WET 2004
 	- added three new virus signatures (W32/Lovgate.af@MM,
-	  W32/Lovgate.q@MM and W32/Sober.j@MM);
+	  W32/Lovgate.q@MM and W32/Sober.j@MM).
 
 1.37  Sat Nov  6 16:59:30 WET 2004
 	- added three new virus signatures (VBS/Inor.encoded,
