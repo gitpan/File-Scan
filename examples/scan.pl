@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Wed Feb 27 13:26:12 WET 2002
+# Last Change: Sat Mar  2 18:01:25 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.06";
+my $VERSION = "0.07";
 
 my $infected = 0;
 my $objects = 0;
@@ -25,6 +25,14 @@ my $DELETE = 0;
 my $FOLLOW = 0;
 my $MAXTXTSIZE = 0;
 my $MAXBINSIZE = 0;
+
+my %skipcodes = (
+	1 => "file not vulnerable",
+	2 => "file has zero size",
+	3 => "the size of file is small",
+	4 => "file size exceed the maximum text size",
+	5 => "file size exceed the maximum binary size",
+);
 
 die(short_usage()) unless(scalar(@ARGV));
 
@@ -107,9 +115,9 @@ sub check_path {
 		} elsif(-e $p) {
 			my $res = $fs->scan($p);
 			if(my $e = $fs->error) { print"$e\n"; }
-			elsif($fs->skipped) {
+			elsif(my $c = $fs->skipped) {
 				$skipped++;
-				print "$p File Skipped\n";
+				print "$p File Skipped (" . $skipcodes{$c} . ")\n";
 			} else { &display_msg($p, $res); }
 		} else {
 			print "No such file or directory: $p\n";
@@ -139,9 +147,9 @@ sub dir_handle {
 		} else {
 			my $res = $fs->scan($f);
 			if(my $e = $fs->error) { print"$e\n"; }
-			elsif($fs->skipped) {
+			elsif(my $c = $fs->skipped) {
 				$skipped++;
-				print "$f File Skipped\n";
+				print "$f File Skipped (" . $skipcodes{$c} . ")\n";
 			} else { &display_msg($f, $res); }
 		}
 	}

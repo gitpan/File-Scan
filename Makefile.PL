@@ -5,14 +5,24 @@ use ExtUtils::MakeMaker;
 use strict;
 
 my $bufflen = 1024;
+my $min_txt_size = 0;
 my $signs = "files/signatures.txt";
 
-my %script_lang = (
-	"BAT" => "Batch",
-	"JS"  => "JavaScript",
-	"VBS" => "VBScript");
+my $script_lang = {
+	'in'  => {
+		"HTMLVBS" => "< *script[^>]+language *=[\"' ]*vbscript[\"']*[^>]*\>",
+#		"HTMLJS"  => "< *script[^>]+language *=[\"' ]*javascript[\"']*[^>]*\>",
+	},
+	'out' => {
+		"BAT"     => "Batch",
+		"JS"      => "JavaScript",
+		"VBS"     => "VBScript",
+		"TEST"    => "Test"
+	}
+};
 
 my %app_signatures = (
+	'49545346'         => '\x49\x54\x53\x46',
 	'd0cf11e0a1b11ae1' => '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1',
 	'4d5a'             => '\x4d\x5a',
 	'474554'           => '\x47\x45\x54',
@@ -50,6 +60,10 @@ WriteMakefile(
 sub load_signatures {
 	my $file = shift;
 
+	my %script = ();
+	@script{keys(%{$script_lang->{'in'}})} = ();
+	@script{keys(%{$script_lang->{'out'}})} = ();
+
 	my $hash = {};
 	open(FILE, "<$file") or die("$!");
 	while(<FILE>) {
@@ -64,8 +78,13 @@ sub load_signatures {
 		$elem[3] =~ s/ge/\>\=/ig;
 		$elem[3] =~ s/or/\|\|/ig;
 		$elem[3] =~ s/and/\&\&/ig;
-		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g unless(exists($script_lang{$elem[1]}));
+		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g unless(exists($script{$elem[1]}));
 		$hash->{$elem[1]}->{$elem[3]}->{$elem[2]} = $elem[4];
+		if(exists($script{$elem[1]})) {
+			$elem[4] =~ s/[^\w\. ]//g;
+			my $len = length($elem[4]);
+			$min_txt_size = $len if($len < $min_txt_size || !$min_txt_size);
+		}
 	}
 	close(FILE);
 	return($hash);
@@ -77,6 +96,7 @@ sub make_module {
 	open(BASEFILE, "<files/Scan.base") or die("$!");
 	open(PMFILE, ">Scan.pm") or die("$!");
 	while(<BASEFILE>) {
+		s/\$min_txt_size/$min_txt_size/;
 		print PMFILE $_;
 		if(/^__DATA__/) {
 			print PMFILE $code;
@@ -96,19 +116,47 @@ sub get_code {
 sub scan_text {
 	my \$file = shift;
 
-	local \$/ = "\\0";
-	local *FILE;
+	my \$buff = "";
+	my \$save = "";
+	my \$skip = 0;
+	my \$virus = "";
+	my \$script = "";
+	my \$size = $bufflen;
 	open(FILE, "<\$file") or return(&set_error("\$!"));
-	\$_ = <FILE>;
-	close(FILE);
+	LINE: while(read(FILE, \$buff, \$size)) {
+		study;
+		unless(\$save) {
+			if(\$buff =~ /^%PDF-/o) { \$skip = 1; last LINE; }
+		}
+		\$save .= \$buff;
+		\$_ = \$save;
+		unless(\$script) {
 ENDOFCODE1
-	for my $sl (keys(%script_lang)) {
+	for my $sl (keys(%{$script_lang->{'in'}})) {
+		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/ios) { \$script = \"$sl\"; }\n";
+	}
+	$code .= "\t\t\tunless(\$script) {\n";
+	for my $sl (keys(%{$script_lang->{'out'}})) {
 		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
-			$code .= "\treturn(\"$key\") if(\/$value\/iso);\n";
+			$code .= "\t\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
 		}
 	}
+	$code .= "\t\t\t}\n\t\t}\n";
+
+	for my $sl (keys(%{$script_lang->{'in'}})) {
+		$code .= "\t\tif(\$script eq \"$sl\") {\n";
+		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
+			$code .= "\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+		}
+		$code .= "\t\t}\n";
+	}
+
 	$code .= <<ENDOFCODE2;
-	return();
+		\$save = substr(\$buff, (length(\$buff)/2));
+	}
+	close(FILE);
+	&set_skip(\$skip) if(\$skip);
+	return(\$virus);
 }
 
 sub scan_binary {
@@ -128,10 +176,10 @@ sub scan_binary {
 		\$total += length(\$buff);
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first);
-			last LINE unless(length(\$begin) >= $first);
+			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
 ENDOFCODE2
 	while(my($key, $value) = each(%app_signatures)) {
-		$code .= "\t\t\tif(\$begin =~ /\^$value/o) \{ \$vtype = \"$key\"; \}\n";
+		$code .= "\t\t\tif(\$begin =~ /\^$value/so) \{ \$vtype = \"$key\"; \}\n";
 	}
 	$code .= <<ENDOFCODE3;
 			unless(\$vtype) { \$skip = 1; last LINE; }
@@ -161,7 +209,7 @@ ENDOFCODE3
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
-	&set_skip(1) if(\$skip);
+	&set_skip(\$skip) if(\$skip);
 	return(\$virus);
 }
 ENDOFCODE4

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Feb 27 10:57:28 WET 2002
+# Last Modification: Sat Mar  2 18:01:25 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -16,10 +16,10 @@ require Exporter;
 use File::Copy;
 use SelfLoader;
 
-use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $virustxt %keywords);
+use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED);
 
 @ISA = qw(Exporter);
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -50,15 +50,17 @@ sub scan {
 	&set_error();
 	&set_skip();
 	return(&set_error("No such file or directory: $file")) unless(-e $file);
-	return(&set_error("File has zero size (is empty): $file")) if(-z $file);
+	my $fsize = -s $file;
+	return(&set_skip(2)) unless($fsize);
 	my $res = "";
-	if(-T $file) {
-		return(&set_error("File '$file' is to big"))
-			if($self->{'max_txt_size'} && (-s $file > $self->{'max_txt_size'} * 1024));
+	if(-f $file && -T $file) {
+		return(&set_skip(3)) if($fsize < 40);
+		return(&set_skip(4))
+			if($self->{'max_txt_size'} && ($fsize > $self->{'max_txt_size'} * 1024));
 		$res = &scan_text($file);
 	} else {
-		return(&set_error("File '$file' is to big"))
-			if($self->{'max_bin_size'} && (-s $file > $self->{'max_bin_size'} * 1024));
+		return(&set_skip(5))
+			if($self->{'max_bin_size'} && ($fsize > $self->{'max_bin_size'} * 1024));
 		$res = &scan_binary($file);
 	}
 	if($res) {
@@ -109,24 +111,46 @@ sub skipped { $SKIPPED; }
 1;
 
 __DATA__
-# last change: 2002/02/27 13:34:27
+# last change: 2002/03/02 18:23:24
 
 sub scan_text {
 	my $file = shift;
 
-	local $/ = "\0";
-	local *FILE;
+	my $buff = "";
+	my $save = "";
+	my $skip = 0;
+	my $virus = "";
+	my $script = "";
+	my $size = 1024;
 	open(FILE, "<$file") or return(&set_error("$!"));
-	$_ = <FILE>;
+	LINE: while(read(FILE, $buff, $size)) {
+		study;
+		unless($save) {
+			if($buff =~ /^%PDF-/o) { $skip = 1; last LINE; }
+		}
+		$save .= $buff;
+		$_ = $save;
+		unless($script) {
+			if(/< *script[^>]+language *=["' ]*vbscript["']*[^>]*>/ios) { $script = "HTMLVBS"; }
+			unless($script) {
+				if(/X5O\!P\%\@AP\[4\\PZX54\(P\^\)7CC\)7\}\$EICAR-STANDARD-ANTIVIRUS-TEST-FILE\!\$H\+H\*/so) { $virus = "EICAR-Test-File"; last LINE; }
+				if(/Prinz Charles Are Die.+The newest Message for Cool User.+vbcrlf.+Lucky2000.+COOL_NOTEPAD_DEMO.TXT.vbs/so) { $virus = "VBS/CoolNote.worm"; last LINE; }
+				if(/Danger.+FindMapper.+printer.+ScriptMaps".+Danger.+FindMapper.+vNewCount.+LocalHost.+W3SVC.+Root/so) { $virus = "W32/CodeBlue.worm"; last LINE; }
+				if(/WScript\.Shell.+HKEY_LOCAL_MACHINE.+exefile.+\\con\\con.+Welcome.+intDoIt.+Welcome.+vbCancel.+WScript\.Quit/so) { $virus = "VBS/Concon.gen"; last LINE; }
+				if(/Chr\([^\)]+\).+Next.+End +Function.+Vbswg \d.\d. \[K\]Alamar/so) { $virus = "VBS/SST\@MM"; last LINE; }
+				if(/EraseFiles.+Function.+FileToErase.+FileToErase.path.+Extension.+TXT.+DOC/so) { $virus = "VBS/Eraser.A"; last LINE; }
+				if(/echo \.BAT virus '\@\@' v1\.0.+OR CX,CX.+JZ 10B.+MOV DX,10C.+MOV AH,41.+INT 21.+INT 3.+DB.+find.+debug.+exist.+copy.+find.+do call.+del/so) { $virus = "BAT/Double_At.B"; last LINE; }
+			}
+		}
+		if($script eq "HTMLVBS") {
+			if(/dim fso,dirsystem,dirwin,dirtemp,eq,ctr,file,vbscopy,dow/so) { $virus = "VBS/LoveLetter\@MM"; last LINE; }
+			if(/Msend \(mmail\).+End If.+End Sub.+Function Sc\(S\).+mN = .+Rem I am sorry! happy time.+/so) { $virus = "VBS/Haptime.a\@MM"; last LINE; }
+		}
+		$save = substr($buff, (length($buff)/2));
+	}
 	close(FILE);
-	return("VBS/Carnival.gen\@MM") if(/Prinz.Charles.Are.Die.+eXposed.+Themes.+Lucky2000.+CLICK THE BLUE BOTTLE ICON ON THE DESKTOP OR YOUR HARD DRIVE WILL BE LOST.+IS A VIRUS IT WILL DAMAGE YOUR COMPUTER.+newest Message for Cool User.+COOL_NOTEPAD_DEMO/iso);
-	return("W32/CodeBlue.worm") if(/Danger.+FindMapper.+printer.+ScriptMaps".+Danger.+FindMapper.+vNewCount.+LocalHost.+W3SVC.+Root/iso);
-	return("VBS/Concon.gen") if(/WScript\.Shell.+HKEY_LOCAL_MACHINE.+exefile.+\\con\\con.+Welcome.+intDoIt.+Welcome.+vbCancel.+WScript\.Quit/iso);
-	return("VBS/Eraser.A") if(/What can i say! this is a stupid VBS trojan!.+ReadThisYouBastard.+Why did you read this file.+Are you some kind of Bastard.+Sorry but your files are destroyed.+guess you shouldn't trust.+computer is screwed up right now/iso);
-	return("VBS/LoveLetter\@MM") if(/HELLO.+Russian.+XXX.+sexymafia.+erogen.+porno.+VBScript.+kindly check the attached.+coming from me.+MystiqueCrash.+FEAR FACTORY Group/iso);
-	return("VBS/Haptime.a\@MM") if(/VBScript.+sorry.+happy.+time.+Help.+wallPaper.+sorry.+mailto.+Untitled/iso);
-	return("BAT/Double_At.B") if(/echo \.BAT virus '\@\@' v1\.0.+OR CX,CX.+JZ 10B.+MOV DX,10C.+MOV AH,41.+INT 21.+INT 3.+DB.+find.+debug.+exist.+copy.+find.+do call.+del/iso);
-	return();
+	&set_skip($skip) if($skip);
+	return($virus);
 }
 
 sub scan_binary {
@@ -146,16 +170,19 @@ sub scan_binary {
 		$total += length($buff);
 		unless($save) {
 			my $begin = substr($buff, 0, 8);
-			last LINE unless(length($begin) >= 8);
-			if($begin =~ /^\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1/o) { $vtype = "d0cf11e0a1b11ae1"; }
-			if($begin =~ /^\x47\x45\x54/o) { $vtype = "474554"; }
-			if($begin =~ /^\xe9/o) { $vtype = "e9"; }
-			if($begin =~ /^\x4d\x5a/o) { $vtype = "4d5a"; }
+			unless(length($begin) >= 8) { $skip = 3; last LINE; }
+			if($begin =~ /^\x49\x54\x53\x46/so) { $vtype = "49545346"; }
+			if($begin =~ /^\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1/so) { $vtype = "d0cf11e0a1b11ae1"; }
+			if($begin =~ /^\x47\x45\x54/so) { $vtype = "474554"; }
+			if($begin =~ /^\xe9/so) { $vtype = "e9"; }
+			if($begin =~ /^\x4d\x5a/so) { $vtype = "4d5a"; }
 			unless($vtype) { $skip = 1; last LINE; }
 		}
 		$save .= $buff;
 		$_ = $save;
-		if($vtype eq "d0cf11e0a1b11ae1") {
+		if($vtype eq "49545346") {
+			if(/\x48\x48\x41\x20\x56\x65\x72\x73\x69\x6f\x6e\x20\d+.\d+.\d+.+\x42\x72\x69\x74\x6e\x65\x79\x2e\x68\x74\x6d\x6c.+\x42\x72\x69\x74\x6e\x65\x79\x2d\x50\x69\x63\x73.+\x62\x72\x69\x74\x6e\x65\x79\x2d\x70\x69\x63\x73/so) { $virus = "VBS/BritneyPic\@MM"; last LINE; }
+		} elsif($vtype eq "d0cf11e0a1b11ae1") {
 			if(/\x57.*\x4d\x2e\x53\x70\x69\x72\x6f\x68\x65\x74\x61/so) { $virus = "W97M/Generic"; last LINE; }
 			if(/\x57\x6f\x72\x64\x32\x30\x30\x30\x2e\x47\x61\x72\x47\x6c\x65/so) { $virus = "W97M/Hope.gen"; last LINE; }
 		} elsif($vtype eq "474554") {
@@ -171,7 +198,9 @@ sub scan_binary {
 			if(/\x53\x43\x61\x6d\x33\x32/so) { $virus = "W32/SirCam\@MM"; last LINE; }
 			if(/\x47\x69\x72\x6c\x73\x00\x5a\x69\x70\x57\x6f\x72\x6d\x00\x00\x7a\x69\x70\x57\x6f\x72\x6d/so) { $virus = "IRC/Girls.worm"; last LINE; }
 			if(/\x57\x69\x6e\x33\x32\x2e\x48\x4c\x4c\x50\x2e\x5a\x61\x75\x73\x68\x6b\x61\x2e\x57\x6f\x72\x6d\x00\x5a\x61\x75\x73\x68\x6b\x61\x00/so) { $virus = "W32/HLLP.32767.a"; last LINE; }
+			if(/\x57\x69\x6e\x33\x32\x2f\x41\x73\x74\x72\x6f\x47\x69\x72\x6c\x20\x41\x73\x74\x72\x6f\x43\x6f\x64\x65\x64\x20\x62\x79\x20\x61\x20\x57\x61\x7a\x65\x78\x00\x59\x6f\x75\x72\x20\x73\x79\x73\x74\x65\x6d\x20\x69\x73\x20\x69\x6e\x66\x65\x63\x74\x65\x64\x20\x62\x79\x20\x57\x69\x6e\x33\x32\x2f\x41\x73\x74\x72\x6f\x47\x69\x72\x6c\x20\x76\d+\x2e\d+.+\x44\x65\x64\x69\x63\x61\x74\x65\x64\x20\x74\x6f\x20\x41\x6e\x69\x74\x61\x20\x61\x6e\x64\x20\x6f\x75\x72\x20\x70\x65\x6e\x67\x2d\x67\x75\x69\x6e\x20\x3b\x29\x0d/so) { $virus = "Win32.Asorl"; last LINE; }
 			if(/\x5b\x57\x69\x6e\x33\x32\x2e\x48\x4c\x4c\x50\x2e\x53\x68\x61\x72\x70\x5d\x20\x28\x63\x29\x20\x32\x30\x30\x32\x20\x47\x69\x67\x61\x62\x79\x74\x65\x2f\x4d\x65\x74\x61\x70\x68\x61\x73\x65/so) { $virus = "W32/NGVCK"; last LINE; }
+			if(/\x54\x68\x69\x73\x20\x69\x73\x20\x50\x6c\x61\x67\x65\x20\d{4}\x20\x63\x6f\x64\x65\x64\x20\x62\x79\x20\x42\x75\x6d\x62\x6c\x65\x62\x65\x65\x2f\d+.\x2e\x00\x50\x6c\x61\x67\x65\x20\d{4}\x20\x41\x63\x74\x69\x76\x61\x74\x69\x6f\x6e/so) { $virus = "W32/Plage.gen\@M"; last LINE; }
 			if(/\x53\x7f\xf3\xff\xff\x75\x6e\x4d\x6f\x6e\x54\x75\x65\x57\x65\x64\x54\x68\x75\x46\x72\x69\x53\x61\x74\x4a\x61\x6e\x46\x65\x62\x4d\xff\xb7\x76\xfb\x61\x72\x41\x70\x72\x05\x79\x4a\x26\x02\x6c\x41\x75\x67\x53\x65\x70\x4f\x63\x74\x5b\x81\xfa\xfd\x4e\x6f\x76\x44\x65\x63\x3f\x54\x5a\x1b\x1c\x74\x7b\xb7\xa9\xff\x69\x6d/so) { $virus = "W32/Myparty.b\@MM"; last LINE; }
 			if(/\xeb\x5a\x46\x69\x6e\x64\x46\x69\x72\x73\x74\x46\x69\x6c\x65\x41\x00\x46\x69\x6e\x64\x4e\x65\x78\x74\x46\x69\x6c\x65\x41\x00\x43\x72\x65\x61\x74\x65\x46\x69\x6c\x65\x41\x00\x5f\x6c\x63\x6c\x6f\x73\x65\x00\x53\x65\x74\x46\x69\x6c\x65\x50\x6f\x69\x6e\x74\x65\x72\x00\x52\x65\x61\x64\x46\x69\x6c\x65\x00\x57\x72\x69\x74\x65\x46\x69\x6c\x65\x00\x0b\x2a\x2e\x45\x58\x45\x00/so) { $virus = "W95/Puma"; last LINE; }
 			if(/\x48\x59\x42\x52\x49\x53/so) { $virus = "W32/Hybrys.gen\@MM"; last LINE; }
@@ -183,6 +212,7 @@ sub scan_binary {
 			if(/\x61\x63\x74\x73\x20\x63\x1f\xdb\x52\xdb\x1e\x55\x53\x41\xbc\x49.+\x50\x4c\x45\x41\x53\x45\x20\x0d\xd6\xdb\xff\x43\x4f\x4e\x54\x41\x43\x54\x20\x54\x48\x0b\x46\x42\x49\x15\xac\xaf\x91\x03\xc9\xfb/so) { $virus = "W32/PetTick\@MM"; last LINE; }
 			if(/\x53\x6f\x66\x74\x77\x61\x72\x65\x20\x70\x72\x6f\x76\x69\x64\x65\x20\x62\x79\x20\x5b\x4d\x41\x54\x52\x69\x58\x5d\x20\x56\x58\x20\x74\x65\x61\x6d/so) { $virus = "W32/MTX.gen\@M"; last LINE; }
 			if(/\x20\x00\x2d\x00\x20\x00\x23\x00\x74\x00\x65\x00\x61\x00\x6d\x00\x76\x00\x69\x00\x72\x00\x75\x00\x73\x00\x00\x00\x2c\x00\x0c\x00\x01\x00\x50\x00\x72\x00\x6f\x00\x64\x00\x75\x00\x63\x00\x74\x00\x4e\x00\x61\x00\x6d\x00\x65\x00\x00\x00\x00\x00\x4b\x00\x61\x00\x72\x00\x65\x00\x6e\x00\x00\x00\x2c\x00\x0a\x00\x01\x00\x46\x00\x69\x00\x6c\x00\x65\x00\x56\x00\x65\x00\x72\x00\x73\x00\x69\x00\x6f\x00\x6e\x00\x00\x00\x00\x00\x31\x00\x2e\x00\x30\x00\x30\x00/so) { $virus = "W32/Gokar\@MM"; last LINE; }
+			if(/\x54\x68\x69\x73\x20\x69\x73\x20\x61\x20\x49\x2d\x57\x6f\x72\x6d\x20\x63\x6f\x64\x65\x64\x20\x62\x79\x20\x42\x75\x6d\x62\x6c\x65\x62\x65\x65\x5c\d+.\x21\x0a\x0a\x47\x72\x65\x74\x69\x6e\x67\x7a\x20\x74\x6f\x20\x61\x6c\x6c\x20\d+.\x20\x6d\x65\x6d\x62\x65\x72\x73\x20\x3b\x29/so) { $virus = "W32/Gift.b\@MM"; last LINE; }
 			if(/\x70\x65\x6e\x74\x61\x67\x6f\x6e\x65/so) { $virus = "W32/Goner\@MM"; last LINE; }
 			if(/\x14\xff\x56\xb9\x36\xdc\x5a\xbd\x1b\x93\xeb\xea\x5f\x21\xb8\x35\x73\x1b\xfc\xa6\xdc\x6f\x01\x24\x8b\x14\x85\xb8\x6c\x28\x0d\x3b\xd1\x74\x09\x40\xb3\xbb\x95\x4a\x1a\x74\x15\x72\xe5\x1a\x89\x0c\x8b\x00\xcf\xb7\x90\x49\x24\xfe\x81\xc3\x22\x8d\xa5\x68\x7a\xb4/so) { $virus = "BackDoor.arsd"; last LINE; }
 			if(/\x08\xb5\x6d\xea\x46\x82\x32\x67\x62\x42\x2b\x16\x59\x97\xcb\xdb\x40\x1c\x02\xd2\x43\x40\xa0\x99\x65\x20\x99\x2a\x9d\xa1\x21\xa1\xa1\x1d\x55\x05\x19\x01\x57\x55\x32\x8c\x41\xc5\x08\x01\x76\x0a\x43\x0f\x81\x87\xb0\xda\x18\x3d\x42\x28\x28\xa8\x80\xac\xd2\xe9/so) { $virus = "W32/Navidad.e\@M"; last LINE; }
@@ -191,7 +221,7 @@ sub scan_binary {
 		$save = substr($buff, (length($buff)/2));
 	}
 	close(FILE);
-	&set_skip(1) if($skip);
+	&set_skip($skip) if($skip);
 	return($virus);
 }
 
@@ -208,7 +238,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs = File::Scan->new([, OPTION ...]);
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
-  if($fs->skipped) { print "file skipped"; }
+  if(my $c $fs->skipped) { print "file skipped ($c)\n"; }
 
 =head1 DESCRIPTION
 
@@ -265,7 +295,24 @@ virus is found.
 
 =head2 skipped()
 
-This method return 1 if the file was skipped and 0 if not.
+This method return a code number if the file was skipped and 0 if not. The 
+following skipped codes are available:
+
+=over 6
+
+=item 0 - file not skipped 
+
+=item 1 - file is not vulnerable
+
+=item 2 - file has zero size
+
+=item 3 - the size of file is small
+
+=item 4 - the text file size is greater that the 'max_txt_size' argument
+
+=item 5 - the binary file size is greater that the 'max_bin_size' argument
+
+=back
 
 =head2 error()
 

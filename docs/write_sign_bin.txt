@@ -1,6 +1,6 @@
 Write signatures for binary files
 Henrique Dias <hdias@esb.ucp.pt>
-Last Change: Thu Feb 21 12:04:17 WET 2002
+Last Change: Sat Mar  2 18:01:25 WET 2002
 
 This document provides suggestions for write signatures for viruses.
 
@@ -40,6 +40,7 @@ File Application Signatures:
 474554
 e9
 d0cf11e0a1b11ae1	WORD
+49545346		CHM
 ----------------------------------------
 
 If you look at first line of hex file, the application_signature
