@@ -1,5 +1,15 @@
 Revision history for Perl extension File::Scan.
 
+0.67  Mon Sep 29 17:47:24 WEST 2003
+	- examples/procmail/scanvirus.pl: the version was updated to 0.03
+	- examples/procmail/scanvirus.pl: unsafe execution of unzip
+	  command was fixed
+	- examples/scan.pl: the version was updated to 0.15
+	- examples/scan.pl: the "--quiet" option has been added
+	  Thanks to Pacman <pacman@manson.clss.net>
+	- examples/scan.pl: unsafe execution of unzip command was fixed
+	  Thanks to Pacman <pacman@manson.clss.net>
+
 0.66  Fri Sep 19 10:52:10 WEST 2003
 	- added W32/Swen@MM virus signature
 

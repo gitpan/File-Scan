@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Tue Aug  5 12:00:46 WEST 2003
+# Last Change: Mon Sep 29 16:15:08 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ my $MV_DIR = "";
 my $MK_DIR = 0;
 my $DELETE = 0;
 my $FOLLOW = 0;
+my $QUIET = 0;
 my $MAXTXTSIZE = 0;
 my $MAXBINSIZE = 0;
 my $UNZIP_PROG = "/usr/bin/unzip";
@@ -55,6 +56,7 @@ Getopt::Long::GetOptions($opt,
 	"tmp=s"        => \$TMP_DIR,
 	"del"          => sub { $DELETE = 1; },
 	"follow"       => sub { $FOLLOW = 1; },
+	"quiet"        => sub { $QUIET = 1; },
 	"maxtxtsize=i" => \$MAXTXTSIZE,
 	"maxbinsize=i" => \$MAXBINSIZE,
 ) or die(short_usage());
@@ -99,7 +101,7 @@ sub display_msg {
 		$infected++;
 		$string = "Infection: $virus";
 	}
-	print "$file $string\n";
+	print "$file $string\n" if(!$QUIET || $virus);
 	return();
 }
 
@@ -209,16 +211,21 @@ sub unzip_file {
 	my $tmp_dir = shift;
 	my $file = shift;   
 
-	my $line = join(" ", $program, "-P ''", "-d", $tmp_dir, "-j", "-n", $file);
+	my $pid = open(UNZIP, "-|");
+	defined($pid) or die("Cannot fork: $!");
 	my @files = ();
-	open(UNZIP, "$line|") or die("$!");
-	while(<UNZIP>) {
-		if(my ($f) = (/$pattern/)[1]) {
-			$f =~ s/ +$//g;
-			push(@files, $f);
+	if($pid) {
+		while(<UNZIP>) {
+			if(my ($f) = (/$pattern/)[1]) {
+				$f =~ s/ +$//g;
+				push(@files, $f);
+			}
 		}
+		close(UNZIP) or warn("unzip error: kid exited $?");
+	} else {
+		my @args = ("-P", "''", "-d", $tmp_dir, "-j", "-n");
+		exec($program, @args, $file) or die("Can't exec program: $!");
 	}
-	close(UNZIP);
 	return(\@files);
 }
 
@@ -254,7 +261,7 @@ sub check {
 	if(my $e = $fs->error) { print"$e\n"; }
 	elsif(my $c = $fs->skipped) {
 		$skipped++;
-		print "$file File Skipped (", $skipcodes{$c}, ")\n";
+		$QUIET or print "$file File Skipped (", $skipcodes{$c}, ")\n";
 	} elsif($fs->suspicious) {
 		$suspicious++;
 		print "$file Suspicious file\n";
@@ -277,6 +284,7 @@ usage: $0 [options] file|directory
   --mkdir=octal_number
   --del
   --follow
+  --quiet
   --maxtxtsize=size
   --maxbinsize=size
   --unzip=/path/to/program
@@ -320,6 +328,8 @@ Possible options are:
   --del                 delete the infected file
 
   --follow              follow symbolic links
+
+  --quiet               don't report files that are clean or skipped
 
   --maxtxtsize=<size>   scan only the text file if the file size is less
                         then maxtxtsize (size in kbytes)

@@ -7,7 +7,7 @@
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Sat Aug  9 19:07:01 WEST 2003
+# Last Change: Mon Sep 29 16:53:17 WEST 2003
 #
 ###########################################################################
 
@@ -20,7 +20,7 @@ use Net::SMTP;
 use Fcntl qw(:flock);
 use vars qw($VERSION);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 if($ENV{HOME} =~ /^(.+)$/) { $ENV{HOME} = $1; }
 if($ENV{LOGNAME} =~ /^(.+)$/) { $ENV{LOGNAME} = $1; }
 
@@ -150,15 +150,20 @@ sub unzip_file {
 	my $tmp_dir = shift;
 	my $file = shift;
 
-	my $line = join(" ", $program, "-P ''", "-d", $tmp_dir, "-j", "-n", $file);
-	open(UNZIP, "$line|") or return("Can't exec program: $!\n");
-	while(<UNZIP>) {
-		if(my ($f) = (/$pattern/)[1]) {
-			$f =~ s/ +$//g;
-			$files->{$f} = "";
+	my $pid = open(UNZIP, "-|");
+	defined($pid) or die("Cannot fork: $!");
+	if($pid) {
+		while(<UNZIP>) {
+			if(my ($f) = (/$pattern/)[1]) {
+				$f =~ s/ +$//g;
+				$files->{$f} = "";
+			}
 		}
+		close(UNZIP) or &logs("error.log", "unzip error: kid exited $?");
+	} else {
+		my @args = ("-P", "''", "-d", $tmp_dir, "-j", "-n");
+		exec($program, @args, $file) or die("Can't exec program: $!");
 	}
-	close(UNZIP);
 	return("");
 }
 

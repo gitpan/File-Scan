@@ -16,4 +16,4 @@ module.
 $ cd examples
 $ perlcc -o virusscan scan.pl
 
-(Perl v5.8.0)
+(Perl v5.8.0 or greater)
