@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+1.35  Mon Oct 18 14:14:10 WEST 2004
+	- added W32/Korgo.worm.aa virus signature.
+	- the following virus signatures has been commented Ginger.mp,
+	  ARCV.Anna.742 and W32/HLLP.32767.a because in the last two years
+	  I didn't find any occurrences
+
 1.34  Fri Oct 15 16:17:49 WEST 2004
 	- the W32/Darby@MM virus signature has been updated.
 	- added W32/Netsky.ag@MM virus signature.
