@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+1.30  Sat Sep 18 19:06:46 WEST 2004
+	- the W32/Bagle.aa@MM virus signature has been updated.
+	- added MultiDropper-KR virus signature.
+
 1.29  Wed Sep 15 15:24:08 WEST 2004
 	- added W32/Bagle.aa@MM virus signature.
 
