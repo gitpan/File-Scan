@@ -77,8 +77,8 @@ sub load_signatures {
 		$elem[3] =~ s/le/\<\=/ig;
 		$elem[3] =~ s/gt/\>/ig;
 		$elem[3] =~ s/ge/\>\=/ig;
-		$elem[3] =~ s/or/\|\|/ig;
-		$elem[3] =~ s/and/\&\&/ig;
+		$elem[3] =~ s/or/ \|\| \$total/ig;
+		$elem[3] =~ s/and/ \&\& \$total/ig;
 		if(exists($script{$elem[1]})) {
 			my (@tmp) = ($elem[4] =~ /$pattern/og);
 			my $len = int(length(join("", @tmp))/2);
