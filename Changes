@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.97  Mon Mar 22 15:14:43 WET 2004
+	- the W32/Netsky.c@MM virus signature has been updated again to
+	  detect W32/Netsky.d@MM (Petite packed) variant
+
 0.96  Fri Mar 19 16:01:22 WET 2004
 	- the W32/Netsky.c@MM virus signature has been updated to detect
 	  W32/Netsky.c@MM (Petite packed), W32/Netsky.c@MM (UPX packed)
