@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Feb 12 19:21:41 WET 2005
+# Last Modification: Sat Feb 19 17:52:37 WET 2005
 #
 # Copyright (c) 2005 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.40';
+$VERSION = '1.41';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2005/02/12 19:34:26
+# generated in: 2005/02/19 18:00:20
 
 sub get_app_sign {
 	$_ = pop;
@@ -307,6 +307,9 @@ sub scan_binary {
 			if($subtype == 1) {
 				if($total==10240) {
 					/\x48\x45\x4c\x4f\x44\x1d\x4d\x41\x49\xec\xc8\x1e\x52\xbc\x6e\x5d\xc3\x43\x50\x54/s and $virus = "W32/Zafi.d\@MM", last LINE;
+				}
+				if($total==1024) {
+					/\x0f\x4d\x61\x70\x56\x5f\xc5\x77\x4f\x66\x18\x10\x1e\x55\x6e\x56\x6d\x11\x90\x2f\x62\x08\x72\x73\xb3\x30\x0c\x99\x45\x6e\x76\x22\x6f\xdf\x52\xfc\x7b\x3c\x56\x61\xfb\xe6\x62\xac\x19\x67\x44\x1a\x76\xb1\x54\x79\x70\x4c\x0f\x53\xf5\xbf\x6c\x8e\x6d\x54\x69\x79/s and $virus = "W32/Mydoom.bb\@MM", last LINE;
 				}
 			} elsif($subtype == 2) {
 				if($total==4096) {
