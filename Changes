@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.58  Thu Jun 26 16:56:58 WEST 2003
+	- added W32/Sobig.e@MM virus signature.
+
 0.57  Fri Jun 20 12:11:16 WEST 2003
 	- added BAT/Mumu.worm virus signature.
 	  Thanks to Anita Dias <anafonso@mail.esb.ucp.pt>
