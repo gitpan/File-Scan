@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.46  Tue Apr  8 14:59:15 WEST 2003
+	- added W32/Gibe.b@MM virus signature.
+	- W32/Gibe@MM virus signatures was updated.
+
 0.45  Sat Mar 29 18:37:28 WET 2003
 	- the problems with open function have been fixed. In perl version 
 	  5.6 or greater, now open function has three argument. In other
