@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.24  Sat Apr 27 19:13:28 WEST 2002
+	- added "latest.pl" script to get the most recent version
+	  of File::Scan module from CPAN
+	- added three new virus signatures
+
 0.23  Mon Apr 22 12:29:50 WEST 2002
 	- the Makefile.PL was changed, the code has been optimized
 	- added six new application signatures
