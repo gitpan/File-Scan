@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.64  Tue Sep  2 15:43:27 WEST 2003
+	- the VBS/Haptime.gen@MM and W32/Sobig.f@MM virus signatures had
+	  been updated.
+	- minor bug fix in Makefile.PL
+
 0.63  Tue Aug 19 23:08:06 WEST 2003
 	- added W32/Sobig.f@MM virus signature
           (from Clam AntiVirus database)
@@ -131,7 +136,7 @@ Revision history for Perl extension File::Scan.
 	  and W32/Hokilo.worm).
 
 0.34  Mon Jul 22 12:23:16 WEST 2002
-	- added new appliaction signature to Makefile.PL
+	- added new application signature to Makefile.PL
 	- added four new virus signatures (W32/Sentral.dr, VBS/Funtime,
 	  W32/Idele, JS/Germinal) and W32/Plex@MM, W32/Yaha.gen@MM and
 	  W32/Chiton.ab.dr virus signatures was updated.

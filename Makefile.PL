@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Mon Aug  4 19:58:35 WEST 2003
+# Last Modification: Tue Sep  2 14:44:42 WEST 2003
 
 use strict;
 
@@ -218,7 +218,11 @@ ENDOFCODE3
 			$code .= "\t\t\t}\n";
 		}
 	}
-	$code .= "\t\t} else {\n";
+	$code .= <<ENDOFCODE4;
+			local \$_ = lc(\$save);
+			/<\\/script[^>]*>/s and \$script = "";
+		} else {
+ENDOFCODE4
 	for my $sl (keys(%{$script_lang->{'out'}})) {
 		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
 			$code .= "\t\t\t/$value/s and \$virus = \"$key\", last LINE;\n";
@@ -234,7 +238,7 @@ ENDOFCODE3
 		}
 		$code .= "\t\t}\n";
 	}
-	$code .= <<ENDOFCODE4;
+	$code .= <<ENDOFCODE5;
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
@@ -249,19 +253,19 @@ sub scan_binary {
 	my (\$skip, \$suspicious, \$type, \$subtype, \$total) = (0, 0, 0, 0, 0);
 	my (\$virus, \$buff, \$save) = ("", "", "");
 	my \$size = $bufflen;
-ENDOFCODE4
+ENDOFCODE5
 
 	$code .= ($] < 5.006) ? "\tsysopen(FILE, \$file, 0)" : "\topen(FILE, \"<\", \$file)";
 	$code .= " or return(&_set_error(\"Can't open \$file: \$!\"));\n";
 
-	$code .= <<ENDOFCODE5;
+	$code .= <<ENDOFCODE6;
 	binmode(FILE);
 	LINE: while(read(FILE, \$buff, \$size)) {
 		\$total += length(\$buff);
-ENDOFCODE5
+ENDOFCODE6
 	$code .= "\t\tprint STDERR \"\$total\\n\";\n" if($debug);
 
-	$code .= <<ENDOFCODE6;
+	$code .= <<ENDOFCODE7;
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $firstbytes, "");
 			unless(length(\$begin) >= $firstbytes) { \$skip = 3; last LINE; }
@@ -280,7 +284,7 @@ ENDOFCODE5
 			local \$_ = lc(\$save);
 			\$suspicious = 1 if($linesusp);
 		}
-ENDOFCODE6
+ENDOFCODE7
 	my $lcode = "";
 	for my $key (keys(%{$app_signatures})) {
 		my $c = $conversion{$key};
@@ -300,7 +304,7 @@ ENDOFCODE6
 		$lcode .= &subgene($patterns->{$key}, "\t\t\t");
 	}
 	$code .= $lcode;
-	$code .= <<ENDOFCODE7;
+	$code .= <<ENDOFCODE8;
 		}
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
@@ -310,7 +314,7 @@ ENDOFCODE6
 	&_set_suspicious(\$suspicious) if(\$suspicious);
 	return(\$virus);
 }
-ENDOFCODE7
+ENDOFCODE8
 	return($code);
 }
 
