@@ -18,3 +18,4 @@ spec-files/SuSE/perl-File-Scan.spec
 Scan.pm
 t/scan.t
 TODO
+META.yml                                 Module meta-data (added by MakeMaker)
