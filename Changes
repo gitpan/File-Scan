@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.48  Fri Apr 11 12:34:21 WEST 2003
+	- added W32/Oror.aa@MM virus signature.
+	  Thanks to Emil Yakimov <emo@iservice.bg>
+
 0.47  Wed Apr  9 15:16:24 WEST 2003
 	- W32/Gibe.b@MM virus signatures was updated.
 

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Apr  9 15:07:27 WEST 2003
+# Last Modification: Fri Apr 11 12:20:05 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.47';
+$VERSION = '0.48';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2003/04/09 15:16:44
+# generated in: 2003/04/11 13:28:59
 
 sub get_app_sign {
 	$_ = pop;
@@ -391,6 +391,9 @@ sub scan_binary {
 				}
 				if($total==37888) {
 					/\x5c\x49\x6e\x74\x65\x72\x66\x61\x63\x65\x73\x00\x00\x00\x43\x6f\x6e\x63\x65\x70\x74\x20\x56\x69\x72\x75\x73\x28\x43\x56\x29\x20\x56\x2e\d\x2c\x20\x43\x6f\x70\x79\x72\x69\x67\x68\x74\x28\x43\x29\d\d\d\d.{10,}\x4d\x49\x4d\x45\x2d\x56\x65\x72\x73\x69\x6f\x6e\x3a\x20\x31\x2e\x30/s and $virus = "W32/Nimda.gen\@MM", last LINE;
+				}
+				if($total==44032) {
+					/\xbd\xff\x57\x4f\x52\x4b\x2d\x53\x45\x58\x59\x33\x0f\x54\x55\x05\xa3\xde\x3b\x13\x4b\x61\x7a\x61\xd3\x5e\x07\x30\xe1\xef\x50\x9f\x76\x62\x73\x4b\x36\x94\x01\x68\x3a\x03/s and $virus = "W32/Oror.aa\@MM", last LINE;
 				}
 				if($total==35840) {
 					/\x73\x6d\x74\x70\x2e\x79\x65\x61\x68\x2e\x6e\x65.+\x2d\x20\x47\x45\x54\x20\x4f\x49\x43\x51/s and $virus = "W32/GOP\@MM", last LINE;
