@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.36  Thu Sep 12 13:01:48 WEST 2002
+	- added four new virus signatures (W32/Blinkom, W32/ProLin@MM,
+	  W97M/Thus.gen and Linux.Osf.8759).
+
 0.35  Fri Aug 30 12:19:17 WEST 2002
 	- added seven new virus signatures (BackDoor-AJH, W32/Stopin.b@MM,
 	  W32/Cecile.dr, W32/Bika.gen, VBS/Hatred.gen, W32/EnerKaz.worm.a
