@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.26  Tue May 14 11:29:26 WEST 2002
+	- added four new virus signatures (W32/Trilisa@MM, 
+	  IRC/Theme.worm.dr, W32/Haiku@MM and W32/Zhangpo)
+	- procmail recipe example for scan incoming mail was added
+	- Provide perl-File-Scan.spec to build .rpm for RedHat 7.2.
+	  Thanks to Michael McLagan <michael.mcLagan@linux.org>
+
 0.25  Sat May  4 19:41:19 WEST 2002
 	- added two new virus signatures
 	- the README file was updated
