@@ -1,0 +1,161 @@
+#
+# Scan.pm
+# Last Modification: Thu Feb 14 12:20:05 WET 2002
+#
+# Copyright (c) 2001 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
+# This module is free software; you can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+#
+package File::Scan;
+
+require 5;
+use strict;
+
+require Exporter;
+use File::Copy;
+use SelfLoader;
+
+use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
+
+@ISA = qw(Exporter);
+$VERSION = '0.01';
+
+$ERROR = "";
+
+SelfLoader->load_stubs();
+
+sub new {
+	my $proto = shift;
+	my $class = ref($proto) || $proto;
+	my $self  = {
+		extension => "",
+		delete    => 0,
+		move      => "",
+		copy      => "",
+		@_,
+	};
+	bless ($self, $class);
+	&load_txt_signs();
+	return($self);
+}
+
+sub scan {
+	my $self = shift;
+	my $file = shift;
+
+	&set_error("");
+	return(&set_error("No such file or directory: $file")) unless(-e $file);
+	return(&set_error("File has zero size (is empty): $file")) if(-z $file);
+	my $res = (-T $file) ? &scan_text($file) : &scan_binary($file);
+	if($res) {
+		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
+			my $newname = "$file\." . $self->{'extension'};
+			if(move($file, $newname)) { $file = $newname; }
+			else { &set_error("Failed to move '$file' to $newname"); }
+		}
+		if($self->{'copy'}) {
+			my ($f) = ($file =~ /([^\/]+)$/o);
+			my $cpdir = $self->{'copy'} . "/$f";
+			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
+		}
+		if($self->{'move'}) {
+			my ($f) = ($file =~ /([^\/]+)$/o);
+			my $mvdir = $self->{'move'} . "/$f";
+			if(move($file, $mvdir)) { $file = $mvdir; }
+			else { &set_error("Failed to move '$file' to $mvdir"); }
+		}
+		if($self->{'delete'}) {
+			if($file =~ /^(.+)$/s) {
+				unlink($1) or &set_error("could not delete $1: $!");
+			}
+		}
+	}
+	return($res);
+}
+
+sub set_error {
+	my $string = shift;
+	$ERROR = $string;  
+	return();
+}
+sub error {
+	my $self = shift;
+	return($ERROR);  
+}
+
+1;
+
+__DATA__
+
+__END__
+
+=head1 NAME
+
+File::Scan - Perl extension for Scanning files for Viruses
+
+=head1 SYNOPSIS
+
+  use File::Scan;
+
+  $fs = File::Scan->new([, OPTION ...]);
+  $fs->scan([FILE]);
+  if(my $e = $fs->error) { print "$e\n"; }
+
+=head1 DESCRIPTION
+
+This module is designed to allows to scan files for known viruses. The
+purpose is to provide a perl module to make plattaform independent virus
+scanners.
+
+=head1 METHODS
+
+=head2 new([, OPTION ...])
+
+This method create a new File::Scan object. The following keys are 
+available:
+
+=over 3
+
+=item extension => "string"
+
+add the specified extension to the infected file
+
+=item move => "directory"
+
+move the infected file to the specified directory
+
+=item copy => "directory"
+
+copy the infected file to the specified directory
+
+=item delete => 1
+
+delete the infected file
+
+=back
+
+=head2 scan([FILE])
+
+This method scan a file for viruses and return the name of virus if a
+virus is found.
+
+=head2 error()
+
+This method return a error message if a error happens.
+
+=head1 AUTHOR
+
+Henrique Dias <hdias@esb.ucp.pt>
+
+=head1 CREDITS
+
+Thanks to Rui de Castro, Sergio Castro and Ricardo Oliveira for the help.
+
+Thanks to Fernando Martins for the personal collection of viruses.
+
+=head1 SEE ALSO
+
+perl(1).
+
+=cut
