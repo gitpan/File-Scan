@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.77  Mon Dec 22 15:20:26 WET 2003
+	- added BackDoor-CAG virus signature
+	- the W32/Mimail@MM virus signature has been updated to detect
+	  W32/Mimail.m@MM variant
+
 0.76  Fri Nov 28 14:18:15 WET 2003
 	- added W32/Dumaru.gen@MM virus signature
 	- a new example script (examples/vscan.pl) has also been added
