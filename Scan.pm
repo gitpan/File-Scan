@@ -1,8 +1,8 @@
 #
 # Scan.pm
-# Last Modification: Sat Dec 28 19:40:02 WET 2002
+# Last Modification: Sat Jan  4 16:36:03 WET 2003
 #
-# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
+# Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 #
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.39';
+$VERSION = '0.40';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/12/28 19:43:25
+# generated in: 2003/01/04 16:48:44
 
 sub get_app_sign {
 	$_ = pop;
@@ -386,6 +386,7 @@ sub scan_binary {
 				}
 				if($total==22528) {
 					/\x57\x00\x49\x00\x4e\x00\x4c\x00\x30\x00\x47\x00\x30\x00\x4e\x00\x2e\x00\x45\x00\x58\x00\x45/s and $virus = "W32/Shoho.gen\@MM", last LINE;
+					/\x68\x6f\x74\x6d\x61\x69\x6c\x5f\x68\x61\x63\x6b\x2e\x65\x78\x65\x46\x66\x72\x69\x65\x6e\x64\x73\x68\x69\x70\x2e\x5f\x68\xff\xef\x73\x63\x72\x1f\x77\x6f\x72\x6c\x64\x5f\x6f\x66\x5f\x31\x11\x61\x6b\xff\x61\xff\xb8\x65\x12\x0e\x77\x65\x65\x74\x17\x42\x65\x5f\x48\x61\x70\x70/s and $virus = "W32/Yaha.k", last LINE;
 				}
 				if($total==31744) {
 					/\x4e\x00\x61\x00\x76\x00\x69\x00\x64\x00\x61\x00\x64\x00\x20\x00\x56\x00\x65\x00\x72\x00\x73\x00\x69\x00\x6f\x00\x6e\x00\x20\x00\d+.+\x43\x00\x6f\x00\x70\x00\x79\x00\x72\x00\x69\x00\x67\x00\x68\x00\x74\x00\x20\x00\x28\x00\x43\x00\x29\x00\x20\x00\d\x00\d\x00\d\x00\d\x00/s and $virus = "W32/Navidad.gen\@M", last LINE;

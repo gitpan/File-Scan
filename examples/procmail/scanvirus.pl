@@ -4,10 +4,10 @@
 #
 # ScanVirus for use with Procmail
 # Version 0.01
-# Copyright (c) 2002 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
+# Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Sat Dec 28 19:45:50 WET 2002
+# Last Change: Sat Jan  4 16:42:59 WET 2003
 #
 ###########################################################################
 
