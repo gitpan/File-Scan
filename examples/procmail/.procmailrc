@@ -1,5 +1,5 @@
 SHELL=/bin/sh
-SCANNER=$HOME/scanvirus.pl
+SCANNER=$HOME/bin/scanvirus.pl
 LOGFILE=$HOME/.procmail_log
 
 :0

@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Mon Aug  4 20:06:49 WEST 2003
+# Last Change: Tue Aug  5 12:00:46 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.13";
+my $VERSION = "0.14";
 
 my $infected = 0;
 my $objects = 0;
@@ -123,14 +123,16 @@ sub check_path {
 		sub {
 			my $file = shift;
 			local $_ = shift;
-			if(/^\x50\x4b\x03\x04/o) {
-				# Extract compressed files in a ZIP archive
-				my $files = &unzip_file($UNZIP_PROG, $TMP_DIR, $file);
-				for my $f (@{$files}) {
-					&check($fs, $f);
-					unlink($f);
+			if($UNZIP_PROG) {
+				if(/^\x50\x4b\x03\x04/o) {
+					# Extract compressed files in a ZIP archive
+					my $files = &unzip_file($UNZIP_PROG, $TMP_DIR, $file);
+					for my $f (@{$files}) {
+						&check($fs, $f);
+						unlink($f);
+					}
+					return("ZIP archive");
 				}
-				return("ZIP archive");
 			}
 			if(/^MIME-Version: 1\.0\x0a/o) {
 				# MHTML exploit
@@ -165,10 +167,17 @@ sub extract_file {
 	my $buff = shift;
 	my $file = shift;
 
+	my $total = length($buff);
 	open(NEWFILE, ">$file") or die("Can't open $file: $!\n");
 	binmode(NEWFILE);
 	print NEWFILE $buff;
-	while(read($fh, $buff, $size)) { print NEWFILE $buff; }
+	while(read($fh, $buff, $size)) {
+		print NEWFILE $buff;
+		if($MAXBINSIZE) {
+			$total += $size;
+			last if($total > $MAXBINSIZE*1024);
+		}
+	}
 	close(NEWFILE);
 	return();
 }

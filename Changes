@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.62  Sat Aug  9 19:09:07 WEST 2003
+	- several documentation updates have been made.
+	- examples/scan.pl: the version was updated to 0.14
+	- examples/scan.pl: minor bug fix
+	- examples/procmail/scanvirus.pl: the version was updated to 0.02
+	- examples/procmail/scanvirus.pl: the scanner has been rewritten
+
 0.61  Mon Aug  4 20:10:14 WEST 2003
 	- added W32/Mimail@MM virus signature.
 	- examples/scan.pl: the version was updated to 0.13

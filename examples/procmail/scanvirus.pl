@@ -1,65 +1,57 @@
-#!/usr/bin/perl -w -T
+#!/usr/bin/perl -w
 
 ###########################################################################
 #
 # ScanVirus for use with Procmail
-# Version 0.01
+#
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Sat Jan  4 16:42:59 WET 2003
+# Last Change: Sat Aug  9 19:07:01 WEST 2003
 #
 ###########################################################################
 
 use strict;
 use locale;
-use MIME::Parser;
-use MD5;
-use File::Copy;
+use MIME::Explode;
+use Digest::MD5 qw(md5_hex);
 use File::Scan;
 use Net::SMTP;
 use Fcntl qw(:flock);
+use vars qw($VERSION);
 
-my $VERSION = '0.01';
+$VERSION = '0.02';
 if($ENV{HOME} =~ /^(.+)$/) { $ENV{HOME} = $1; }
 if($ENV{LOGNAME} =~ /^(.+)$/) { $ENV{LOGNAME} = $1; }
 
 #---begin_config----------------------------------------------------------
 
-my $path       = $ENV{'HOME'};
-my $av_email   = "AntiVirus <antivirus\@xpto.org>";
-my $admin      = "user\@xpto.org";
-my $scandir    = "$path/.scanvirus";
-my $logsdir    = "$scandir/logs";
-my $quarantine = "$scandir/quarantine";
-my $smtp_hosts = ["smtp1.xpto.org", "smtp2.xpto.org"];
-my $hostname   = "xpto.org";
-my $subject    = ["Returned mail: Virus alert!", "Returned mail: Suspicious file alert!"];
-my $copyrg     = "(c) 2002 Henrique Dias - ScanVirus for Mail";
+my $path          = $ENV{'HOME'};
+my $scandir       = "$path/.scanvirus";
+my $logsdir       = "$scandir/logs";
+my $quarantine    = "$scandir/quarantine";
+my $smtp_hosts    = ["smtp1.myorgnization.com", "smtp2.myorgnization.com"];
+my $hostname      = "myhostname.myorgnization.com";
+my $subject       = ["Returned mail: Virus alert!", "Returned mail: Suspicious file alert!"];
+my $unzip         = "/usr/bin/unzip";
+my $notify_sender = "yes",
+my $suspicious    = "yes";
+my $timeout       = 180;
+my $copyrg        = "(c) 2003 Henrique Dias - ScanVirus for Mail";
 
 #---end_config------------------------------------------------------------
 
 use constant SEEK_END => 2;
 my $preserve = 0;
 
-my @pattern = (
-	'^From +([^ ]+)',
-	'^To: +.*\b([\w\.\-]+\@[\w\.\-]+\.\w+)',
-);
+my $pattern = '^[\t ]+(inflating|extracting): (.+)[\n\r]';
 
 unless(@ARGV) {
 	print STDERR "Empty args\n";
 	exit(0);
 }
 
-my $loop = <<ENDOFCODE;
-while(<STDIN>) {
-	study;
-	(\$from) = (/\$pattern[0]/io) unless(\$from);
-	(\$to) = (/\$pattern[1]/io) unless(\$to);
-	print TMP \$_;
-}
-ENDOFCODE
+$SIG{ALRM} = sub { &logs("error.log", "Timeout"); };
 
 &main();
 
@@ -67,44 +59,184 @@ ENDOFCODE
 
 sub main {
 	unless(-d $scandir) { mkdir($scandir, 0700) or exit_script("$!"); }
-	my $id = "";
-	do { $id = &generate_id(); }
-	until(!(-e "$scandir/$id"));
-	mkdir("$scandir/$id", 0700) or exit_script("$!");
+	my $id = (my $tmp_dir = "");
+	do {
+		$id = &generate_id();
+		$tmp_dir = join("/", $scandir, $id);
+	} until(!(-e $tmp_dir));
+	mkdir($tmp_dir, 0700) or exit_script("$!");
 
-	my $from = "";
-	my $to = "";
-	open(TMP, ">$scandir/$id/$id.tmp") or exit_script("$!");
-	eval($loop);
-	close(TMP);
-
-	my $attachs = &mimeexplode("$scandir/$id", "$id.tmp");
-	my $result = &init_scan($attachs, $from, $ENV{LOGNAME}, $to);
+	my $explode = MIME::Explode->new(
+		output_dir         => $tmp_dir,
+		check_content_type => 1,
+		decode_subject     => 1,
+		exclude_types      => ["image/gif", "image/jpeg"],
+	);
+	my $headers = {};
+	my $line_from = <STDIN>;
+	my ($from) = ($line_from =~ /^From +([^ ]+) +/o);
+	eval {
+		alarm($timeout);
+		open(OUTPUT, ">$tmp_dir/$id.tmp") or exit_script("Can't open '$tmp_dir/$id.tmp': $!");
+		$headers = $explode->parse(\*STDIN, \*OUTPUT);
+		close(OUTPUT);
+		alarm(0);
+	};
+	my %attachs = ();
+	for my $msg (keys(%{$headers})) {
+		if(exists($headers->{$msg}->{'content-disposition'}) &&
+				exists($headers->{$msg}->{'content-disposition'}->{'filepath'})) {
+			my $file = $headers->{$msg}->{'content-disposition'}->{'filepath'};
+			$attachs{$file} = 0;
+		}
+	}
+	my $result = scalar(keys(%attachs)) ? &init_scan($tmp_dir, \%attachs, $from, $ENV{LOGNAME}) : 0;
 	if($result && $quarantine) {
 		unless(-d $quarantine) { mkdir($quarantine, 0755) or exit_script("$!"); }
-		&deliver_msg("$scandir/$id/$id.tmp", $ENV{LOGNAME}, $quarantine, $from);
+		&deliver_msg("$tmp_dir/$id.tmp", $line_from, $ENV{LOGNAME}, $quarantine);
 	}
 	unless($preserve) {
-		if(my $res = &clean_dir("$scandir/$id")) { &logs("error.log", "$res"); }
+		if(my $res = &clean_dir($tmp_dir)) { &logs("error.log", "$res"); }
 	}
 	exit($result);
+}
+
+#---extract_file----------------------------------------------------------
+
+sub extract_file {
+	my $fh = shift;   
+	my $size = shift; 
+	my $buff = shift; 
+	my $file = shift; 
+
+	open(NEWFILE, ">$file") or return("Can't open $file: $!");
+	flock(NEWFILE, LOCK_EX);
+	binmode(NEWFILE);
+	print NEWFILE $buff;
+	while(read($fh, $buff, $size)) { print NEWFILE $buff; }
+	flock(NEWFILE, LOCK_UN);
+	close(NEWFILE);
+	return("");
+}
+
+#---mhtml_exploit---------------------------------------------------------
+
+sub mhtml_exploit {
+	my $files = shift; 
+	my $tmp_dir = shift;
+	my $file = shift;   
+
+	my ($error, $buff, $filename, $size) = ("", "", "", 1024);
+	open(FILE, "<$file") or return("Can't open $file: $!");
+	binmode(FILE);
+	while(read(FILE, $buff, $size)) {
+		$buff =~ s{^MIME-Version: 1.0\x0aContent-Location: *File://([^\x0a]+)\x0aContent-Transfer-Encoding: binary\x0a\x0a}{}o or last;
+		if($filename = join("/", $tmp_dir, $1)) {
+			unless($error = &extract_file(\*FILE, $size, $buff, $filename)) {
+				$files->{$filename} = "";
+			}
+			last;
+		}
+	}
+	close(FILE);
+	return($error);
+}
+
+#---unzip_file------------------------------------------------------------
+
+sub unzip_file {
+	my $files = shift;
+	my $program = shift;
+	my $tmp_dir = shift;
+	my $file = shift;
+
+	my $line = join(" ", $program, "-P ''", "-d", $tmp_dir, "-j", "-n", $file);
+	open(UNZIP, "$line|") or return("Can't exec program: $!\n");
+	while(<UNZIP>) {
+		if(my ($f) = (/$pattern/)[1]) {
+			$f =~ s/ +$//g;
+			$files->{$f} = "";
+		}
+	}
+	close(UNZIP);
+	return("");
+}
+
+#---init_scan-------------------------------------------------------------
+        
+sub init_scan {
+	my $tmp_dir = shift;
+	my $files = shift;
+	my $from = shift || "unknown";
+	my $user = shift || "unknown";
+
+	my $to = join("\@", $user, $hostname);
+	my %param = (max_txt_size => 2048);
+	my $fs = File::Scan->new(%param);
+	my %hash = ();
+	$fs->set_callback(
+		sub {
+			my $file = shift;
+			local $_ = shift;
+			if(-e $unzip) {
+				if(/^\x50\x4b\x03\x04/o) {
+					my $error = &unzip_file(\%hash, $unzip, $tmp_dir, $file);
+					&logs("error.log", $error) if($error);
+					return("Zip Archive");
+				}
+			}
+			if(/^\x4d\x49\x4d\x45\x2d\x56\x65\x72\x73\x69\x6f\x6e\x3a\x20\x31\x2e\x30\x0a/o) {
+				my $error = &mhtml_exploit(\%hash, $tmp_dir, $file);
+				&logs("error.log", $error) if($error);
+				return("MHTML exploit");
+			}
+			return("");
+		}
+	);
+	my $status = 0;
+	FILE: for my $file (keys(%{$files})) {
+		my $virus = $fs->scan($file);
+		if(scalar(keys(%hash))) {
+			$status = &init_scan($tmp_dir, \%hash, $from, $user);
+			$files = {%{$files}, %hash};
+			%hash = ();
+			$status and return($status);
+		}
+		if(my $e = $fs->error) {
+			$preserve = 1;
+			&logs("error.log", "$e\n");
+			next FILE;
+		}
+		unless($status) {
+			my ($shortfn) = ($file =~ /([^\/]+)$/o);
+			if($virus) {
+				$status = 1;
+				delete($files->{$file});
+				my $string = join("", "\"$shortfn\" (", $virus, ")");
+				&logs("virus.log", "[$string] From: $from\n");
+				&virus_mail($string, $from, $to, $user);
+			} else {
+				&suspicious_mail($shortfn, $from, $to) if($suspicious eq "yes");
+			}
+		}
+	}
+	return($status);
 }
 
 #---deliver_msg-----------------------------------------------------------
 
 sub deliver_msg {
 	my $msg = shift;
+	my $line_from = shift;
 	my $user = shift;
 	my $maildir = shift;
-	my $from = shift;
 
 	my $mailbox = "$maildir/$user";
-	my $date = localtime;
 	open(MSG, "<$msg") or &close_app("$!");
 	open(MAILBOX, ">>$mailbox") or &close_app("$!");
 	flock(MAILBOX, LOCK_EX);
 	seek(MAILBOX, 0, SEEK_END);
-	print MAILBOX "From $from $date\n";
+	print MAILBOX $line_from;
 	while(<MSG>) { print MAILBOX $_; }
 	print MAILBOX "\n"; 
 	flock(MAILBOX, LOCK_UN);
@@ -124,56 +256,24 @@ sub clean_dir {
 	my $dir = shift;
 
 	my @files = ();
-	opendir(DIRECTORY, $dir) or return("can't opendir $dir: $!");
+	opendir(DIRECTORY, $dir) or return("Can't opendir $dir: $!");
 	while(defined(my $file = readdir(DIRECTORY))) {
 		next if($file =~ /^\.\.?$/);
 		push(@files, "$dir/$file");
 	}
 	closedir(DIRECTORY);
 	for my $file (@files) {
-		if($file =~ /^(.+)$/s) { unlink($1) or return("could not delete $1: $!"); }
+		if($file =~ /^(.+)$/s) { unlink($1) or return("Could not delete $1: $!"); }
 	}
-	rmdir($dir) or return("couldn't remove dir $dir: $!");
+	rmdir($dir) or return("Couldn't remove dir $dir: $!");
 	return();
-}
-
-#---init_scan-------------------------------------------------------------
-
-sub init_scan {
-	my $files = shift;
-	my $from = shift || "unknown";
-	my $user = shift || "unknown";
-	my $to = shift || "$user\@$hostname";
-
-	my $status = 0;
-	my $fs = File::Scan->new(
-		mkdir        => 0700,);
-	FILE: for my $file (@{$files}) {
-		my $virus = $fs->scan($file);
-		if(my $e = $fs->error) {
-			$preserve = 1;
-			&logs("error.log", "$e\n");
-			next FILE;
-		}
-		my ($shortfn) = ($file =~ /([^\/]+)$/o);
-		if($virus) {
-			$status = 1;
-			my $string = "\"$shortfn\" (" . $virus . ")";
-			&registration($string, $from, $user);
-			&virus_mail($string, $from, &set_addr($user, $to));
-			last FILE;
-		} else {
-			&suspicious_mail($shortfn, $from, &set_addr($user, $to)) if($fs->suspicious);
-		}
-	}
-	return($status);
 }
 
 #---set_addr--------------------------------------------------------------
 
 sub set_addr {
-	my $user = shift;
-	my $email = shift;
+	my $user = shift || "unknown";
+	my $email = shift || "unknown";
 
 	my $name = &getusername($user);
 	return("$name <$email>");
@@ -182,10 +282,10 @@ sub set_addr {
 #---getusername-----------------------------------------------------------
 
 sub getusername {
-	my $user = shift;
+	my $user = shift || return("unknown");
 
 	my ($name) = split(/,/, (getpwnam($user))[6]);
-	return($name);
+	return($name || "unknown");
 }
 
 #---suspicious_mail-------------------------------------------------------
@@ -198,8 +298,7 @@ sub suspicious_mail {
 	my $data = <<DATATXT;
 Suspicious file alert: $file
 
-The e-mail from $from to $to has a suspicious
-file attachement.
+The e-mail from $from has a suspicious file attachement.
 
 Please take a look at the suspicious file.
 
@@ -209,8 +308,8 @@ $copyrg
 
 DATATXT
 	&send_mail(
-		from    => $av_email,
-		to      => $admin,
+		from    => $to,
+		to      => $to,
 		subject => $subject->[1],
 		data    => $data );
 	return();
@@ -222,11 +321,14 @@ sub virus_mail {
 	my $string = shift;
 	my $from = shift;
 	my $to = shift;
+	my $user = shift;
+
+	my $full_email = &set_addr($user, $to);
 
 	my $data = <<DATATXT;
 Virus alert: $string
 
-You have send a e-mail to $to with a infected file.
+You have send a e-mail to $full_email with a infected file.
 Your email was not sent to its destiny.
 
 This infected file cannot be cleaned. You should delete the file and
@@ -240,21 +342,18 @@ Thank You.
 $copyrg
 
 DATATXT
-	&send_mail(
-		from    => $av_email,
-		to      => $from,
-		bcc     => $admin,
+	my %param = (
+		from    => $to,
 		subject => $subject->[0],
 		data    => $data );
-	return();
-}
 
-#---registration----------------------------------------------------------
-
-sub registration {      
-	my ($string, $from, $to) = @_;
-
-	&logs("virus.log", "[$string] From: $from To: $to\n");
+	if($notify_sender eq "yes") {
+		$param{'to'} = $from;
+		$param{'bcc'} = $to;
+	} else {
+		$param{'to'} = $to;
+	}
+	&send_mail(%param);
 	return();
 }
 
@@ -279,10 +378,10 @@ sub send_mail {
 		$smtp->to($param->{to});
 		$smtp->bcc(split(/ *\, */, $param->{bcc})) if($param->{bcc});
 		$smtp->data();
-		$smtp->datasend("From: ", $param->{from}, "\n") if($param->{from});
-		$smtp->datasend("To: ", $param->{to}, "\n");
-		$smtp->datasend("Bcc: ", $param->{bcc}, "\n") if($param->{bcc});
-		$smtp->datasend("Subject: ", $param->{subject}, "\n") if($param->{subject});
+		$smtp->datasend(join("", "From: ", $param->{from}, "\n")) if($param->{from});
+		$smtp->datasend(join("", "To: ", $param->{to}, "\n"));
+		$smtp->datasend(join("", "Bcc: ", $param->{bcc}, "\n")) if($param->{bcc});
+		$smtp->datasend(join("", "Subject: ", $param->{subject}, "\n")) if($param->{subject});
 		$smtp->datasend("\n");
 		$smtp->datasend($param->{data}) if($param->{data});
 		$smtp->dataend();
@@ -290,42 +389,6 @@ sub send_mail {
 		return();
 	}
 	return();
-}
-
-#---mimeexplode-----------------------------------------------------------
-
-sub mimeexplode {
-	my ($dir, $file) = @_;
-
-	my $attachs = [];
-	my $parser = new MIME::Parser;
-	$parser->extract_uuencode(1);
-	$parser->output_dir($dir);
-	open(FILE, "$dir/$file") or &exit_script("couldn't open $file: $!");
-	my $entity = $parser->read(\*FILE) or &logs("error.log", "Couldn't parse MIME in $file; continuing...\n");
-	close(FILE);
-	&dump_entity($entity, $attachs) if($entity);
-	return($attachs);
-}
-
-#---dump_entity-----------------------------------------------------------
-
-sub dump_entity {
-	my $ent = shift; 
-
-	my @parts = $ent->parts;
-	eval {
-		if(@parts) { map { dump_entity($_, $_[0]) } @parts; }
-		else {
-			my $bp = $ent->bodyhandle->path || "";
-			my $me = $ent->head->mime_encoding || "";
-			my $mt = $ent->head->mime_type || "";
-			my $cd = $ent->head->mime_attr("content-disposition") || "";
-			$bp =~ s/\s+$//;
-			push(@{$_[0]}, $bp) if($cd || ($me eq "base64") || ($mt eq "text/html"));
-		}
-	};
-	&logs("error.log", "$@") if($@);
 }
 
 #---exit_script-----------------------------------------------------------
@@ -340,7 +403,7 @@ sub exit_script {
 #---generate_id-----------------------------------------------------------
 
 sub generate_id {
-	return(substr(MD5->hexhash(time(). {}. rand(). $$. 'blah'), 0, 16));
+	return(substr(md5_hex(time(). {}. rand(). $$. 'blah'), 0, 16));
 }
 
 #---string_date-----------------------------------------------------------
