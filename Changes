@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+1.37  Sat Nov  6 16:59:30 WET 2004
+	- added three new virus signatures (VBS/Inor.encoded,
+	  W32/Netsky.ab@MM and W32/Bagz.f@MM).
+
 1.36  Sat Oct 30 19:03:30 WEST 2004
 	- added Generic PWS.f virus signature.
 	- the W32/Bagle.ai@MM virus signature has been updated to detect
