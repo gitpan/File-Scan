@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Fri Feb 22 10:37:39 WET 2002
+# Last Change: Tue Feb 26 10:06:06 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.04";
+my $VERSION = "0.05";
 
 my $infected = 0;
 my $objects = 0;
@@ -20,6 +20,7 @@ my $skipped = 0;
 my $EXTENSION = "";
 my $CP_DIR = "";
 my $MV_DIR = "";
+my $MK_DIR = 0;
 my $DELETE = 0;
 my $FOLLOW = 0;
 my $MAXTXTSIZE = 0;
@@ -31,9 +32,10 @@ my $opt = {};
 Getopt::Long::GetOptions($opt,
 	"help"         => \&usage,
 	"version"      => \&print_version,
-	"ext"          => \$EXTENSION,
-	"cp"           => \$CP_DIR,
-	"mv"           => \$MV_DIR,
+	"ext=s"        => \$EXTENSION,
+	"cp=s"         => \$CP_DIR,
+	"mv=s"         => \$MV_DIR,
+	"mkdir"        => sub { $MK_DIR = 1; },
 	"del"          => sub { $DELETE = 1; },
 	"follow"       => sub { $FOLLOW = 1; },
 	"maxtxtsize=i" => \$MAXTXTSIZE,
@@ -92,10 +94,11 @@ sub check_path {
 	push(@args, "max_bin_size", $MAXBINSIZE) if($MAXBINSIZE);
 
 	my $fs = File::Scan->new(
-		extension    => $EXTENSION,
-		copy         => $CP_DIR,
-		move         => $MV_DIR,
-		delete       => $DELETE,
+		extension => $EXTENSION,
+		copy      => $CP_DIR,
+		mkdir     => $MK_DIR,
+		move      => $MV_DIR,
+		delete    => $DELETE,
 		@args);
 	for my $p (@{$args}) {
 		if(-d $p) {
@@ -156,6 +159,7 @@ usage: $0 [options] file|directory
   --ext=string_extension
   --cp=/path/to/dir
   --mv=/path/to/dir
+  --mkdir
   --del
   --follow
   --maxtxtsize=size
@@ -193,6 +197,8 @@ Possible options are:
   --mv=<dir>          move the infected file to the specified directory
 
   --cp=<dir>          copy the infected file to the specified directory
+
+  --mkdir             make the specified directories
 
   --del               delete the infected file
 

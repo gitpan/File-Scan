@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.07  Tue Feb 26 10:06:06 WET 2002
+	- test file was moved to test directory
+	- added new signatures
+	- added mkdir argument to the constructor
+	- examples/scan.pl: fixed a 'bug' in options
+	- examples/scan.pl: new option were added
+
 0.06  Fri Feb 22 11:26:43 WET 2002
 	- added new signatures and updated others
 	- added max_txt_size and max_bin_size arguments to the constructor

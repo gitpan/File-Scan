@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Fri Feb 22 09:44:13 WET 2002
+# Last Modification: Tue Feb 26 10:06:06 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -34,6 +34,7 @@ sub new {
 		delete       => 0,
 		move         => "",
 		copy         => "",
+		mkdir        => 0,
 		max_txt_size => 5120,
 		max_bin_size => 10240,
 		@_,
@@ -52,11 +53,11 @@ sub scan {
 	return(&set_error("File has zero size (is empty): $file")) if(-z $file);
 	my $res = "";
 	if(-T $file) {
-		return(&set_error("File \"$file\" is to big"))
+		return(&set_error("File '$file' is to big"))
 			if($self->{'max_txt_size'} && (-s $file > $self->{'max_txt_size'} * 1024));
 		$res = &scan_text($file);
 	} else {
-		return(&set_error("File \"$file\" is to big"))
+		return(&set_error("File '$file' is to big"))
 			if($self->{'max_bin_size'} && (-s $file > $self->{'max_bin_size'} * 1024));
 		$res = &scan_binary($file);
 	}
@@ -67,15 +68,21 @@ sub scan {
 			else { &set_error("Failed to move '$file' to $newname"); }
 		}
 		if($self->{'copy'}) {
+			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
+				mkdir($self->{'copy'}, 0755) or &set_error("Failed to create directory '" . $self->{'copy'} . "' $!");
+			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $cpdir = $self->{'copy'} . "/$f";
 			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
 		}
 		if($self->{'move'}) {
+			if(!(-d $self->{'move'}) && $self->{'mkdir'}) {
+				mkdir($self->{'move'}, 0755) or &set_error("Failed to create directory '" . $self->{'move'} . "' $!");
+			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $mvdir = $self->{'move'} . "/$f";
-			if(move($file, $mvdir)) { $file = $mvdir; }
-			else { &set_error("Failed to move '$file' to $mvdir"); }
+			my $mvfile = $self->{'move'} . "/$f";
+			if(move($file, $mvfile)) { $file = $mvfile; }
+			else { &set_error("Failed to move '$file' to $mvfile"); }
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
@@ -116,6 +123,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs = File::Scan->new([, OPTION ...]);
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
+  if($fs->skipped) { print "file skipped"; }
 
 =head1 DESCRIPTION
 
@@ -130,7 +138,7 @@ virus scanners.
 This method create a new File::Scan object. The following keys are 
 available:
 
-=over 5
+=over 6
 
 =item extension => 'string'
 
@@ -144,9 +152,13 @@ move the infected file to the specified directory
 
 copy the infected file to the specified directory
 
-=item delete => 1
+=item mkdir => 0 or 1
 
-if the value set to 1 delete the infected file
+if the value is set to 1 then make the specified directories
+
+=item delete => 0 or 1
+
+if the value is set to 1 delete the infected file
 
 =item max_txt_size => 'size in kbytes'
 

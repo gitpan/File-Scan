@@ -7,5 +7,5 @@ MANIFEST
 README
 Makefile.PL
 Scan.pm
-test.pl
+t/scan.t
 TODO

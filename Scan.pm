@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Fri Feb 22 09:44:13 WET 2002
+# Last Modification: Tue Feb 26 10:06:06 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -34,6 +34,7 @@ sub new {
 		delete       => 0,
 		move         => "",
 		copy         => "",
+		mkdir        => 0,
 		max_txt_size => 5120,
 		max_bin_size => 10240,
 		@_,
@@ -52,11 +53,11 @@ sub scan {
 	return(&set_error("File has zero size (is empty): $file")) if(-z $file);
 	my $res = "";
 	if(-T $file) {
-		return(&set_error("File \"$file\" is to big"))
+		return(&set_error("File '$file' is to big"))
 			if($self->{'max_txt_size'} && (-s $file > $self->{'max_txt_size'} * 1024));
 		$res = &scan_text($file);
 	} else {
-		return(&set_error("File \"$file\" is to big"))
+		return(&set_error("File '$file' is to big"))
 			if($self->{'max_bin_size'} && (-s $file > $self->{'max_bin_size'} * 1024));
 		$res = &scan_binary($file);
 	}
@@ -67,15 +68,21 @@ sub scan {
 			else { &set_error("Failed to move '$file' to $newname"); }
 		}
 		if($self->{'copy'}) {
+			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
+				mkdir($self->{'copy'}, 0755) or &set_error("Failed to create directory '" . $self->{'copy'} . "' $!");
+			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
 			my $cpdir = $self->{'copy'} . "/$f";
 			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
 		}
 		if($self->{'move'}) {
+			if(!(-d $self->{'move'}) && $self->{'mkdir'}) {
+				mkdir($self->{'move'}, 0755) or &set_error("Failed to create directory '" . $self->{'move'} . "' $!");
+			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $mvdir = $self->{'move'} . "/$f";
-			if(move($file, $mvdir)) { $file = $mvdir; }
-			else { &set_error("Failed to move '$file' to $mvdir"); }
+			my $mvfile = $self->{'move'} . "/$f";
+			if(move($file, $mvfile)) { $file = $mvfile; }
+			else { &set_error("Failed to move '$file' to $mvfile"); }
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
@@ -102,7 +109,7 @@ sub skipped { $SKIPPED; }
 1;
 
 __DATA__
-# last change: 2002/02/23 17:58:28
+# last change: 2002/02/26 10:48:10
 
 sub scan_text {
 	my $file = shift;
@@ -172,6 +179,7 @@ sub scan_binary {
 			}
 			if(/\x53\x43\x61\x6d\x33\x32/so) { $virus = "W32/SirCam\@MM"; last LINE; }
 			if(/\x44*\x65\x63.+\x4e*\x6f\x76.+\x4f*\x63\x74.+\x53*\x65\x70.+\x41*\x75\x67.+\x4a*\x75\x6c.+\x4d*\x61\x79.+\x46\x65\x62\x13\x61\x53\x61\x27\x46\x72\x69\x00\x54\x68\x75\x00.\x9d\x5b\xfe\x57\x65\x64\x00\x54\x75\x65\x6f\x17\x2f.+\x32\x75/so) { $virus = "W32/BadTrans\@MM"; last LINE; }
+			if(/\x2e\x41\x56\x58\x65\x6e\x63\x72/so) { $virus = "W32/XTC\@MM"; last LINE; }
 			if(/\x69\x77\x6f\x72\x6d\x2e\x61\x78\x6c\x38\x7a\x65/so) { $virus = "W32/Aliz\@MM"; last LINE; }
 			if(/\x47\x69\x72\x6c\x73\x00\x5a\x69\x70\x57\x6f\x72\x6d\x00\x00\x7a\x69\x70\x57\x6f\x72\x6d/so) { $virus = "IRC/Girls.worm"; last LINE; }
 			if(/\x20\x00\x2d\x00\x20\x00\x23\x00\x74\x00\x65\x00\x61\x00\x6d\x00\x76\x00\x69\x00\x72\x00\x75\x00\x73\x00\x00\x00\x2c\x00\x0c\x00\x01\x00\x50\x00\x72\x00\x6f\x00\x64\x00\x75\x00\x63\x00\x74\x00\x4e\x00\x61\x00\x6d\x00\x65\x00\x00\x00\x00\x00\x4b\x00\x61\x00\x72\x00\x65\x00\x6e\x00\x00\x00\x2c\x00\x0a\x00\x01\x00\x46\x00\x69\x00\x6c\x00\x65\x00\x56\x00\x65\x00\x72\x00\x73\x00\x69\x00\x6f\x00\x6e\x00\x00\x00\x00\x00\x31\x00\x2e\x00\x30\x00\x30\x00/so) { $virus = "W32/Gokar\@MM"; last LINE; }
@@ -206,6 +214,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs = File::Scan->new([, OPTION ...]);
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
+  if($fs->skipped) { print "file skipped"; }
 
 =head1 DESCRIPTION
 
@@ -220,7 +229,7 @@ virus scanners.
 This method create a new File::Scan object. The following keys are 
 available:
 
-=over 5
+=over 6
 
 =item extension => 'string'
 
@@ -234,9 +243,13 @@ move the infected file to the specified directory
 
 copy the infected file to the specified directory
 
-=item delete => 1
+=item mkdir => 0 or 1
 
-if the value set to 1 delete the infected file
+if the value is set to 1 then make the specified directories
+
+=item delete => 0 or 1
+
+if the value is set to 1 delete the infected file
 
 =item max_txt_size => 'size in kbytes'
 
