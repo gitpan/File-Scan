@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Mar  2 18:01:25 WET 2002
+# Last Modification: Tue Mar  5 09:52:10 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED);
 
 @ISA = qw(Exporter);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -187,17 +187,29 @@ following skipped codes are available:
 
 =over 6
 
-=item 0 - file not skipped 
+=item 0
 
-=item 1 - file is not vulnerable
+file not skipped 
 
-=item 2 - file has zero size
+=item 1
 
-=item 3 - the size of file is small
+file is not vulnerable
 
-=item 4 - the text file size is greater that the 'max_txt_size' argument
+=item 2
 
-=item 5 - the binary file size is greater that the 'max_bin_size' argument
+file has zero size
+
+=item 3
+
+the size of file is small
+
+=item 4
+
+the text file size is greater that the 'max_txt_size' argument
+
+=item 5
+
+the binary file size is greater that the 'max_bin_size' argument
 
 =back
 

@@ -60,6 +60,7 @@ WriteMakefile(
 sub load_signatures {
 	my $file = shift;
 
+	my $pattern = '(?<![\\{\\\\])([\\da-f]{2})(?!\\})';
 	my %script = ();
 	@script{keys(%{$script_lang->{'in'}})} = ();
 	@script{keys(%{$script_lang->{'out'}})} = ();
@@ -78,13 +79,13 @@ sub load_signatures {
 		$elem[3] =~ s/ge/\>\=/ig;
 		$elem[3] =~ s/or/\|\|/ig;
 		$elem[3] =~ s/and/\&\&/ig;
-		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g unless(exists($script{$elem[1]}));
-		$hash->{$elem[1]}->{$elem[3]}->{$elem[2]} = $elem[4];
 		if(exists($script{$elem[1]})) {
-			$elem[4] =~ s/[^\w\. ]//g;
-			my $len = length($elem[4]);
+			my (@tmp) = ($elem[4] =~ /$pattern/og);
+			my $len = int(length(join("", @tmp))/2);
 			$min_txt_size = $len if($len < $min_txt_size || !$min_txt_size);
 		}
+		$elem[4] =~ s/$pattern/\\x$1/og;
+		$hash->{$elem[1]}->{$elem[3]}->{$elem[2]} = $elem[4];
 	}
 	close(FILE);
 	return($hash);
