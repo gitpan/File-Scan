@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Tue Nov  4 18:09:29 WET 2003
+# Last Change: Sat Nov 15 18:26:52 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@ use MIME::Base64 qw(decode_base64);
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.15";
+my $VERSION = "0.16";
 
 my $infected = 0;
 my $objects = 0;
@@ -145,7 +145,7 @@ sub check_path {
 				}
 				return("MHTML exploit");
 			}
-			if(/^[A-Za-z0-9\+\=\/]{76}\x0a[A-Za-z0-9\+\=\/]{76}\x0a/o) {
+			if(/^[A-Za-z0-9\+\=\/]{76}\x0d?\x0a[A-Za-z0-9\+\=\/]{76}\x0d?\x0a/o) {
 				# Base64 encoded file
 				if(my $decodedfile = &decode_b64_file($TMP_DIR, $file)) {
 					&check($fs, $decodedfile);

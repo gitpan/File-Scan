@@ -6,7 +6,7 @@
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Tue Nov  4 18:09:12 WET 2003
+# Last Change: Sat Nov 15 18:36:03 WET 2003
 #
 ###########################################################################
 
@@ -19,7 +19,7 @@ use Net::SMTP;
 use Fcntl qw(:flock);
 use vars qw($VERSION);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 if($ENV{HOME} =~ /^(.+)$/) { $ENV{HOME} = $1; }
 if($ENV{LOGNAME} =~ /^(.+)$/) { $ENV{LOGNAME} = $1; }
 
@@ -215,7 +215,7 @@ sub init_scan {
 				&logs("error.log", $error) if($error);
 				return("MHTML exploit");
 			}
-			if(/^[A-Za-z0-9\+\=\/]{76}\x0a[A-Za-z0-9\+\=\/]{76}\x0a/o) {
+			if(/^[A-Za-z0-9\+\=\/]{76}\x0d?\x0a[A-Za-z0-9\+\=\/]{76}\x0d?\x0a/o) {
 				my $error = &decode_b64_file(\%hash, $tmp_dir, $file);
 				&logs("error.log", $error) if($error);
 				return("Base64 encoded file");
