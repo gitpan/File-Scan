@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Jul 10 16:36:37 WEST 2004
+# Last Modification: Sat Jul 17 16:53:22 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.22';
+$VERSION = '1.23';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/07/10 16:43:20
+# generated in: 2004/07/17 17:17:36
 
 sub get_app_sign {
 	$_ = pop;
@@ -550,6 +550,9 @@ sub scan_binary {
 			}
 			if($total>=1024 && $total<=5120) {
 				/\xed.{0,13}\xe8.{0,17}\xe9.{0,12}\xff\xff\xff.{0,19}\x83/s and $virus = "W32/Netsky.c\@MM", last LINE;
+			}
+			if($total==11264 || $total==13312) {
+				/\x91\x04\x00\xa8\x60\x54\x58\x23\x23\x23\x23\x5c\x60\x64\x68\x23\x23\x23\x23\x6c\x70\x74\x78\x23\x23\x23\x23\x7c\x80\x84\x88\x23\x23\x23\x23\x8c\x90\x94\x98\x23\x23\x23\x23\x9c\xa0\xa4/s and $virus = "W32/Bagle.af\@MM", last LINE;
 			}
 			if($total>2048) {
 				/\x7e\x46\x75\x6e\x20\x4c\x6f\x76\x69\x6e\x67\x20\x43\x72\x69\x6d\x69\x6e\x61\x6c\x7e/s and $virus = "W32/FunLove.4099", last LINE;

@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define version 1.22
+%define version 1.23
 %define release 1
 
 # Derived values
@@ -60,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_prefix}
 
 %changelog
+* Sat Jul 17 2004 Henrique Dias <hdias@aesbuc.pt>
+- Updated to 1.23
 * Sat Jul 10 2004 Henrique Dias <hdias@aesbuc.pt>
 - Updated to 1.22
 * Tue Jul 06 2004 Henrique Dias <hdias@aesbuc.pt>
