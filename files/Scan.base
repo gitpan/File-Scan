@@ -1,8 +1,8 @@
 #
 # Scan.pm
-# Last Modification: Thu Feb 14 12:20:05 WET 2002
+# Last Modification: Thu Feb 14 13:26:10 WET 2002
 #
-# Copyright (c) 2001 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
+# Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
 #
@@ -19,11 +19,13 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 $ERROR = "";
 
 SelfLoader->load_stubs();
+
+INIT { &load_txt_signs(); };
 
 sub new {
 	my $proto = shift;
@@ -36,7 +38,6 @@ sub new {
 		@_,
 	};
 	bless ($self, $class);
-	&load_txt_signs();
 	return($self);
 }
 
@@ -104,9 +105,9 @@ File::Scan - Perl extension for Scanning files for Viruses
 
 =head1 DESCRIPTION
 
-This module is designed to allows to scan files for known viruses. The
-purpose is to provide a perl module to make plattaform independent virus
-scanners.
+This module is designed to allows users to scan files for known viruses.
+The purpose is to provide a perl module to make plattaform independent
+virus scanners.
 
 =head1 METHODS
 
@@ -117,15 +118,15 @@ available:
 
 =over 3
 
-=item extension => "string"
+=item extension => 'string'
 
 add the specified extension to the infected file
 
-=item move => "directory"
+=item move => 'directory'
 
 move the infected file to the specified directory
 
-=item copy => "directory"
+=item copy => 'directory'
 
 copy the infected file to the specified directory
 

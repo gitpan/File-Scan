@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.02  Thu Feb 14 13:24:19 2002
+	- fixed a 'bug' in scan_text function
+
 0.01  Mon Feb 11 15:32:08 2002
 	- original version; created by h2xs 1.20 with options
 		-A -X -n File::Scan

@@ -119,10 +119,10 @@ sub scan_text {
 		}
 	}
 	close(FILE);
-	for my \$name (\%{\$virustxt}) {
+	VIRUS: for my \$name (\%{\$virustxt}) {
 		my \$found = "";
 		for my \$sign (\@{\$virustxt->{\$name}}) {
-			next unless(exists(\$hash{\$sign}));
+			next VIRUS unless(exists(\$hash{\$sign}));
 			\$found = "\$name";
 		}
 		return(\$found) if(\$found);

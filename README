@@ -1,10 +1,10 @@
-This is the README file for the PERL module File::Scan for Version 0.01
+This is the README file for the PERL module File::Scan for Version 0.02
 
 File::Scan - Perl extension for Scanning files for Viruses
 
-This module is designed to allows to scan files for known viruses. The
-purpose is to provide a perl module to make plattaform independent virus
-scanners.
+This module is designed to allows users to scan files for known viruses.
+The purpose is to provide a perl module to make plattaform independent
+virus scanners.
 
 To install File::Scan:  
   
@@ -22,6 +22,6 @@ hdias@esb.ucp.pt
 Questions, bug reports, useful code bits, and suggestions for File::Scan
 hould just be sent to to me at hdias@esb.ucp.pt
 
-Copyright (c) 2001 Henrique Dias. All rights reserved.
+Copyright (c) 2002 Henrique Dias. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
