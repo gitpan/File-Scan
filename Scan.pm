@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Mar  1 15:11:32 WET 2004
+# Last Modification: Tue Mar  2 19:03:13 WET 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.88';
+$VERSION = '0.89';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/03/01 15:36:31
+# generated in: 2004/03/02 19:33:37
 
 sub get_app_sign {
 	$_ = pop;
@@ -447,7 +447,7 @@ sub scan_binary {
 					/\x50\xe8\xce\x86\x00\x00\x83\xc4\x04\xc7\x46\x44\x00\x00\x00\x00\x8b\xce\xe8\xf9\xf8\xff\xff\x5e\xc3\x90\x90\x90\x90\x90\x90\x90\x8b\x44\x24\x08\x8b\x54\x24\x04\x50\x52\xe8\x31\xf9\xff\xff\xc2/s and $virus = "BackDoor-ARG", last LINE;
 				}
 				if($total==3072 || $total==6144) {
-					/\x60\xe8\x01\x00\x00\x00\xe8\x83\xc4\x04\xe8\x01\x00\x00\x00\xe9\x5d\x81\xed\xd9\x21\x40\x00\xe8\x04\x02\x00\x00\xe8\xeb\x08\xeb\x02\xcd\x20\xff\x24\x24\x9a\x66\xbe\x52\x47\xe8\x01\x00\x00\x00/s and $virus = "W32/Bagle.e\@MM", last LINE;
+					/\x60\xe8\x01\x00\x00\x00\xe8\x83\xc4\x04\xe8\x01\x00\x00\x00\xe9\x5d\x81\xed\xd9\x21\x40\x00\xe8\x04\x02\x00\x00\xe8\xeb\x08\xeb\x02\xcd\x20\xff\x24\x24\x9a\x66\xbe[\x35\x52][\x53\x47]\xe8\x01\x00\x00\x00/s and $virus = "W32/Bagle.e\@MM", last LINE;
 				}
 				/\x47\x69\x72\x6c\x73\x00\x5a\x69\x70\x57\x6f\x72\x6d\x00\x00\x7a\x69\x70\x57\x6f\x72\x6d/s and $virus = "IRC/Girls.worm", last LINE;
 				if($total==2048) {
