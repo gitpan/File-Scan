@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Feb 21 12:04:17 WET 2002
+# Last Modification: Fri Feb 22 09:44:13 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -16,12 +16,13 @@ require Exporter;
 use File::Copy;
 use SelfLoader;
 
-use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
+use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 $ERROR = "";
+$SKIPPED = 0;
 
 SelfLoader->load_stubs();
 
@@ -29,10 +30,12 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 	my $self  = {
-		extension => "",
-		delete    => 0,
-		move      => "",
-		copy      => "",
+		extension    => "",
+		delete       => 0,
+		move         => "",
+		copy         => "",
+		max_txt_size => 5120,
+		max_bin_size => 10240,
 		@_,
 	};
 	bless ($self, $class);
@@ -43,10 +46,20 @@ sub scan {
 	my $self = shift;
 	my $file = shift;
 
-	&set_error("");
+	&set_error();
+	&set_skip();
 	return(&set_error("No such file or directory: $file")) unless(-e $file);
 	return(&set_error("File has zero size (is empty): $file")) if(-z $file);
-	my $res = (-T $file) ? &scan_text($file) : &scan_binary($file);
+	my $res = "";
+	if(-T $file) {
+		return(&set_error("File \"$file\" is to big"))
+			if($self->{'max_txt_size'} && (-s $file > $self->{'max_txt_size'} * 1024));
+		$res = &scan_text($file);
+	} else {
+		return(&set_error("File \"$file\" is to big"))
+			if($self->{'max_bin_size'} && (-s $file > $self->{'max_bin_size'} * 1024));
+		$res = &scan_binary($file);
+	}
 	if($res) {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
 			my $newname = "$file\." . $self->{'extension'};
@@ -66,7 +79,7 @@ sub scan {
 		}
 		if($self->{'delete'}) {
 			if($file =~ /^(.+)$/s) {
-				unlink($1) or &set_error("could not delete $1: $!");
+				unlink($1) or &set_error("Could not delete $1: $!");
 			}
 		}
 	}
@@ -74,14 +87,17 @@ sub scan {
 }
 
 sub set_error {
-	my $string = shift;
-	$ERROR = $string;  
+	$ERROR = shift || "";  
 	return();
 }
-sub error {
-	my $self = shift;
-	return($ERROR);  
+
+sub set_skip {
+	$SKIPPED = shift || 0;
+	return();
 }
+
+sub error { $ERROR; }
+sub skipped { $SKIPPED; }
 
 1;
 
@@ -114,7 +130,7 @@ virus scanners.
 This method create a new File::Scan object. The following keys are 
 available:
 
-=over 3
+=over 5
 
 =item extension => 'string'
 
@@ -130,7 +146,17 @@ copy the infected file to the specified directory
 
 =item delete => 1
 
-delete the infected file
+if the value set to 1 delete the infected file
+
+=item max_txt_size => 'size in kbytes'
+
+scan only the text file if the file size is less then max_txt_size. The
+default value is 5120 kbytes. Set to 0 for no limit.
+
+=item max_bin_size => 'size in kbytes'
+
+scan only the binary file if the file size is less then max_bin_size. The
+default value is 10240 kbytes. Set to 0 for no limit.
 
 =back
 
@@ -138,6 +164,10 @@ delete the infected file
 
 This method scan a file for viruses and return the name of virus if a
 virus is found.
+
+=head2 skipped()
+
+This method return 1 if the file was skipped and 0 if not.
 
 =head2 error()
 

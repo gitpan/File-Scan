@@ -17,6 +17,7 @@ my %filetypes = (
 	png        => '\x89PNG',
 	applefile  => '\x00\x05\x16\x00',
 	zip        => '\x50\x4b\x03\x04',
+	gzip       => '\x1f\x8b\x08\x08',
 	mp3        => '\xff(\xfa|\xfb)',
 	mpeg       => '\x00\x00\x01(\xba\x21)|(\xb3\x16)',
 );
@@ -27,10 +28,17 @@ my %script_lang = (
 	"VBS" => "VBScript");
 
 my %app_signatures = (
-	'4d5a'   => '\x4d\x5a',
-	'474554' => '\x47\x45\x54',
-	'e9'     => '\xe9',
+	'd0cf11e0a1b11ae1' => '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1',
+	'4d5a'             => '\x4d\x5a',
+	'474554'           => '\x47\x45\x54',
+	'e9'               => '\xe9',
 );
+
+my $first = 0;
+for my $k (keys(%app_signatures)) {
+	my $n = length($k)/2;
+	$first = $n if($n > $first);
+}
 
 my $hash = &load_signatures($signs);
 my $code = &get_code($hash);
@@ -101,7 +109,7 @@ sub get_code {
 # last change: $today
 
 sub scan_text {
-	my\$file = shift;
+	my \$file = shift;
 
 	local \$/ = "\\0";
 	local *FILE;
@@ -121,6 +129,7 @@ ENDOFCODE1
 sub scan_binary {
 	my \$file = shift;
 
+	my \$skip = 0;
 	my \$virus = "";
 	my \$buff = "";
 	my \$save = "";
@@ -129,13 +138,14 @@ sub scan_binary {
 	open(FILE, "<\$file") or return(&set_error("\$!"));
 	binmode(FILE);
 	LINE: while(read(FILE, \$buff, \$size)) {
+		study;
 		\$total += length(\$buff);
 		unless(\$save) {
-			my \$begin = substr(\$buff, 0, 5);
-			last LINE unless(length(\$begin) >= 5);
+			my \$begin = substr(\$buff, 0, $first);
+			last LINE unless(length(\$begin) >= $first);
 ENDOFCODE2
 	for my $type (values(%filetypes)) {
-		$code .= "\t\t\tif(\$begin =~ /\^$type/o) \{ last LINE; \}\n";
+		$code .= "\t\t\tif(\$begin =~ /\^$type/o) \{ \$skip = 1; last LINE; \}\n";
 	}
 	while(my($key, $value) = each(%app_signatures)) {
 		$code .= "\t\t\tif(\$begin =~ /\^$value/o) \{ \$vtype = \"$key\"; \}\n";
@@ -167,6 +177,7 @@ ENDOFCODE3
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
+	&set_skip(1) if(\$skip);
 	return(\$virus);
 }
 ENDOFCODE4

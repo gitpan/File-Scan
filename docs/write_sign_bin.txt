@@ -36,9 +36,10 @@ date::application_signature::name::condition::signature
 
 File Application Signatures:
 ----------------------------------------
-4d5a	For files that start with 4d5a
-474554	For files that start with 474554
-e9	For files that start with e9
+4d5a
+474554
+e9
+d0cf11e0a1b11ae1
 ----------------------------------------
 
 If you look at first line of hex file, the application_signature

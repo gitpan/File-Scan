@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.06  Fri Feb 22 11:26:43 WET 2002
+	- added new signatures and updated others
+	- added max_txt_size and max_bin_size arguments to the constructor
+	- added skipped() method to test if file was skipped
+	- updated the documentation
+	- examples/scan.pl: new features were added
+
 0.05  Thu Feb 21 12:04:17 WET 2002
 	- added new signatures and updated others
 	- changed the file types and the signatures of text files

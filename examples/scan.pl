@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Mon Feb 18 11:04:46 WET 2002
+# Last Change: Fri Feb 22 10:37:39 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,28 +11,33 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.03";
+my $VERSION = "0.04";
 
 my $infected = 0;
 my $objects = 0;
+my $skipped = 0;
 
 my $EXTENSION = "";
 my $CP_DIR = "";
 my $MV_DIR = "";
 my $DELETE = 0;
 my $FOLLOW = 0;
+my $MAXTXTSIZE = 0;
+my $MAXBINSIZE = 0;
 
 die(short_usage()) unless(scalar(@ARGV));
 
 my $opt = {};
 Getopt::Long::GetOptions($opt,
-	"help"    => \&usage,
-	"version" => \&print_version,
-	"ext"     => \$EXTENSION,
-	"cp"      => \$CP_DIR,
-	"mv"      => \$MV_DIR,
-	"del"     => sub { $DELETE = 1; },
-	"follow"  => sub { $FOLLOW = 1; },
+	"help"         => \&usage,
+	"version"      => \&print_version,
+	"ext"          => \$EXTENSION,
+	"cp"           => \$CP_DIR,
+	"mv"           => \$MV_DIR,
+	"del"          => sub { $DELETE = 1; },
+	"follow"       => sub { $FOLLOW = 1; },
+	"maxtxtsize=i" => \$MAXTXTSIZE,
+	"maxbinsize=i" => \$MAXBINSIZE,
 ) or die(short_usage());
 
 &main();
@@ -52,6 +57,7 @@ sub main {
 Results of virus scanning:
 --------------------------
 Objects scanned: $objects 
+        Skipped: $skipped
        Infected: $infected
       Scan Time: $strtime
 
@@ -81,11 +87,16 @@ sub display_msg {
 sub check_path {
 	my $args = shift;
 
+	my @args = ();
+	push(@args, "max_txt_size", $MAXTXTSIZE) if($MAXTXTSIZE);
+	push(@args, "max_bin_size", $MAXBINSIZE) if($MAXBINSIZE);
+
 	my $fs = File::Scan->new(
-		extension => $EXTENSION,
-		copy      => $CP_DIR,
-		move      => $MV_DIR,
-		delete    => $DELETE);
+		extension    => $EXTENSION,
+		copy         => $CP_DIR,
+		move         => $MV_DIR,
+		delete       => $DELETE,
+		@args);
 	for my $p (@{$args}) {
 		if(-d $p) {
 			$p =~ s{\/+$}{}g;
@@ -93,7 +104,10 @@ sub check_path {
 		} elsif(-e $p) {
 			my $res = $fs->scan($p);
 			if(my $e = $fs->error) { print"$e\n"; }
-			&display_msg($p, $res);
+			elsif($fs->skipped) {
+				$skipped++;
+				print "$p File Skipped\n";
+			} else { &display_msg($p, $res); }
 		} else {
 			print "No such file or directory: $p\n";
 			exit(0);
@@ -122,7 +136,10 @@ sub dir_handle {
 		} else {
 			my $res = $fs->scan($f);
 			if(my $e = $fs->error) { print"$e\n"; }
-			&display_msg($f, $res);
+			elsif($fs->skipped) {
+				$skipped++;
+				print "$f File Skipped\n";
+			} else { &display_msg($f, $res); }
 		}
 	}
 	closedir(DIRHANDLE);
@@ -141,6 +158,8 @@ usage: $0 [options] file|directory
   --mv=/path/to/dir
   --del
   --follow
+  --maxtxtsize=size
+  --maxbinsize=size
   --version
   --help
         
@@ -169,19 +188,25 @@ Usage: $0 [options] file|directory
 
 Possible options are:
 
-  --ext=<string> add the specified extension to the infected file
+  --ext=<string>      add the specified extension to the infected file
 
-  --mv=<dir>     move the infected file to the specified directory
+  --mv=<dir>          move the infected file to the specified directory
 
-  --cp=<dir>     copy the infected file to the specified directory
+  --cp=<dir>          copy the infected file to the specified directory
 
-  --del          delete the infected file
+  --del               delete the infected file
 
-  --follow       follow symbolic links
+  --follow            follow symbolic links
 
-  --version      print version number
+  --maxtxtsize=<size> scan only the text file if the file size is less then
+                      maxtxtsize (size in kbytes)
+ 
+  --maxbinsize=<size> scan only the binary file if the file size is less then
+                      maxbinsize (size in kbytes)
 
-  --help         Print this message and exit
+  --version           print version number
+
+  --help              print this message and exit
 
 USAGE
 	exit 1;
