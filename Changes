@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.95  Thu Mar 18 13:16:37 WET 2004
+	- the W32/Netsky.c@MM, W32/Bagle.e@MM and W32/Bagle.j@MM virus
+	  signatures were updated.
+
 0.94  Thu Mar 11 17:43:13 WET 2004
 	- added Proxy-Cidra virus signature
 	  Thanks to Michal Jankowski <Michal.Jankowski@fuw.edu.pl>
