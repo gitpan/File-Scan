@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+1.18  Sat Jun 19 20:00:25 WEST 2004
+	- the W32/Bagle.j@MM virus signature has been updated.
+
 1.17  Mon Jun 14 13:49:07 WEST 2004
 	- added W32/Zafi.b@MM virus signature.
 
