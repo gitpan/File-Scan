@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.31  Tue Jun 25 11:10:58 WEST 2002
+	- added four new virus signatures (W32/Yaha.gen@MM, W32/Perrun,
+	  VBS/Chick.e@M and W32/Higuy@MM)
+
 0.30  Mon Jun 17 11:44:33 WEST 2002
 	- rename W32/Trilisa@MM virus signature to W32/Trilisa.gen@MM
 	- added two new virus signatures (W32/Frethem.f@MM and
