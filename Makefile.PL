@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Tue Sep  2 14:44:42 WEST 2003
+# Last Modification: Tue Nov  4 14:21:03 WET 2003
 
 use strict;
 
@@ -186,6 +186,7 @@ sub exception {
 }
 
 sub scan_text {
+	my \$self = shift;
 	my \$file = shift;
 
 	my (\$buff, \$save, \$virus, \$script) = ("", "", "", "");
@@ -198,7 +199,15 @@ ENDOFCODE2
 
 	$code .= <<ENDOFCODE3;
 	LINE: while(read(FILE, \$buff, \$size)) {
-		unless(\$save) { last LINE if(\$skip = &exception(\$buff)); }
+		unless(\$save) {
+			last LINE if(\$skip = &exception(\$buff));
+			if(exists(\$self->{'callback'})) {
+				if(my \$ret = \$self->{'callback'}->(\$file, \$buff) || "") {
+					&ret_callback(\$ret);
+					\$ret and last LINE;
+				}
+			}
+		}
 		study;
 		\$_ = (\$save .= \$buff);
 		unless(\$script) {

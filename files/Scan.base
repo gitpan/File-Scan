@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Tue Nov  4 11:36:27 WET 2003
+# Last Modification: Tue Nov  4 14:20:15 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.72';
+$VERSION = '0.73';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -59,7 +59,7 @@ sub scan {
 		return(&_set_skip(3)) if($fsize < $min_txt_size);
 		return(&_set_skip(4))
 			if($self->{'max_txt_size'} && ($fsize > $self->{'max_txt_size'} * 1024));
-		$res = &scan_text($file);
+		$res = &scan_text($self, $file);
 	} else {
 		return(&_set_skip(5))
 			if($self->{'max_bin_size'} && ($fsize > $self->{'max_bin_size'} * 1024));

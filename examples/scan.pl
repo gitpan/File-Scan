@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Mon Sep 29 16:15:08 WEST 2003
+# Last Change: Tue Nov  4 18:09:29 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
@@ -12,10 +12,11 @@
 
 use strict;
 use File::Scan;
+use MIME::Base64 qw(decode_base64);
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.14";
+my $VERSION = "0.15";
 
 my $infected = 0;
 my $objects = 0;
@@ -144,6 +145,14 @@ sub check_path {
 				}
 				return("MHTML exploit");
 			}
+			if(/^[A-Za-z0-9\+\=\/]{76}\x0a[A-Za-z0-9\+\=\/]{76}\x0a/o) {
+				# Base64 encoded file
+				if(my $decodedfile = &decode_b64_file($TMP_DIR, $file)) {
+					&check($fs, $decodedfile);
+					unlink($decodedfile);
+				}
+				return("Base64 encoded file");
+			}
 			return("");
 		}
 	);
@@ -182,6 +191,24 @@ sub extract_file {
 	}
 	close(NEWFILE);
 	return();
+}
+
+#---decode_b64_file---------------------------------------------------------
+
+sub decode_b64_file {
+	my $tmp = shift;
+	my $file = shift;
+
+	my ($filename) = ($file =~ /\/?([^\/]+)$/);
+	my $decoded = join("/", $tmp, "$filename\.eml");
+	open(ENCFILE, "<$file") or die("Can't open $file to read: $!\n");
+	open(DECFILE, join("", ">$decoded")) or die("Can't open $decoded to write: $!\n");
+	binmode(DECFILE);
+	while(<ENCFILE>) { print DECFILE decode_base64($_); }
+	close(DECFILE);
+	close(ENCFILE);  
+
+	return($decoded);
 }
 
 #---mhtml_exploit-----------------------------------------------------------

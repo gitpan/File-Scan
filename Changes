@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+0.73  Tue Nov  4 18:22:14 WET 2003
+	- added callback functionality to scan_text
+	- examples/scan.pl: the version was updated to 0.15
+	- examples/scan.pl: function to check Base64 files has been added
+	- examples/procmail/scanvirus.pl: the version was updated to 0.05
+	- examples/procmail/scanvirus.pl: function to check Base64 files
+	  has been added
+
 0.72  Tue Nov  4 11:36:56 WET 2003
 	- the W32/Mimail@MM virus signature has been updated again
 

@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-
 ###########################################################################
 #
 # ScanVirus for use with Procmail
@@ -7,20 +6,20 @@
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Tue Sep 30 10:43:00 WEST 2003
+# Last Change: Tue Nov  4 18:09:12 WET 2003
 #
 ###########################################################################
 
 use strict;
 use locale;
-use MIME::Explode;
+use MIME::Explode qw(rfc822_base64);
 use Digest::MD5 qw(md5_hex);
 use File::Scan;
 use Net::SMTP;
 use Fcntl qw(:flock);
 use vars qw($VERSION);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 if($ENV{HOME} =~ /^(.+)$/) { $ENV{HOME} = $1; }
 if($ENV{LOGNAME} =~ /^(.+)$/) { $ENV{LOGNAME} = $1; }
 
@@ -35,7 +34,7 @@ my $hostname      = "myhostname.myorgnization.com";
 my $subject       = ["Returned mail: Virus alert!", "Returned mail: Suspicious file alert!"];
 my $unzip         = "/usr/bin/unzip";
 my $notify_sender = "yes",
-my $suspicious    = "yes";
+my $suspicious    = "no";
 my $timeout       = 180;
 my $copyrg        = "(c) 2003 Henrique Dias - ScanVirus for Mail";
 
@@ -119,6 +118,27 @@ sub extract_file {
 	return("");
 }
 
+#---decode_b64_file---------------------------------------------------------
+
+sub decode_b64_file {
+	my $files = shift;
+	my $tmp_dir = shift;
+	my $file = shift;
+
+	my ($filename) = ($file =~ /\/?([^\/]+)$/);
+	my $decoded = join("/", $tmp_dir, "$filename\.eml");
+	open(ENCFILE, "<$file") or return("Can't open $file: $!\n");
+	open(DECFILE, join("", ">$decoded")) or return("Can't open $decoded: $!\n");
+	binmode(DECFILE);
+	while(<ENCFILE>) { print DECFILE rfc822_base64($_); }
+	close(DECFILE);
+	close(ENCFILE);
+
+	$files->{$decoded} = "";
+
+	return("");
+}
+
 #---mhtml_exploit---------------------------------------------------------
 
 sub mhtml_exploit {
@@ -194,6 +214,11 @@ sub init_scan {
 				my $error = &mhtml_exploit(\%hash, $tmp_dir, $file);
 				&logs("error.log", $error) if($error);
 				return("MHTML exploit");
+			}
+			if(/^[A-Za-z0-9\+\=\/]{76}\x0a[A-Za-z0-9\+\=\/]{76}\x0a/o) {
+				my $error = &decode_b64_file(\%hash, $tmp_dir, $file);
+				&logs("error.log", $error) if($error);
+				return("Base64 encoded file");
 			}
 			return("");
 		}
