@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.44  Sat Mar 15 16:08:24 WET 2003
+	- added VBS/Fourcourse virus signature.
+
 0.43  Mon Jan 13 12:22:16 WET 2003
 	- added W32/Sobig@MM virus signature.
 	- added new question/answer to FAQ.
