@@ -7,7 +7,7 @@
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
 # it under the same terms as Perl itself.
-# Last Change: Mon Sep 29 16:53:17 WEST 2003
+# Last Change: Tue Sep 30 10:43:00 WEST 2003
 #
 ###########################################################################
 
@@ -20,7 +20,7 @@ use Net::SMTP;
 use Fcntl qw(:flock);
 use vars qw($VERSION);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 if($ENV{HOME} =~ /^(.+)$/) { $ENV{HOME} = $1; }
 if($ENV{LOGNAME} =~ /^(.+)$/) { $ENV{LOGNAME} = $1; }
 
@@ -151,7 +151,7 @@ sub unzip_file {
 	my $file = shift;
 
 	my $pid = open(UNZIP, "-|");
-	defined($pid) or die("Cannot fork: $!");
+	defined($pid) or return("Cannot fork: $!");
 	if($pid) {
 		while(<UNZIP>) {
 			if(my ($f) = (/$pattern/)[1]) {
@@ -159,10 +159,10 @@ sub unzip_file {
 				$files->{$f} = "";
 			}
 		}
-		close(UNZIP) or &logs("error.log", "unzip error: kid exited $?");
+		close(UNZIP) or return("Unzip error: kid exited $?");
 	} else {
 		my @args = ("-P", "''", "-d", $tmp_dir, "-j", "-n");
-		exec($program, @args, $file) or die("Can't exec program: $!");
+		exec($program, @args, $file) or return("Can't exec program: $!");
 	}
 	return("");
 }
@@ -428,6 +428,7 @@ sub logs {
 
 	unless(-d $logsdir) { mkdir($logsdir, 0755) or exit(0); }
 	my $today = &string_date();
+	$string .= "\n" unless($string =~ /\n+$/);
 	open(LOG, ">>$logsdir/$logfile") or exit(0);
 	print LOG "$today $string";
 	close(LOG);

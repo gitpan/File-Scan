@@ -1,6 +1,6 @@
 Exemple of writing a signature for binary file:
 Henrique Dias <hdias@aesbuc.pt>
-Last Change: Tue Aug  5 12:41:25 WEST 2003
+Last Change: Tue Sep 30 11:24:13 WEST 2003
 
 This document provides suggestions for write signatures for viruses.
 
@@ -12,9 +12,9 @@ xxd  -> hex dump of a given file
 $ cd virus/W32_Yaha.u_MM
 $ ls
 
-disney.zip
+specimen.zip
 
-$ unzip disney.zip
+$ unzip specimen.zip
 $ xxd setup.exe > hex.txt
 $ more hex.txt
 
@@ -178,12 +178,12 @@ $ make clean
 
 -> Test the signature with the example scanner:
 
-$ examples/scan.pl ../../virus/W32_Yaha.u_MM/disney.zip
+$ examples/scan.pl ../../virus/W32_Yaha.u_MM/specimen.zip
 
 ---Result------------------------------------
 
 /tmp/setup.exe Infection: W32/Yaha.u@MM
-../../virus/W32_Yaha.u_MM/disney.zip ZIP archive
+../../virus/W32_Yaha.u_MM/specimen.zip ZIP archive
 
 Results of virus scanning:
 --------------------------
