@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+1.03  Thu Apr 22 17:55:53 WEST 2004
+	- added two new virus signatures (Exploit-DcomRpc.gen New 
+	  Malware.b).
+	- the W32/Netsky@MM virus signature has been updated
+
 1.02  Wed Apr 14 19:52:42 WEST 2004
 	- added W32/Lovgate.x@MM virus signature
 	- the W32/Netsky.p@MM virus signature has been updated to detect
