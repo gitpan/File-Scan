@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Tue Jul  6 13:50:08 WEST 2004
+# Last Modification: Sat Jul 10 16:36:37 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.21';
+$VERSION = '1.22';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/07/06 14:15:45
+# generated in: 2004/07/10 16:43:20
 
 sub get_app_sign {
 	$_ = pop;
@@ -302,6 +302,9 @@ sub scan_binary {
 			}
 		} elsif($type == 4) {
 			if($subtype == 1) {
+				if($total==4096) {
+					/\x60\xe8\x01\x00\x00\x00\xe8\x83\xc4\x04\xe8\x01\x00\x00\x00\xe9\x5d\x81\xed\xd9\x21\x40\x00\xe8\x1b\x02\x00\x00\xe8\xeb\x08\xeb\x02\xcd\x20\xff\x24\x24\x9a\x66\xbe\x47\x46\xe8\x01\x00\x00\x00\x9a\x59\x8d\x95\x2b\x22\x40\x00\xe8\x01\x00\x00\x00\x69\x58\x66/s and $virus = "W32/Bagle.dll.gen", last LINE;
+				}
 				if($total<=3072) {
 					/\x55\x50\x58\x30\x00{5}[\xa0\x90\xe0]\x00{3}\x10\x00{7}\x02\x00{14}\x80\x00\x00\xe0\x55\x50\x58\x31\x00{5}[\x30\x50\x90]\x00\x00\x00[\xb0\xf0\xa0]\x00\x00\x00[\x28\x48\x46\x8c]\x00\x00\x00\x02\x00{14}[\x80\x40\x60]\x00{1,2}[\x00\xf0]\xe0?\x2e\x72\x73\x72\x63\x00{3,4}[\x6e\x70\x10]\x19?\x00\x00\x00[\xe0\x40\xf0\x30][\x00\x01]\x00\x00[\x0c\x62\x06\x1a]\x00\x00\x00[\x2a\x4a\x48\x8e]\x00{14}\x40\x00\x00[\xc0\xf0]\x31\x2e\x32[\x30\x34]\x00\x55\x50\x58\x21\x0c\x09\x02[\x0a\x08]/s and $virus = "W32/Bagle.j\@MM", last LINE;
 				}
