@@ -1,5 +1,14 @@
 Revision history for Perl extension File::Scan.
 
+0.23  Mon Apr 22 12:29:50 WEST 2002
+	- the Makefile.PL was changed, the code has been optimized
+	- added six new application signatures
+	- added new virus signatures and others have been updated.
+	  Thanks to Risko Gergely <risko@debian.fsn.hu> and
+	  Nels Lindquist <nels@maei.ca>
+	- added url to the README file of the SuSE Linux RPM package.
+	  Thanks to Pascal Bleser <pascal.bleser@atosorigin.com>
+
 0.22  Mon Apr 15 13:48:36 WEST 2002
 	- added two new virus signatures
 

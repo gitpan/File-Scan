@@ -1,6 +1,6 @@
 Write signatures for binary files
 Henrique Dias <hdias@esb.ucp.pt>
-Last Change: Sat Mar  2 18:01:25 WET 2002
+Last Change: Mon Apr 22 12:29:35 WEST 2002
 
 This document provides suggestions for write signatures for viruses.
 
@@ -36,24 +36,32 @@ date::application_signature::name::condition::signature
 
 File Application Signatures:
 ----------------------------------------
-4d5a			EXE,COM,BAT
+4d5a (Generic)		EXE,COM,BAT
+4d5a000002
+4d5a420002
+4d5a500002
+4d5a900003
+4d5a900003
 474554
 e9
 d0cf11e0a1b11ae1	WORD
 49545346		CHM
+7f454c46		.ELF
 ----------------------------------------
 
 If you look at first line of hex file, the application_signature
 is '4d5a' (MZ).
 
 Conditions:
----------------------------------------------
+--------------------------------------------------------
 0		Scan all file
-lt/le n		Stop scan after read n bytes 
+lt/le n		Scan after read n bytes 
 gt/ge n		Scan only before read n bytes
-or
-and
----------------------------------------------
+eq n		Scan if n is equal to the bytes read 
+ne n		Scan if n is not equal to the bytes read
+or		logical OR operation
+and		logical AND operation
+--------------------------------------------------------
 
 The result line:
 20020218::4d5a::SirCam::0::5343616d3332

@@ -1,4 +1,4 @@
-This is the README file for the PERL module File::Scan for Version 0.22
+This is the README file for the PERL module File::Scan for Version 0.23
 
 File::Scan - Perl extension for Scanning files for Viruses
 
@@ -12,6 +12,11 @@ To install File::Scan:
 % make
 % make test
 % make install
+
+Rpm Packages
+  Platform: SuSE 7.3
+  Author: Pascal Bleser <pascal.bleser@atosorigin.com>
+  Url: http://guru.unixtech.be/rpm/SuSE-7.3/System/Security/
 
 You can access the File::Scan documentation with perldoc File::Scan
 For examples look at examples directory (includes a virus scanner).

@@ -1,10 +1,11 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Fri Apr  5 09:55:38 WEST 2002
+# Last Modification: Mon Apr 22 10:22:35 WEST 2002
 
 use strict;
 
+my $debug = 0;
 my $bufflen = 1024;
 my $min_txt_size = 0;
 my $signs = "files/signatures.txt";
@@ -26,20 +27,27 @@ my $script_lang = {
 	}
 };
 
-my %app_signatures = (
-	'49545346'         => '\x49\x54\x53\x46',
-	'd0cf11e0a1b11ae1' => '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1',
-	'4d5a'             => '\x4d\x5a',
-	'474554'           => '\x47\x45\x54',
-	'e9'               => '\xe9',
-);
+my $app_signatures = {
+	'4d5a'             => { sign     => '\x4d\x5a',
+				subtypes => [
+					{ type => '4d5a000002',
+					  sign => '\x4d\x5a\x00\x00\x02', },
+					{ type => '4d5a420002',
+					  sign => '\x4d\x5a\x42\x00\x02', },
+					{ type => '4d5a500002',
+					  sign => '\x4d\x5a\x50\x00\x02', },
+					{ type => '4d5a900003',
+					  sign => '\x4d\x5a\x90\x00\x03', }, ],
+				},
+	'49545346'         => { sign     => '\x49\x54\x53\x46', },
+	'd0cf11e0a1b11ae1' => { sign     => '\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1', },
+	'474554'           => { sign     => '\x47\x45\x54', },
+	'e9'               => { sign     => '\xe9', },
+	'7f454c46'         => { sign     => '\x7f\x45\x4c\x46', }
+};
 
+my %conversion = ();
 my $first = 0;
-for my $k (keys(%app_signatures)) {
-	my $n = length($k)/2;
-	$first = $n if($n > $first);
-}
-
 my $hash = &load_signatures($signs);
 my $linesusp = load_suspicious($susp);
 my $code = &get_code($hash);
@@ -73,7 +81,7 @@ sub load_suspicious {
 		chomp();
 		my ($txt, $hex) = split(/::/);
 		$hex =~ s/$pattern/\\x$1/og;
-		push(@all, "\/$hex\/os");
+		push(@all, "\/$hex\/s");
 	}
 	close(FILE);
 	return(join(" ||\n\t\t\t\t\t\t", @all));
@@ -95,6 +103,8 @@ sub load_signatures {
 		my @elem = split(/::/);
 		$elem[2] =~ s/\@/\\\@/g;
 		$elem[3] =~ s/ +//g;
+		$elem[3] =~ s/eq/\=\=/ig;
+		$elem[3] =~ s/ne/\!\=/ig;
 		$elem[3] =~ s/lt/\</ig;
 		$elem[3] =~ s/le/\<\=/ig;
 		$elem[3] =~ s/gt/\>/ig;
@@ -137,19 +147,38 @@ sub get_code {
 # generated in: $today
 
 sub get_app_sign {
-	\$_ = shift;
+	\$_ = pop;
 ENDOFCODE1
-	while(my($key, $value) = each(%app_signatures)) {
-		$code .= "\tif(/\^$value/so) \{ return(\"$key\"); \}\n";
+	my $c = 0;
+	for my $key (keys(%{$app_signatures})) {
+		$c++;
+		$conversion{$key} = $c;
+		my $n = length($key)/2;
+		$first = $n if($n > $first);
+		my $sign = $app_signatures->{$key}->{sign};
+		if(exists($app_signatures->{$key}->{subtypes})) {
+			$code .= "\t/\^$sign/o and \$_[0] = $c;\n";
+			my $sc = 0;
+			for my $a (@{$app_signatures->{$key}->{subtypes}}) {
+				$sc++;
+				my $t = $a->{type};
+				my $s = $a->{sign};
+				$conversion{$t} = $sc;
+				$code .= "\t/\^$s/o and return(\$_[1] = $sc);\n";
+				my $n = length($t)/2;
+				$first = $n if($n > $first);
+			}
+		} else {
+			$code .= "\t/\^$sign/o and return(\$_[0] = $c);\n";
+		}
 	}
 	$code .= <<ENDOFCODE2;
-	return();
+	return(0);
 }
 
 sub exception {
 	\$_ = shift;
-	if(/^%PDF-/o) { return(1); }
-	return(0);
+	return(/^%PDF-/o ? 1 : 0);
 }
 
 sub scan_text {
@@ -170,14 +199,14 @@ sub scan_text {
 			\$_ = lc(\$save);
 ENDOFCODE2
 	for my $sl (keys(%{$script_lang->{'in'}})) {
-		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/os) { \$script = \"$sl\"; }\n";
+		$code .= "\t\t\t/" . $script_lang->{'in'}->{$sl} . "/os and \$script = \"$sl\";\n";
 	}
 	$code .= "\t\t}\n\t\t\$_ = \$save;\n\t\tif(\$script) {\n";
 	for my $sl (keys(%{$script_lang->{'in'}})) {
 		if(scalar(keys(%{$patterns->{$sl}->{'0'}}))) {
 			$code .= "\t\t\tif(\$script eq \"$sl\") {\n";
 			while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
-				$code .= "\t\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+				$code .= "\t\t\t\t/$value/s and \$virus = \"$key\", last LINE;\n";
 			}
 			$code .= "\t\t\t}\n";
 		}
@@ -185,7 +214,7 @@ ENDOFCODE2
 	$code .= "\t\t} else {\n";
 	for my $sl (keys(%{$script_lang->{'out'}})) {
 		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
-			$code .= "\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+			$code .= "\t\t\t/$value/s and \$virus = \"$key\", last LINE;\n";
 		}
 	}
 	$code .= "\t\t}\n";
@@ -193,7 +222,7 @@ ENDOFCODE2
 		$code .= "\t\tunless(\$script eq \"HTMLJS\") {\n";
 		for my $sl (keys(%{$script_lang->{'mix'}})) {
 			while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
-				$code .= "\t\t\tif(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
+				$code .= "\t\t\t/$value/s and \$virus = \"$key\", last LINE;\n";
 			}
 		}
 		$code .= "\t\t}\n";
@@ -211,7 +240,8 @@ sub scan_binary {
 
 	my \$skip = 0;
 	my \$suspicious = 0;
-	my \$vtype = "";
+	my \$type = 0;
+	my \$subtype = 0;
 	my \$virus = "";
 	my \$buff = "";
 	my \$save = "";
@@ -221,10 +251,14 @@ sub scan_binary {
 	binmode(FILE);
 	LINE: while(read(FILE, \$buff, \$size)) {
 		\$total += length(\$buff);
+ENDOFCODE3
+		$code .= "\t\tprint STDERR \"\$total\\n\";\n" if($debug);
+		$code .= <<ENDOFCODE4;
 		unless(\$save) {
-			my \$begin = substr(\$buff, 0, $first);
+			my \$begin = substr(\$buff, 0, $first, "");
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
-			unless(\$vtype = &get_app_sign(\$begin)) { \$skip = 1; last LINE; }
+			&get_app_sign(\$type, \$subtype, \$begin);
+			unless(\$type) { \$skip = 1; last LINE; }
 		}
 		study;
 		\$save .= \$buff;
@@ -233,25 +267,27 @@ sub scan_binary {
 			\$suspicious = 1 if($linesusp);
 		}
 		\$_ = \$save;
-ENDOFCODE3
+ENDOFCODE4
 	my $lcode = "";
-	for my $idx (keys(%app_signatures)) {
+	for my $key (keys(%{$app_signatures})) {
+		my $c = $conversion{$key};
 		$lcode .= ($lcode) ? "\t\t} els" : "\t\t";
-		$lcode .= "if(\$vtype eq \"$idx\") {\n";
-		for my $limit (keys(%{$patterns->{$idx}})) {
-			my $tabs = "\t\t\t";
-			if($limit) {
-				$lcode .= $tabs . "if(\$total$limit) \{\n";
-				$tabs .= "\t";
+		$lcode .= "if(\$type == $c) {\n";
+		if(exists($app_signatures->{$key}->{subtypes})) {
+			my $stcode = "";
+			for my $a (@{$app_signatures->{$key}->{subtypes}}) {
+				my $st = $a->{type};
+				my $c = $conversion{$st};
+				$stcode .= ($stcode) ? "\t\t\t} els" : "\t\t\t";
+				$stcode .= "if(\$subtype == $c) {\n";
+				$stcode .= &subgene($patterns->{$st}, "\t\t\t\t");
 			}
-			while(my($key, $value) = each(%{$patterns->{$idx}->{$limit}})) {
-				$lcode .= $tabs . "if(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
-			}
-			$lcode .= "\t\t\t\}\n" if($limit);
+			$lcode .= "$stcode\t\t\t\}\n" if($stcode);
 		}
+		$lcode .= &subgene($patterns->{$key}, "\t\t\t");
 	}
 	$code .= $lcode;
-	$code .= <<ENDOFCODE4;
+	$code .= <<ENDOFCODE5;
 		}
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
@@ -261,7 +297,26 @@ ENDOFCODE3
 	&set_suspicious(\$suspicious) if(\$suspicious);
 	return(\$virus);
 }
-ENDOFCODE4
+ENDOFCODE5
+	return($code);
+}
+
+sub subgene {
+	my $pat = shift;
+	my $tab = shift;
+
+	my $code = "";
+	for my $limit (keys(%{$pat})) {
+		my $tabs = $tab;
+		if($limit) {
+			$code .= $tabs . "if(\$total$limit) \{\n";
+			$tabs .= "\t";
+		}
+		while(my($key, $value) = each(%{$pat->{$limit}})) {
+			$code .= $tabs . "/$value/s and \$virus = \"$key\", last LINE;\n";
+		}
+		$code .= "$tab\}\n" if($limit);
+	}
 	return($code);
 }
 
