@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.75  Wed Nov 19 11:50:01 WET 2003
+	- the W32/Mimail@MM virus signature has been updated to detect
+	  W32/Mimail.j@MM variant
+
 0.74  Sat Nov 15 18:47:00 WET 2003
 	- added PWS-Mob.dr virus signature
 	- the W32/Mimail@MM virus signature has been updated to detect 
