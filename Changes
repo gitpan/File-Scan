@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.28  Mon May 27 12:11:14 WEST 2002
+	- added three new virus signatures (W32/GOP@MM, JS/SQL.Spida.worm.b
+	  and W32/Benjamin.worm)
+
 0.27  Mon May 20 12:24:41 WEST 2002
 	- added two new virus signatures (VBS/Chick.d@M and W32/Choke.c.worm)
 	- changed the VBS/BritneyPic@MM virus name to VBS/Chick.a@M
