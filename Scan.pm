@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Jan  4 16:36:03 WET 2003
+# Last Modification: Thu Jan  9 14:38:06 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.40';
+$VERSION = '0.41';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2003/01/04 16:48:44
+# generated in: 2003/01/09 14:45:27
 
 sub get_app_sign {
 	$_ = pop;
@@ -338,6 +338,9 @@ sub scan_binary {
 				}
 				if($total>=30720 && $total<=43008) {
 					/\x73\x72\x63\x3d\x33[^\x44]*\x44\x63\x69\x64\x3a\x57\x38\x64\x71\x77\x71\x38[^\x71]*\x71\x39\x31\x4f\x31\x33/s and $virus = "W32/Frethem.fl\@MM", last LINE;
+				}
+				if($total==28672) {
+					/\x46\x77\x3a\x20\x52\x65\x64\x69\x72\x65\x75\x00\x22\x00\xd4\x1e\x16\xbc\xea\x5d\x59\x69\x66\x69\x63\xdb\xf7\xff\xd6\x06\x45\xfa\xfe\x42\x72\x69\x67\x61\x64\x61\xfb\xf2\x17\xfe\x20\x4f\x63\x68\x6f\x20\x46\x08\x65\x20\x6d\x65\x6d\x62\x73\x68\x69\x70/s and $virus = "W32/Lirva.a\@MM", last LINE;
 				}
 				if($total==41984) {
 					/\x40\x03\x2e\x33\x3b\x7e\x6f\xad\x92\x6f\x41\x54\x41\x44\x32\x35\x87\x43\x50\x7d\x84\x76\x07\x47\x4f\x3a\x3c\x27\x7d\x4d\x41\x49\x4c\xc2\x4b\xe6\x68\xe8\xa3\x11\x27\x0d\x8b\xd2\x4d\xfa\x48\x45\x4c\x4f\x12\x0f\x32\xb5\x2b\x10\x6f\x61\x2b\x17\x75\xbb\xc3\x03/s and $virus = "W32/Bugbear\@MM", last LINE;

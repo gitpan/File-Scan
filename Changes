@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.41  Thu Jan  9 14:38:38 WET 2003
+	- added W32/Lirva.a@MM virus signature.
+
 0.40  Sat Jan  4 16:45:32 WET 2003
 	- added W32/Yaha.k virus signature.
 
