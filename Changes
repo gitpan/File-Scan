@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+1.40  Sat Feb 12 19:28:36 WET 2005
+	- added W32/MyWife.b@MM virus signature.
+
 1.39  Tue Dec 21 18:38:04 WET 2004
 	- added two new virus signatures (W32/Netsky.z@MM and
 	  W32/Zafi.d@MM).
