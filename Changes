@@ -1,14 +1,17 @@
 Revision history for Perl extension File::Scan.
 
+0.21  Sat Apr 13 18:36:08 WEST 2002
+	- added new virus signatures and one was updated
+
 0.20  Fri Apr  5 12:25:52 WEST 2002
 	- added new virus signatures
 	- added new word to suspicious file
-	- the problems resulting from running with warning flag 'on'
-	  (perl -w) was resolved.
+	- the problems resulting from running with the Perl warning
+	  flag "on" (perl -w) was resolved.
 	  Thanks to Hilko Bengen <bengen@vdst-ka.inka.de>
 	- examples/scan.pl: the version was updated to 0.09
-	- examples/scan.pl: added warning flag (-w) to script to turn 
-	  warnings 'on'
+	- examples/scan.pl: added the Perl warning flag (-w) to script to
+	  turn warnings 'on'
 
 0.19  Thu Apr  4 12:04:53 WEST 2002
 	- added new virus signatures and Magistr virus signature
