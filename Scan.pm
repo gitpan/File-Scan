@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Apr  4 10:53:23 WEST 2002
+# Last Modification: Fri Apr  5 09:55:07 WEST 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.19';
+$VERSION = '0.20';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/04/04 12:08:54
+# generated in: 2002/04/05 12:23:43
 
 sub get_app_sign {
 	$_ = shift;
@@ -148,8 +148,8 @@ sub scan_text {
 	my $size = 1024;
 	open(FILE, "<$file") or return(&set_error("$!"));
 	LINE: while(read(FILE, $buff, $size)) {
-		study;
 		unless($save) { last LINE if($skip = &exception($buff)); }
+		study;
 		$save .= $buff;
 		unless($script) {
 			$_ = lc($save);
@@ -195,18 +195,19 @@ sub scan_binary {
 	open(FILE, "<$file") or return(&set_error("$!"));
 	binmode(FILE);
 	LINE: while(read(FILE, $buff, $size)) {
-		study;
 		$total += length($buff);
 		unless($save) {
 			my $begin = substr($buff, 0, 8);
 			unless(length($begin) >= 8) { $skip = 3; last LINE; }
 			unless($vtype = &get_app_sign($begin)) { $skip = 1; last LINE; }
 		}
+		study;
 		$save .= $buff;
 		unless($suspicious) {
 			$_ = lc($save);
 			$suspicious = 1 if(/\x77\x6f\x72\x6d/os ||
 						/\x76\x69\x72\x75\x73/os ||
+						/\x74\x72\x6f\x6a\x61\x6e/os ||
 						/\x5b[^\x5d]+\x5d\x20\x62\x79\x20\w+/os ||
 						/\x62\x61\x63\x6b\x64\x6f\x6f\x72/os ||
 						/\x70\x61\x72\x61\x73\x69\x74\x65/os ||
@@ -268,6 +269,9 @@ sub scan_binary {
 				if(/\x00{2}..\x00{13}[^\x00]\x00\x00.\x2e.{5}\x00\x00\xed[^\x00](\x00|\x01)\x00\x00..\x00\x00.(\x00|\x01)\x00\x00..\x00{13}.\x00\x00[^\x00][^\x2e]/so) { $virus = "W32/Magistr.b\@MM"; last LINE; }
 				if(/\x00{2}..\x00{13}[^\x00]\x00\x00.\x2e.{5}\x00\x00\xec[^\x00](\x00|\x01)\x00\x00..\x00\x00.(\x00|\x01)\x00\x00..\x00{13}.\x00\x00[^\x00][^\x2e]/so) { $virus = "W32/Magistr.a\@MM"; last LINE; }
 			}
+			if($total<=10240) {
+				if(/\x43\x00\x68\x00\x6f\x00\x6b\x00\x65\x00\x20\x00\x2c\x00\x20\x00\x43\x00\x6f\x00\x70\x00\x79\x00\x72\x00\x69\x00\x67\x00\x68\x00\x74\x00\x20\x00\xae\x00\x20\x00\x31\x00\x38\x00\x38\x00\x36/so) { $virus = "W32/Choke.gen.worm"; last LINE; }
+			}
 			if($total<=5120) {
 				if(/\x71\d{6}.+\x00\x61.\x76.\x65.\x73.\x5c.\x50.\x72.\x6f.\x6a.\x65.\x63.\x74.\x56.\x69.\x72.\x75.\x73.\x5c.\x49.\x6e.\x73.\x74.\x61.\x6c.\x6c.\x20.\x50.\x61.\x72.\x74.\x5c.\x71.\d.\d.\d.\d.\d.\d.+/so) { $virus = "W32/Gibe\@MM"; last LINE; }
 			}
@@ -291,13 +295,16 @@ sub scan_binary {
 			if($total>102400 && $total<=160000) {
 				if(/\x49\x2d\x57\x6f\x72\x6d\x2e\x53\x75\x70\x65\x72\x4e\x6f\x76\x61/so) { $virus = "W32/Sintesys\@MM"; last LINE; }
 			}
-			if($total<=4096) {
-				if(/\x49\x2d\x57\x6f\x72\x6d\x2e\x46\x72\x69\x65\x6e\x64\x73\x00\x43\x6f\x64\x65\x64\x20\x62\x79\x20\x50\x65\x74\x69\x4b\x20\x28\x63\x29\x32\x30\x30\x31.+\x54\x6f\x20\x6d\x79\x20\x66\x72\x69\x65\x6e\x64\x73\x20\x4d\x61\x79\x61\x20\x61\x6e\x64\x20\x4c\x61\x75\x72\x65\x6e\x74/so) { $virus = "W32/PetTick\@MM"; last LINE; }
+			if($total>365568 && $total<=366592) {
+				if(/\x54\x72\x6f\x6a\x61\x6e\x65\x72\x2d\x49\x6e\x66\x6f/so) { $virus = "W32/Yarner.gen\@MM"; last LINE; }
 			}
 			if($total>2048) {
 				if(/\x47\x65\x6d\x69\x6e\x69\x20\x2d\x20\x72\x6f\x79.+/so) { $virus = "W32/Gemi.dr"; last LINE; }
 				if(/\x57\x69\x6e\x33\x32\x2e\x4e\x65\x6f\x20\x56\x69\x72\x75\x73\x20\x62\x79\x20\x5b\x54\x69\x50\x69\x61\x58\x2f\x56\x44\x53\x5d\x00\x4d\x69\x61\x6d\x20\x21\x20\x49\x20\x6c\x6f\x76\x65\x20\x50\x45\x20\x66\x69\x6c\x65\x73\x20\x3b\x29/so) { $virus = "W95/Miam.dr"; last LINE; }
 				if(/\x7e\x46\x75\x6e\x20\x4c\x6f\x76\x69\x6e\x67\x20\x43\x72\x69\x6d\x69\x6e\x61\x6c\x7e/so) { $virus = "W32/FunLove.4099"; last LINE; }
+			}
+			if($total<=4096) {
+				if(/\x49\x2d\x57\x6f\x72\x6d\x2e\x46\x72\x69\x65\x6e\x64\x73\x00\x43\x6f\x64\x65\x64\x20\x62\x79\x20\x50\x65\x74\x69\x4b\x20\x28\x63\x29\x32\x30\x30\x31.+\x54\x6f\x20\x6d\x79\x20\x66\x72\x69\x65\x6e\x64\x73\x20\x4d\x61\x79\x61\x20\x61\x6e\x64\x20\x4c\x61\x75\x72\x65\x6e\x74/so) { $virus = "W32/PetTick\@MM"; last LINE; }
 			}
 		}
 		$save = substr($buff, (length($buff)/2));

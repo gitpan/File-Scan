@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Sat Mar 23 10:09:36 WET 2002
+# Last Change: Fri Apr  5 12:24:52 WEST 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.08";
+my $VERSION = "0.09";
 
 my $infected = 0;
 my $objects = 0;

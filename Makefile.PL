@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Wed Mar 27 13:02:08 WET 2002
+# Last Modification: Fri Apr  5 09:55:38 WEST 2002
 
 use strict;
 
@@ -163,8 +163,8 @@ sub scan_text {
 	my \$size = $bufflen;
 	open(FILE, "<\$file") or return(&set_error("\$!"));
 	LINE: while(read(FILE, \$buff, \$size)) {
-		study;
 		unless(\$save) { last LINE if(\$skip = &exception(\$buff)); }
+		study;
 		\$save .= \$buff;
 		unless(\$script) {
 			\$_ = lc(\$save);
@@ -220,13 +220,13 @@ sub scan_binary {
 	open(FILE, "<\$file") or return(&set_error("\$!"));
 	binmode(FILE);
 	LINE: while(read(FILE, \$buff, \$size)) {
-		study;
 		\$total += length(\$buff);
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first);
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
 			unless(\$vtype = &get_app_sign(\$begin)) { \$skip = 1; last LINE; }
 		}
+		study;
 		\$save .= \$buff;
 		unless(\$suspicious) {
 			\$_ = lc(\$save);
