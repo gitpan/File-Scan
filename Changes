@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+1.42  Mon Mar  7 18:14:52 WET 2005
+	- added three new virus signatures (Downloader-PH,
+	  PWS-Banker.k.gen and W32_Mydoom.ba_MM).
+	- the W32/MyWife.b@MM, W32/Sober.j@MM and W32/Bagle.ai@MM virus
+	  signatures hash also been updated to detect W32/MyWife.c@MM,
+	  W32/Sober.I@MM and W32/Bagle.dldr.gen variants.
+
 1.41  Sat Feb 19 17:57:40 WET 2005
 	- added W32/Mydoom.bb@MM virus signature.
 
