@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+0.05  Thu Feb 21 12:04:17 WET 2002
+	- added new signatures and updated others
+	- changed the file types and the signatures of text files
+	- scan_text function has changed
+	- updated the documentation
+
 0.04  Sat Feb 16 17:25:32 WET 2002
 	- added docs directory for specific documentation and file 
 	  write_sign_bin.txt

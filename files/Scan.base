@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Fri Feb 15 10:25:22 WET 2002
+# Last Modification: Thu Feb 21 12:04:17 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,13 +19,11 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 $ERROR = "";
 
 SelfLoader->load_stubs();
-
-INIT { &load_txt_signs(); };
 
 sub new {
 	my $proto = shift;

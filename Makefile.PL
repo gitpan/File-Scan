@@ -4,14 +4,14 @@ use ExtUtils::MakeMaker;
 
 use strict;
 
-my $bufflen = 256;
+my $bufflen = 1024;
 my $signs = "files/signatures.txt";
 
 my %filetypes = (
 	gif        => 'GIF',
 	jpeg       => '\xff\xd8\xff\xe0',
-	tiff       => 'MM|II',
-	postscript => '%!|\004%!',
+	tiff       => '(MM)|(II)',
+	postscript => '(%!)|(\004%!)',
 	pdf        => '%PDF-',
 	basic      => '\.snd',
 	png        => '\x89PNG',
@@ -21,10 +21,15 @@ my %filetypes = (
 	mpeg       => '\x00\x00\x01(\xba\x21)|(\xb3\x16)',
 );
 
-my %virustypes = (
-	'2' => '\x4d\x5a\x90\x00\x03\x00\x00\x00',
-	'3' => '\x4d\x5a\x00\x00\x02\x00\x00\x00',
-	'4' => '\x4d\x5a\x50\x00\x02\x00\x00\x00',
+my %script_lang = (
+	"BAT" => "Batch",
+	"JS"  => "JavaScript",
+	"VBS" => "VBScript");
+
+my %app_signatures = (
+	'4d5a'   => '\x4d\x5a',
+	'474554' => '\x47\x45\x54',
+	'e9'     => '\xe9',
 );
 
 my $hash = &load_signatures($signs);
@@ -33,10 +38,10 @@ my $code = &get_code($hash);
 
 my @ppd;
 if ($] >= 5.00503) {
-    @ppd = (
-        'AUTHOR'        => 'Henrique Dias <hdias@esb.ucp.pt>',
-        'ABSTRACT'      => 'Bla Bla',
-    );
+	@ppd = (
+		'AUTHOR'   => 'Henrique Dias <hdias@esb.ucp.pt>',
+		'ABSTRACT' => 'Extension for Scanning files for Viruses',
+	);
 }
 
 WriteMakefile(
@@ -66,7 +71,7 @@ sub load_signatures {
 		$elem[3] =~ s/ge/\>\=/ig;
 		$elem[3] =~ s/or/\|\|/ig;
 		$elem[3] =~ s/and/\&\&/ig;
-		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g if($elem[1]);
+		$elem[4] =~ s/(?<![\{\\])([\da-f]{2})(?!\})/\\x$1/g unless(exists($script_lang{$elem[1]}));
 		$hash->{$elem[1]}->{$elem[3]}->{$elem[2]} = $elem[4];
 	}
 	close(FILE);
@@ -91,61 +96,25 @@ sub make_module {
 sub get_code {
 	my $patterns = shift;
 
-	my $min_size = 0;
 	my $today = &string_date();
 	my $code = <<ENDOFCODE1;
 # last change: $today
-sub load_txt_signs() {
-	\$virustxt = {
-ENDOFCODE1
-	my $min = 0;
-	my $max = 0;
-	while(my($key, $value) = each(%{$patterns->{'0'}->{'0'}})) {
-		$value =~ s/\"/\\\"/g;
-		my @all = split(/}{/, $value);
-		my $ne = scalar(@all);
-		$min_size = $ne unless($min_size);
-		$min_size = $ne if($ne < $min_size);
-		for(@all) {
-			my $n = length($_);
-			$min = $max unless($min);
-			$max = $n if($n > $max);
-			$min = $n if($n < $min);
-		}
-		my $line = join('","', @all);
-		$code .= "\t\t\"$key\" => [\"$line\"],\n";
-	}
-	$code .= <<ENDOFCODE2;
-	};
-	\%keywords = ();
-	for my \$v (values(\%{\$virustxt})) {
-		\@keywords{\@{\$v}} = ();
-	}
-}
 
 sub scan_text {
 	my\$file = shift;
 
-	my \$pattern = '([\\w-\\.]{$min,$max})';
-	my \%hash = ();
-	local \$/ = "\0";
+	local \$/ = "\\0";
+	local *FILE;
 	open(FILE, "<\$file") or return(&set_error("\$!"));
-	while(<FILE>) {
-		while(/\$pattern/osg) {
-			next unless(exists(\$keywords{\$1}));
-			\$hash{\$1} = "";
-		}
-	}
+	\$_ = <FILE>;
 	close(FILE);
-	return() if(scalar(keys(\%hash)) < $min_size);
-	VIRUS: for my \$name (\%{\$virustxt}) {
-		my \$found = "";
-		for my \$sign (\@{\$virustxt->{\$name}}) {
-			next VIRUS unless(exists(\$hash{\$sign}));
-			\$found = "\$name";
+ENDOFCODE1
+	for my $sl (keys(%script_lang)) {
+		while(my($key, $value) = each(%{$patterns->{$sl}->{'0'}})) {
+			$code .= "\treturn(\"$key\") if(\/$value\/iso);\n";
 		}
-		return(\$found) if(\$found);
 	}
+	$code .= <<ENDOFCODE2;
 	return();
 }
 
@@ -162,22 +131,22 @@ sub scan_binary {
 	LINE: while(read(FILE, \$buff, \$size)) {
 		\$total += length(\$buff);
 		unless(\$save) {
-			last LINE unless(length(\$buff) > 9);
+			my \$begin = substr(\$buff, 0, 5);
+			last LINE unless(length(\$begin) >= 5);
 ENDOFCODE2
 	for my $type (values(%filetypes)) {
-		$code .= "\t\t\tif(\$buff =~ /\^$type/o) \{ last LINE; \}\n";
+		$code .= "\t\t\tif(\$begin =~ /\^$type/o) \{ last LINE; \}\n";
 	}
-	while(my($key, $value) = each(%virustypes)) {
-		$code .= "\t\t\tif(\$buff =~ /\^$value/o) \{ \$vtype = \"$key\"; \}\n";
+	while(my($key, $value) = each(%app_signatures)) {
+		$code .= "\t\t\tif(\$begin =~ /\^$value/o) \{ \$vtype = \"$key\"; \}\n";
 	}
-
 	$code .= <<ENDOFCODE3;
 		}
 		\$save .= \$buff;
 		\$_ = \$save;
 ENDOFCODE3
 	my $lcode = "";
-	for my $idx (keys(%virustypes)) {
+	for my $idx (keys(%app_signatures)) {
 		$lcode .= ($lcode) ? "\t\t} els" : "\t\t";
 		$lcode .= "if(\$vtype eq \"$idx\") {\n";
 		for my $limit (keys(%{$patterns->{$idx}})) {
@@ -193,18 +162,6 @@ ENDOFCODE3
 		}
 	}
 	$code .= $lcode;
-	$code .= "\t\t\} else \{\n";
-	for my $limit (keys(%{$patterns->{'1'}})) {
-		my $tabs = "\t\t\t";
-		if($limit) {
-			$code .= $tabs . "if(\$total$limit) \{\n";
-			$tabs .= "\t";
-		}
-		while(my($key, $value) = each(%{$patterns->{'1'}->{$limit}})) {
-			$code .= $tabs . "if(/$value/so) \{ \$virus = \"$key\"; last LINE; \}\n";
-		}
-		$code .= "\t\t\t\}\n" if($limit);
-	}
 	$code .= <<ENDOFCODE4;
 		}
 		\$save = substr(\$buff, (length(\$buff)/2));
