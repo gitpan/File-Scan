@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Tue Jul  1 13:18:30 WEST 2003
+# Last Modification: Mon Aug  4 19:58:35 WEST 2003
 
 use strict;
 
@@ -51,7 +51,7 @@ my $app_signatures = {
 };
 
 my %conversion = ();
-my $first = 0;
+my $firstbytes = 32;
 my $hash = &load_signatures($signs);
 my $linesusp = load_suspicious($susp);
 my $code = &get_code($hash);
@@ -158,7 +158,7 @@ ENDOFCODE1
 		$c++;
 		$conversion{$key} = $c;
 		my $n = length($key)/2;
-		$first = $n if($n > $first);
+		$firstbytes = $n if($n > $firstbytes);
 		my $sign = $app_signatures->{$key}->{sign};
 		if(exists($app_signatures->{$key}->{subtypes})) {
 			$code .= "\t/\^$sign/o and \$_[0] = $c;\n";
@@ -170,7 +170,7 @@ ENDOFCODE1
 				$conversion{$t} = $sc;
 				$code .= "\t/\^$s/o and return(\$_[1] = $sc);\n";
 				my $n = length($t)/2;
-				$first = $n if($n > $first);
+				$firstbytes = $n if($n > $firstbytes);
 			}
 		} else {
 			$code .= "\t/\^$sign/o and return(\$_[0] = $c);\n";
@@ -263,8 +263,8 @@ ENDOFCODE5
 
 	$code .= <<ENDOFCODE6;
 		unless(\$save) {
-			my \$begin = substr(\$buff, 0, $first, "");
-			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
+			my \$begin = substr(\$buff, 0, $firstbytes, "");
+			unless(length(\$begin) >= $firstbytes) { \$skip = 3; last LINE; }
 			if(exists(\$self->{'callback'})) {
 				if(my \$ret = \$self->{'callback'}->(\$file, \$begin) || "") {
 					&ret_callback(\$ret);

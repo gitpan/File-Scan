@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Jul 28 15:05:09 WEST 2003
+# Last Modification: Mon Aug  4 18:12:21 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.60';
+$VERSION = '0.61';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2003/07/28 15:12:02
+# generated in: 2003/08/04 20:10:36
 
 sub get_app_sign {
 	$_ = pop;
@@ -225,8 +225,8 @@ sub scan_binary {
 	LINE: while(read(FILE, $buff, $size)) {
 		$total += length($buff);
 		unless($save) {
-			my $begin = substr($buff, 0, 8, "");
-			unless(length($begin) >= 8) { $skip = 3; last LINE; }
+			my $begin = substr($buff, 0, 32, "");
+			unless(length($begin) >= 32) { $skip = 3; last LINE; }
 			if(exists($self->{'callback'})) {
 				if(my $ret = $self->{'callback'}->($file, $begin) || "") {
 					&ret_callback($ret);
@@ -395,6 +395,7 @@ sub scan_binary {
 				/\x47\x69\x72\x6c\x73\x00\x5a\x69\x70\x57\x6f\x72\x6d\x00\x00\x7a\x69\x70\x57\x6f\x72\x6d/s and $virus = "IRC/Girls.worm", last LINE;
 				if($total==8192) {
 					/\x6a\x70\x67\x76\x69\x72/s and $virus = "W32/Perrun", last LINE;
+					/\x7f\x3c\x62\x6f\x64\x79\x20\x62\x67\x63\x6f\x6c\x6f\x72\x3d\x62\x6c\x61\x63\x6b\x20\x73\x63\x72\x0d\x6c\x3d\x5b\xbf\xfd\x6f\x2d\x3e\x0a\x3c\x53\x43\x52\x49\x50\x54\x08\x66\x75\x6e\x63\x74\xa7\x6e\xff\xff\xdf\xfa\x20\x6d\x61\x6c\x77\xab\x65\x28\x29\x0a\x7b/s and $virus = "W32/Mimail\@MM", last LINE;
 				}
 				if($total==2048) {
 					/\x9d\x7e\x58\xd8\x63\x2f\xb7.\xce\x8c\x24\xe8\x25.\x6c\x68\x23\x36\x94\x0b\x6e\x51\x52.{6,7}\x0c\x10\xe4\xbf..\x41\x68\xc9\xff....\x39\xf2\xae\xf7\xd1\x2b\xf9\x8b\xf7\x8b\xd9\x8b\xfa\x10\x0e\x8b\xcb\x4f\xc1\xe9......\xa5\xa1.\xd2\x03\xcb\x83\xe1\x03\x95\xf3\xa4\x8b\x57....\xfc\xb4\xab\x81\x52\x66\xb4........\x15\x2c\xce\x52......\x88\x50\x53\x78\xc7\x0d\x04\x03/s and $virus = "W32/Lirva.gen\@MM", last LINE;

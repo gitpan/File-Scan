@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Tue Jul  1 12:03:31 WEST 2003
+# Last Change: Mon Aug  4 20:06:49 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This program is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.12";
+my $VERSION = "0.13";
 
 my $infected = 0;
 my $objects = 0;
@@ -132,6 +132,14 @@ sub check_path {
 				}
 				return("ZIP archive");
 			}
+			if(/^MIME-Version: 1\.0\x0a/o) {
+				# MHTML exploit
+				if(my $insidefile = &mhtml_exploit($file)) {
+					&check($fs, $insidefile);
+					unlink($insidefile);
+				}
+				return("MHTML exploit");
+			}
 			return("");
 		}
 	);
@@ -147,6 +155,42 @@ sub check_path {
 		}
 	}
 	return();
+}
+
+#---extract_file------------------------------------------------------------
+
+sub extract_file {
+	my $fh = shift;
+	my $size = shift;
+	my $buff = shift;
+	my $file = shift;
+
+	open(NEWFILE, ">$file") or die("Can't open $file: $!\n");
+	binmode(NEWFILE);
+	print NEWFILE $buff;
+	while(read($fh, $buff, $size)) { print NEWFILE $buff; }
+	close(NEWFILE);
+	return();
+}
+
+#---mhtml_exploit-----------------------------------------------------------
+
+sub mhtml_exploit {
+	my $file = shift;
+
+	my ($buff, $filename) = ("", "");
+	my $size = 1024;
+	open(FILE, "<$file") or die("Can't open $file: $!\n");
+	binmode(FILE);
+	while(read(FILE, $buff, $size)) {
+		$buff =~ s{^MIME-Version: 1.0\x0aContent-Location: *File://([^\x0a]+)\x0aContent-Transfer-Encoding: binary\x0a\x0a}{}o or last;
+		if($filename = join("/", $TMP_DIR, $1)) {
+			&extract_file(\*FILE, $size, $buff, $filename);
+			last;
+		}
+	}
+	close(FILE);
+	return($filename);
 }
 
 #---unzip_file--------------------------------------------------------------
