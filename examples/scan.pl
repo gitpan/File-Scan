@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Tue Feb 26 10:06:06 WET 2002
+# Last Change: Wed Feb 27 13:26:12 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.05";
+my $VERSION = "0.06";
 
 my $infected = 0;
 my $objects = 0;
@@ -35,7 +35,7 @@ Getopt::Long::GetOptions($opt,
 	"ext=s"        => \$EXTENSION,
 	"cp=s"         => \$CP_DIR,
 	"mv=s"         => \$MV_DIR,
-	"mkdir"        => sub { $MK_DIR = 1; },
+	"mkdir=s"      => \$MK_DIR,
 	"del"          => sub { $DELETE = 1; },
 	"follow"       => sub { $FOLLOW = 1; },
 	"maxtxtsize=i" => \$MAXTXTSIZE,
@@ -96,7 +96,7 @@ sub check_path {
 	my $fs = File::Scan->new(
 		extension => $EXTENSION,
 		copy      => $CP_DIR,
-		mkdir     => $MK_DIR,
+		mkdir     => oct($MK_DIR),
 		move      => $MV_DIR,
 		delete    => $DELETE,
 		@args);
@@ -159,7 +159,7 @@ usage: $0 [options] file|directory
   --ext=string_extension
   --cp=/path/to/dir
   --mv=/path/to/dir
-  --mkdir
+  --mkdir=octal_number
   --del
   --follow
   --maxtxtsize=size
@@ -192,27 +192,27 @@ Usage: $0 [options] file|directory
 
 Possible options are:
 
-  --ext=<string>      add the specified extension to the infected file
+  --ext=<string>        add the specified extension to the infected file
 
-  --mv=<dir>          move the infected file to the specified directory
+  --mv=<dir>            move the infected file to the specified directory
 
-  --cp=<dir>          copy the infected file to the specified directory
+  --cp=<dir>            copy the infected file to the specified directory
 
-  --mkdir             make the specified directories
+  --mkdir=octal_number  make the specified directories (ex: 0755)
 
-  --del               delete the infected file
+  --del                 delete the infected file
 
-  --follow            follow symbolic links
+  --follow              follow symbolic links
 
-  --maxtxtsize=<size> scan only the text file if the file size is less then
-                      maxtxtsize (size in kbytes)
+  --maxtxtsize=<size>   scan only the text file if the file size is less
+                        then maxtxtsize (size in kbytes)
  
-  --maxbinsize=<size> scan only the binary file if the file size is less then
-                      maxbinsize (size in kbytes)
+  --maxbinsize=<size>   scan only the binary file if the file size is less
+                        then maxbinsize (size in kbytes)
 
-  --version           print version number
+  --version             print version number
 
-  --help              print this message and exit
+  --help                print this message and exit
 
 USAGE
 	exit 1;

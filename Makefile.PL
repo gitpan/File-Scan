@@ -7,21 +7,6 @@ use strict;
 my $bufflen = 1024;
 my $signs = "files/signatures.txt";
 
-my %filetypes = (
-	gif        => 'GIF',
-	jpeg       => '\xff\xd8\xff\xe0',
-	tiff       => '(MM)|(II)',
-	postscript => '(%!)|(\004%!)',
-	pdf        => '%PDF-',
-	basic      => '\.snd',
-	png        => '\x89PNG',
-	applefile  => '\x00\x05\x16\x00',
-	zip        => '\x50\x4b\x03\x04',
-	gzip       => '\x1f\x8b\x08\x08',
-	mp3        => '\xff(\xfa|\xfb)',
-	mpeg       => '\x00\x00\x01(\xba\x21)|(\xb3\x16)',
-);
-
 my %script_lang = (
 	"BAT" => "Batch",
 	"JS"  => "JavaScript",
@@ -130,6 +115,7 @@ sub scan_binary {
 	my \$file = shift;
 
 	my \$skip = 0;
+	my \$vtype = "";
 	my \$virus = "";
 	my \$buff = "";
 	my \$save = "";
@@ -144,13 +130,11 @@ sub scan_binary {
 			my \$begin = substr(\$buff, 0, $first);
 			last LINE unless(length(\$begin) >= $first);
 ENDOFCODE2
-	for my $type (values(%filetypes)) {
-		$code .= "\t\t\tif(\$begin =~ /\^$type/o) \{ \$skip = 1; last LINE; \}\n";
-	}
 	while(my($key, $value) = each(%app_signatures)) {
 		$code .= "\t\t\tif(\$begin =~ /\^$value/o) \{ \$vtype = \"$key\"; \}\n";
 	}
 	$code .= <<ENDOFCODE3;
+			unless(\$vtype) { \$skip = 1; last LINE; }
 		}
 		\$save .= \$buff;
 		\$_ = \$save;

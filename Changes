@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+0.08  Wed Feb 27 13:12:32 WET 2002
+	- added new signatures
+	- the value of mkdir argument was changed
+	- fixed a 'bug' in scan_binary function
+	- removed '%filetypes' from Makefile.PL, is not necessary
+	- examples/scan.pl: the value of option mkdir was changed to octal
+	- updated the documentation
+
 0.07  Tue Feb 26 10:06:06 WET 2002
 	- test file was moved to test directory
 	- added new signatures
