@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.76  Fri Nov 28 14:18:15 WET 2003
+	- added W32/Dumaru.gen@MM virus signature
+	- a new example script (examples/vscan.pl) has also been added
+	  Thanks to Peter Sergeant <pete@clueball.com>
+
 0.75  Wed Nov 19 11:50:01 WET 2003
 	- the W32/Mimail@MM virus signature has been updated to detect
 	  W32/Mimail.j@MM variant

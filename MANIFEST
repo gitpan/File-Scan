@@ -5,6 +5,7 @@ examples/procmail/.procmailrc
 examples/procmail/README
 examples/procmail/scanvirus.pl
 examples/scan.pl
+examples/vscan.pl
 FAQ
 files/Scan.base
 files/signatures.txt

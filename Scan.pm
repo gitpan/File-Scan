@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Nov 19 10:58:07 WET 2003
+# Last Modification: Fri Nov 28 13:29:48 WET 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.75';
+$VERSION = '0.76';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2003/11/19 11:51:51
+# generated in: 2003/11/28 14:19:27
 
 sub get_app_sign {
 	$_ = pop;
@@ -306,6 +306,9 @@ sub scan_binary {
 			} elsif($subtype == 3) {
 				if($total==335872) {
 					/\x28\x63\x29\x20\x62\x79\x20\x45\x6e\x65\x72\x67\x79\x20\x47\x65\x72\x6d\x61\x6e\x79\x20\x53\x53\x54\x40\x48\x61\x62\x6c\x61\x73\x2e\x63\x6f\x6d/s and $virus = "W32/EnerKaz.worm.a", last LINE;
+				}
+				if($total==28672) {
+					/\xc6\x4d\x41\x49\x4c\x20\x46\x52\x4f\x4d\x3a\x20\x3c\x4b\x74\x69\x76\x69\x72\x40\x64\x69\x29\x62\x6b\xd5\x1e\xcc\x58\x75\xfc\xfd\xba\xbf\x7b\x72\x75\x3e\x25\x52\x43\x50\x54\x20\x54\x4f\x23\x00\x0e\x44\x41\x81\x33\xef\x0a\x03\x06\x51\x55\x49\x54\x02/s and $virus = "W32/Dumaru.gen\@MM", last LINE;
 				}
 				if($total>=78848 && $total<=135168) {
 					/\x00\x68\x6f\x73\x74\x2e\x65\x78\x65\x00\x68\x6f\x73\x74\x2e\x73\x63\x72/s and $virus = "W32/Trilisa.gen\@MM", last LINE;
