@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+0.30  Mon Jun 17 11:44:33 WEST 2002
+	- rename W32/Trilisa@MM virus signature to W32/Trilisa.gen@MM
+	- added two new virus signatures (W32/Frethem.f@MM and
+	  X97M/Generic) and W32/Trilisa.gen@MM virus signature was updated
+	- examples/scan.pl: the version was updated to 0.10
+	- examples/scan.pl: fixed scan directory problem when the name 
+	  start with "."
+
 0.29  Mon Jun  3 12:05:25 WEST 2002
 	- removed the VBS/Chick.c@M virus signature
 	- added three new virus signatures (VBS/Chick.bc@M,

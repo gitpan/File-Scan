@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Jun  3 11:20:53 WEST 2002
+# Last Modification: Mon Jun 17 11:43:12 WEST 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.29';
+$VERSION = '0.30';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/06/03 12:19:56
+# generated in: 2002/06/17 11:45:20
 
 sub get_app_sign {
 	$_ = pop;
@@ -233,6 +233,7 @@ sub scan_binary {
 			/\x57.*\x4d\x2e\x53\x70\x69\x72\x6f\x68\x65\x74\x61/s and $virus = "W97M/Generic", last LINE;
 			/\x56\x4d\x50\x43\x4b\x20\x76\d+\x2e\d+\w*\x20\x5b[^\x5d]+\x5d/s and $virus = "W97/VMPCK1.gen", last LINE;
 			/\x3c\x2d\x20\x74\x68\x69\x73\x20\x69\x73\x20[\w ]+\x20\x6d\x61\x72\x6b\x65\x72\x21/s and $virus = "W97/Marker.gen", last LINE;
+			/\x58\x39\x37\x4d\x2e\x4e\x69\x74\x72\x6f\x67\x65\x6e/s and $virus = "X97M/Generic", last LINE;
 			/\x54\x68\x75\x73\x5f\d\d\d/s and $virus = "W97/Thus.gen", last LINE;
 			/\x57\x4f\x52\x44\x2f\x4d\x65\x6c\x69\x73\x73\x61\x20\x77\x72\x69\x74\x74\x65\x6e\x20\x62\x79\x20\x4b\x77\x79\x6a\x69\x62\x6f/s and $virus = "W97M/Melissa.a\@MM", last LINE;
 			/\x57\x39\x37\x2e\x4e\x69\x74\x72\x6f\x67\x65\x6e/s and $virus = "W97M/Nitrogen.intd", last LINE;
@@ -261,6 +262,9 @@ sub scan_binary {
 				if($total==7168) {
 					/\x62\x65\x67\x69\x6e\x20\x36\x34\x34\x20\x48\x61\x70\x70\x79\x39\x39\x2e\x65\x78\x65.+\x65\x6e\x64.+\x53\x6b\x61/s and $virus = "W32/Ska\@M", last LINE;
 				}
+				if($total>=78848 && $total<=135168) {
+					/\x00\x68\x6f\x73\x74\x2e\x65\x78\x65\x00\x68\x6f\x73\x74\x2e\x73\x63\x72/s and $virus = "W32/Trilisa.gen\@MM", last LINE;
+				}
 				if($total>30720 && $total<32768) {
 					/\x77\x61\x72\x67\x61\x6d\x65\x73\x2e\x65\x78\x65/s and $virus = "W32/Warga\@MM", last LINE;
 				}
@@ -275,9 +279,6 @@ sub scan_binary {
 				}
 				if($total==159744) {
 					/\x56\x74\x69\x70.+\x57\x69\x74\x7a.+\x62\x6c\x61\x67.+\x4a\x6f\x6b\x65.+\x5a\x61\x72\x74/s and $virus = "W32/Cervivec\@MM", last LINE;
-				}
-				if($total==6144) {
-					/\x49\x2d\x57\x6f\x72\x6d\x20\x45\x6c\x69\x73\x61\x62\x65\x74\x68\x20\x62\x79\x20\x5a\x69\x72\x6b\x6f\x76/s and $virus = "W32/Trilisa\@MM", last LINE;
 				}
 				if($total==366592) {
 					/\x54\x72\x6f\x6a\x61\x6e\x65\x72\x2d\x49\x6e\x66\x6f/s and $virus = "W32/Yarner.gen\@MM", last LINE;
@@ -304,6 +305,9 @@ sub scan_binary {
 				}
 				if($total==3072) {
 					/\x7a\x61\x72\x79\x32\x30+.+\x40\x65\x6d\x61\x69\x6c\x2e\x63\x6f\x6d/s and $virus = "W32/MyLife.e\@MM", last LINE;
+				}
+				if($total==30720) {
+					/\x73\x72\x63\x3d\x33\x44\x63\x69\x64\x3a\x57\x38\x64\x71\x77\x71\x38\xae\x1e\xf5\xe2\x71\x39\x31\x4f\x31\x33/s and $virus = "W32/Frethem.f\@MM", last LINE;
 				}
 				if($total==11264) {
 					/\x49\x00\x20\x00\x63\x00\x6f\x00\x6d\x00\x65\x00\x20\x00\x69\x00\x6e\x00\x20\x00\x70\x00\x69\x00\x65\x00\x63\x00\x65\x00\x2e\x00\x20\x00\x20\x00\x20\x00\x4d\x00\x79\x00\x20\x00\x6e\x00\x61\x00\x6d\x00\x65\x00\x20\x00\x69\x00\x73\x00\x20\x00\x4a\x00\x65\x00\x72\x00\x72\x00\x79/s and $virus = "W32/Choke.c.worm", last LINE;

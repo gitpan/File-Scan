@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Fri Apr  5 12:24:52 WEST 2002
+# Last Change: Thu Jun 12 10:30:46 WEST 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,7 +11,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.09";
+my $VERSION = "0.10";
 
 my $infected = 0;
 my $objects = 0;
@@ -136,7 +136,7 @@ sub dir_handle {
 	}
 	opendir(DIRHANDLE, $dir_path) or die("can't opendir $dir_path: $!");
 	for my $item (readdir(DIRHANDLE)) {
-		next if($item =~ /^\./);
+		next if($item =~ /^\.+$/o);
 		my $f = "$dir_path/$item";
 		next if(!$FOLLOW && (-l $f));
 		if(-d $f) {
