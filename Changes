@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.55  Mon Jun  2 18:25:14 WEST 2003
+	- added two new virus signatures (W32/Sobig.c@MM and
+	  W32/Ganda@MM).
+
 0.54  Tue May 20 14:04:25 WEST 2003
 	- added W32/Palyh@MM virus signature.
 	- BackDoor-ARG.dr virus signatures was updated.	
