@@ -1,65 +1,181 @@
 %define class File
 %define subclass Scan
-%define version 0.36
-%define release 1
+%define _version 0.37
+%define _release 2
 
 # Derived values
 %define module %{class}-%{subclass}
 %define perlver %(rpm -q perl --queryformat '%%{version}' 2>/dev/null)
+%define suse %(test -f /etc/SuSE-release && echo 1 || echo 0)
 
-Summary:	Perl module %{class}::%{subclass}
+%define perlarchlib %(%{__perl} -V:installarchlib|%{__sed} "s/^.*='//;s/';$//")
+%define perlprivlib %(%{__perl} -V:installprivlib|%{__sed} "s/^.*='//;s/';$//")
+
+%if suse
+%define suse_version %(grep VERSION /etc/SuSE-release|cut -f3 -d " ")
+%define suse_version_short %(echo %{susever}|tr -d '.')
+%define distro_release %{_release}suse%{suse_version_short}
+%define distro_group Development/Languages/Perl
+%else
+%define distro_release %{_release}
+%define distro_group Development/Perl
+%endif
+
+Summary:	Perl module %{class}::%{subclass} for scanning files for viruses
+Summary(fr):	Module Perl %{class}::%{subclass} - détecteur de virus
+Summary(de):	Perl-Modul %{class}::%{subclass} - Virus-Scanner
 Name:		perl-%{module}
-Version:	%{version}
-Release:	%{release}
-Group:		Development/Perl
-License:	See documentation
+Version:	%{_version}
+Release:	%{distro_release}
+Group:		%{distro_group}
+License:	GPL/Artistic License - see documentation
 Vendor:		Henrique Dias <hdias@esb.ucp.pt>
+Packager:	Pascal Bleser <guru@unixtech.be>
 Source:		http://www.cpan.org/modules/by-module/%{module}-%{version}.tar.gz
 Url:		http://www.cpan.org/modules/by-module/%{class}
-BuildRequires:	perl
+BuildRequires:	perl, make
 BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-root/
+BuildRoot:	%{_tmppath}/build-%{name}-%{_version}-root/
 Requires:	perl = %{perlver}
-Provides:	%{module} = %{version}
+Provides:	%{module} = %{_version}
+%if suse
+Distribution:	SuSE Linux %{_suse_version}
+%endif
 
 %description
 Perl module which implements the %{class}::%{subclass} class. 
 
+%{class}::%{subclass} provides its own virus signature database.
+
+You can use the "virusscan" script to scan files or directories
+for viruses.
+
+You can use the script "virus-procmail" to scan for infected
+e-mails using procmail rules - have a look at
+%{_docdir}/README.procmail
+for further details.
+
+The script "virus-update" can be used to download and install
+the latest version of the %{class}::%{subclass} perl module
+(must be root to do that).
+Note that it won't update the RPM package but install the module
+from the sources.
+
+%description -l fr
+Module Perl %{class}::%{subclass} pour détecter des virus.
+Il dispose de sa propre base de données de signatures de virus.
+
+Vous pouvez utiliser le script "virusscan" pour vérifier que des
+fichiers ou des répertoires ne sont pas infectés.
+
+Le script "virus-procmail" permet de vérifier si des e-mails
+sont infectés à partir de règles procmail - lisez le fichier
+%{_docdir}/README.procmail
+pour plus de détails.
+
+Le script "virus-update" peut être utilisé pour télécharger et
+installer la dernière version du module Perl %{class}::%{subclass}
+(vous devez être root).
+Notez que ce script ne va pas effectuer une mise à jour du
+paquetage RPM mais installer le module à partir des sources.
+
+%description -l de
+Diese Paket enthält das Perl-Modul %{class}::%{subclass} zum
+Scannen nach Viren.
+Es verfügt über eine eigene Virus-Signaturen-Datenbank.
+
+Das Skript "virusscan" kann zum Suchen nach Viren in Dateien
+oder Verzeichnissen verwendet werden.
+
+Das "virus-procmail"-Skript kann aus procmail-Regeln heraus
+nach Viren in E-Mails suchen - lesen Sie bitte die Datei
+%{_docdir}/README.procmail
+für nähere Informationen.
+
+Das "virus-update"-Skript kann zum herunterladen und installieren
+der letzten Version des Perl-Moduls %{class}::%{subclass} verwendet
+werden (Sie müssen diese Skript als root aufrufen).
+Es wird nicht dieses RPM-Paket aktualisieren sondern das Modul
+anhand des Quellcodes installieren.
+
 %prep
 %setup -q -n %{module}-%{version}
+%{__perl} Makefile.PL INSTALLDIRS=perl
 
 %build
-%{__perl} Makefile.PL
 %{__make} OPTIMIZE="$RPM_OPT_FLAGS"
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%makeinstall PREFIX=$RPM_BUILD_ROOT%{_prefix}
+%{__rm} -rf "${RPM_BUILD_ROOT}"
 
-# Install the example scan program as virusscan
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-install -m 755 examples/scan.pl $RPM_BUILD_ROOT%{_bindir}/virusscan
+%{__mkdir_p} "${RPM_BUILD_ROOT}%{perlprivlib}"
+%{__mkdir_p} "${RPM_BUILD_ROOT}%{perlarchlib}"
 
-# Clean up some files we don't want/need
-rm -rf `find $RPM_BUILD_ROOT -name "perllocal.pod" -o \
-		-name ".packlist" -o \
-		-name "*.bs"`
+%{__make} install PREFIX="${RPM_BUILD_ROOT}%{_prefix}"
 
-# Remove all empty directories
-find $RPM_BUILD_ROOT%{_prefix} -type d | tac | xargs rmdir --ign
+%if suse
+#
+# SuSE-specific handling of Perl modules
+#
+%{__mkdir_p} "${RPM_BUILD_ROOT}/var/adm/perl-modules"
+%{__sed} "s@${RPM_BUILD_ROOT}@@g" \
+         < "${RPM_BUILD_ROOT}%{perlarchlib}/perllocal.pod" \
+         > "${RPM_BUILD_ROOT}/var/adm/perl-modules/%{_name}"
+
+%endif
+
+#
+# Remove ${RPM_BUILD_ROOT} from .packlist file
+#
+packlist=`find "${RPM_BUILD_ROOT}%{perlarchlib}/" -name '.packlist' -type f`
+if [ ! -f "$packlist" ]; then
+         echo "*** ERROR: could not find .packlist :("
+         exit 1
+fi
+%{__cp} "$packlist" "${packlist}.old"
+%{__sed} "s@${RPM_BUILD_ROOT}@@g" < "${packlist}.old" \
+| sort -u > "$packlist"
+%{__rm} -f "${packlist}.old"
+
+#
+# Install additional example scripts
+#
+%{__mkdir_p} "${RPM_BUILD_ROOT}%{_bindir}"
+%{__install} -m 755 examples/scan.pl "${RPM_BUILD_ROOT}%{_bindir}/virusscan"
+%{__install} -m 755 examples/latest.pl "${RPM_BUILD_ROOT}%{_bindir}/virusupdate"
+%{__install} -m 755 examples/procmail/scanvirus.pl "${RPM_BUILD_ROOT}%{_bindir}/virus-procmail"
+# rename procmail-README to include it into the %doc section
+%{__mv} examples/procmail/README README.procmail
 
 %clean
-HERE=`pwd`
-cd ..
-rm -rf $HERE
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf "${RPM_BUILD_ROOT}"
 
 %files
 %defattr(-,root,root)
-%doc Changes README TODO docs/write_sign_bin.txt
-%{_prefix}
+%doc Changes README TODO docs/* README.procmail
+%{_bindir}/*
+%doc %{_mandir}/man*/*
+%{perlprivlib}/%{class}/%{subclass}.pm
+%dir %{perlarchlib}/auto/File/Scan
+%{perlarchlib}/auto/File/Scan/.packlist
+%if suse
+/var/adm/perl-modules/%{_name}
+%endif
+
+%post
+%if suse
+/sbin/SuSEconfig --quick --module perl
+%endif
 
 %changelog
+* Fri Oct 02 2002 Pascal Bleser <guru@unixtech.be>
+- Updated to 0.37
+- Use of __-macros everywhere
+- Ported to SuSE: autodetects if built on SuSE Linux, should work on any distro
+- Moved perl Makefile.PL into setup section
+- Added installation of additional scripts
+- Added french and german translations
+- Changed many other things to make them cleaner
 * Thu Sep 12 2002 Michael McLagan <michael.mclagan@linux.org>
 - Updated to 0.36
 * Fri Aug 30 2002 Michael McLagan <michael.mclagan@linux.org>

@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+0.37  Wed Oct  2 12:06:57 WEST 2002
+	- the README file was updated
+	- the spec-file was changed to work with SuSE distribution
+	  Thanks to Pascal Bleser <pascal.bleser@atosorigin.com>.
+	- added FAQ file
+	- added three new virus signatures (W32/Bugbear@MM,
+	  Linux/Slapper.worm and W32/Sachiel.worm).
+
 0.36  Thu Sep 12 13:01:48 WEST 2002
 	- added four new virus signatures (W32/Blinkom, W32/ProLin@MM,
 	  W97M/Thus.gen and Linux.Osf.8759).

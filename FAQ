@@ -1,0 +1,13 @@
+* Looks like your signatures only lists about 100 viruses. Why not use
+the signature database from OpenAntivirus like ClamAV does?
+
+Because I use perl regular expressions in signatures to detect polymorphic
+virus or suspicious virus, and for speed I need the file to detect the
+position of signature.
+
+* Where is the signatures file stored for File::Scan?
+
+The signatures are stored internally in Scan.pm file, but you can add new 
+signatures to signatures.txt file in files directory and rebuild the 
+module.
+
