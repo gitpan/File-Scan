@@ -1,7 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.22  Mon Apr 15 13:48:36 WEST 2002
+	- added two new virus signatures
+
 0.21  Sat Apr 13 18:36:08 WEST 2002
-	- added new virus signatures and one was updated
+	- added new virus signatures and one have been updated
 
 0.20  Fri Apr  5 12:25:52 WEST 2002
 	- added new virus signatures
