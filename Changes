@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.63  Tue Aug 19 23:08:06 WEST 2003
+	- added W32/Sobig.f@MM virus signature
+          (from Clam AntiVirus database)
+
 0.62  Sat Aug  9 19:09:07 WEST 2003
 	- several documentation updates have been made.
 	- examples/scan.pl: the version was updated to 0.14
