@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.49  Tue Apr 22 16:09:11 WEST 2003
+	- examples/scan.pl: the version was updated to 0.11
+	- examples/scan.pl: fixed scan directory problem when the path is
+	  equal a "/"
+
 0.48  Fri Apr 11 12:34:21 WEST 2003
 	- added W32/Oror.aa@MM virus signature.
 	  Thanks to Emil Yakimov <emo@iservice.bg>

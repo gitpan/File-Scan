@@ -2,16 +2,17 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Sat Jan  4 16:42:37 WET 2003
+# Last Change: Tue Apr 22 14:23:32 WEST 2003
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>
 #
 #############################################################################
+
 use strict;
 use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.10";
+my $VERSION = "0.11";
 
 my $infected = 0;
 my $objects = 0;
@@ -35,8 +36,6 @@ my %skipcodes = (
 	5 => "file size exceed the maximum binary size",
 );
 
-die(short_usage()) unless(scalar(@ARGV));
-
 my $opt = {};
 Getopt::Long::GetOptions($opt,
 	"help"         => \&usage,
@@ -57,6 +56,7 @@ Getopt::Long::GetOptions($opt,
 
 sub main {
 
+	die(short_usage()) unless(scalar(@ARGV));
 	my $start = new Benchmark;
 	&check_path(\@ARGV);
 	my $finish = new Benchmark;
@@ -97,7 +97,7 @@ sub display_msg {
 #---check_path--------------------------------------------------------------
 
 sub check_path {
-	my $args = shift;
+	my $argv = shift;
 
 	my @args = ();
 	push(@args, "max_txt_size", $MAXTXTSIZE) if($MAXTXTSIZE);
@@ -110,9 +110,9 @@ sub check_path {
 		move      => $MV_DIR,
 		delete    => $DELETE,
 		@args);
-	for my $p (@{$args}) {
+	for my $p (@{$argv}) {
 		if(-d $p) {
-			$p =~ s{\/+$}{}g;
+			($p eq "/") or $p =~ s{\/+$}{}g;
 			&dir_handle($fs, $p);
 		} elsif(-e $p) {
 			&check($fs, $p);
@@ -136,14 +136,11 @@ sub dir_handle {
 	}
 	opendir(DIRHANDLE, $dir_path) or die("can't opendir $dir_path: $!");
 	for my $item (readdir(DIRHANDLE)) {
-		next if($item =~ /^\.+$/o);
+		($item =~ /^\.+$/o) and next;
+		$dir_path eq "/" and $dir_path = "";
 		my $f = "$dir_path/$item";
 		next if(!$FOLLOW && (-l $f));
-		if(-d $f) {
-			&dir_handle($fs, $f);
-		} else {
-			&check($fs, $f);
-		}
+		(-d $f) ? &dir_handle($fs, $f) : &check($fs, $f);
 	}
 	closedir(DIRHANDLE);
 	return();
@@ -197,7 +194,7 @@ sub print_version {
 
 version $VERSION
 
-Copyright 2002, Henrique Dias
+Copyright 2003, Henrique Dias
 
 VERSION
 	exit 1;
