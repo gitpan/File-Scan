@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.90  Wed Mar  3 13:36:02 WET 2004
+	- added '4d5a000001' new application signature to Makefile.PL
+	- added W32/Bagle.j@MM virus signature
+
 0.89  Tue Mar  2 19:30:53 WET 2004
 	- the W32/Bagle.e@MM virus signature has been updated to detect
 	  also W32/Bagle.h@MM virus variant
