@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Feb 25 15:19:27 WET 2004
+# Last Modification: Thu Feb 26 13:36:25 WET 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.85';
+$VERSION = '0.86';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
