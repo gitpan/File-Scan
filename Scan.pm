@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed Apr 28 19:51:36 WEST 2004
+# Last Modification: Fri Apr 30 19:37:09 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.07';
+$VERSION = '1.08';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/04/28 19:55:38
+# generated in: 2004/04/30 19:53:22
 
 sub get_app_sign {
 	$_ = pop;
@@ -301,8 +301,8 @@ sub scan_binary {
 			}
 		} elsif($type == 4) {
 			if($subtype == 1) {
-				if(($total>=10240 && $total<=18432) || $total==34816) {
-					/\x4d\x61.{0,4}\x70\x56\x69\x65\x77.{0,4}\x4f\x66.{2,19}\x43.{8,14}\x33\x32[\x46\x5b\xbb\x30]/s and $virus = "W32/Bagle.j\@MM", last LINE;
+				if($total==1024) {
+					/\x55\x50\x58\x30\x00{5}[\xa0\x90\xe0]\x00{3}\x10\x00{7}\x02\x00{14}\x80\x00\x00\xe0\x55\x50\x58\x31\x00{5}[\x30\x50\x90]\x00\x00\x00[\xb0\xf0\xa0]\x00\x00\x00[\x28\x48\x46\x8c]\x00\x00\x00\x02\x00{14}[\x80\x40]\x00\x00\xe0\x2e\x72\x73\x72\x63\x00{4}[\x70\x10]\x00\x00\x00[\xe0\x40\xf0\x30][\x00\x01]\x00\x00[\x62\x06]\x00\x00\x00[\x2a\x4a\x48\x8e]\x00{14}\x40\x00\x00\xc0\x31\x2e\x32[\x30\x34]\x00\x55\x50\x58\x21\x0c\x09\x02[\x0a\x08]/s and $virus = "W32/Bagle.j\@MM", last LINE;
 				}
 			} elsif($subtype == 2) {
 				if($total==1024) {
