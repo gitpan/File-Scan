@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.29  Mon Jun  3 12:05:25 WEST 2002
+	- removed the VBS/Chick.c@M virus signature
+	- added three new virus signatures (VBS/Chick.bc@M,
+	  W32/Navidad.gen@M and W32/Ska@M).
+	  Thanks to Philipp W. <philipp@diewebdesigner.com> for provide
+	  W32/Ska@M virus
+
 0.28  Mon May 27 12:11:14 WEST 2002
 	- added three new virus signatures (W32/GOP@MM, JS/SQL.Spida.worm.b
 	  and W32/Benjamin.worm)
