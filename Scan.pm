@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Dec 22 15:28:22 WET 2003
+# Last Modification: Tue Jan  6 15:17:42 WET 2004
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '0.77';
+$VERSION = '0.78';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2003/12/22 15:38:52
+# generated in: 2004/01/06 15:33:59
 
 sub get_app_sign {
 	$_ = pop;
@@ -397,7 +397,7 @@ sub scan_binary {
 					/\x90\x60\xe9\x3d\x04\x00\x00\x87\xc3\xa3\x9f\x9f\x8a\x9f\x5a\xcf\xd8\xe3\x9f\xa2\x7c\xca\x3c\x6f\xde\xe3\x9f\x22\x5c\x9b\xe8\xe3\x9f\x9f\x28\x3c\x9b\xe8\xe3\x9f\xae\x24\x05\xa2\x9f\x9f\x66\x24\xd2\xd8\xe3\x9f\x9f\x9f\x9f\x9f\x2c\x24\xa3\xe9\xe3\x9f\xef\x9e/s and $virus = "W32/Lovgate.g\@M", last LINE;
 				}
 				if($total==9216) {
-					/\x2b\x0c\x01\x54\xb3\x42\x6f\x6b\x75\x6d\x65\x6e\x74\x65/s and $virus = "W32/Sober\@MM", last LINE;
+					/\x2b\x0c\x01\x54..\x6f\x6b\x75\x6d\x65\x6e\x74./s and $virus = "W32/Sober\@MM", last LINE;
 					/\x6d\x6f\x76\x20\x5b\x77\xf0\xb7\x56\xb8\x00\x2e\x70\x6c\x57\xb7\x76\x69\x72\x75\x73\x2e\x9f\x6b\x77\xbf\x4d\x6d\x5d\x20\x2a\x2f\x37\x52\x65\x67\xf8\xc2\xa0/s and $virus = "BackDoor-CAG", last LINE;
 				}
 				if($total==12288) {
