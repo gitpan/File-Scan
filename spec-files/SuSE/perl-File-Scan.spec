@@ -1,6 +1,6 @@
 %define class File
 %define subclass Scan
-%define _version 1.03
+%define _version 1.04
 %define _release 1
 
 # Derived values
@@ -168,6 +168,8 @@ fi
 %endif
 
 %changelog
+* Mon Apr 26 2004 Henrique Dias <hdias@aesbuc.pt>
+- Updated to 1.04
 * Thu Apr 22 2004 Henrique Dias <hdias@aesbuc.pt>
 - Updated to 1.03
 * Wed Apr 14 2004 Henrique Dias <hdias@aesbuc.pt>

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Apr 22 17:53:38 WEST 2004
+# Last Modification: Mon Apr 26 20:27:18 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.03';
+$VERSION = '1.04';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/04/22 17:56:27
+# generated in: 2004/04/26 20:43:49
 
 sub get_app_sign {
 	$_ = pop;
@@ -299,8 +299,8 @@ sub scan_binary {
 			}
 		} elsif($type == 4) {
 			if($subtype == 1) {
-				if($total==10240 || $total==18432) {
-					/\x4d\x61\x70\x56\x69\x65\x77.{0,4}\x4f\x66.{2,19}\x43.{8,13}\x33\x32[\x46\x5b]/s and $virus = "W32/Bagle.j\@MM", last LINE;
+				if($total==10240 || $total==18432 || $total==34816) {
+					/\x4d\x61\x70\x56\x69\x65\x77.{0,4}\x4f\x66.{2,19}\x43.{8,14}\x33\x32[\x46\x5b\xbb]/s and $virus = "W32/Bagle.j\@MM", last LINE;
 				}
 			} elsif($subtype == 2) {
 				if($total==1024) {
@@ -342,6 +342,7 @@ sub scan_binary {
 				}
 				if($total==2048) {
 					/\x48\x61\x69\x6b\x75\x20\x47\x65\x6e\x65\x72\x61\x74\x6f\x72/s and $virus = "W32/Haiku\@MM", last LINE;
+					/\x20\x43\xbb\x2a\x99\x11\xaa\x80\x33\xc6\xb7\xbd\x6a\x49\xb2\x4d\xc9\xbd\xc0\xdc\x21\xe9\x00\x8a\x41\x48\xc0\x42\x10\x10\x86\xe4\x0d\x92\x04\x21\xe8\x86\xe4\x87\xa4\x90\x04\x56\x8c\x62\x2d\x52/s and $virus = "W32/Torvil\@MM", last LINE;
 				}
 				if($total==3072) {
 					/\x56\x69\x72\x75\x73\x20\x2d\x20\x4f\x72\x65\x5a\x52\x61\x74\x53\x20\x5b\x49\x6b\x78\x5d\x20\x28\x43\x29\x20\d\d\d\d/s and $virus = "W32/Orez", last LINE;
