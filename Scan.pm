@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Mon Oct 18 13:56:35 WEST 2004
+# Last Modification: Sat Oct 30 18:41:03 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.35';
+$VERSION = '1.36';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/10/18 15:06:33
+# generated in: 2004/10/30 19:05:03
 
 sub get_app_sign {
 	$_ = pop;
@@ -519,6 +519,7 @@ sub scan_binary {
 					/\x2b\x0c\x01[\x94\x54\xcc\x2c].{2,7}\x6f\x6b\x75\x6d.{0,4}\x65\x6e\x74/s and $virus = "W32/Sober\@MM", last LINE;
 				}
 				if($total==12288) {
+					/\x21\x73\x76\x68\x6f\x73\x74\x2e\x65\x78\x65\x27\x7b[^\x7d]{32,}\x7d\x53\x4f\x46/s and $virus = "Generic PWS.f", last LINE;
 					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;
 				}
 				if($total==44032) {
@@ -558,11 +559,11 @@ sub scan_binary {
 				/\x57\x69\x6e\x33\x32\x2e\x47\x69\x72\x69\x67\x61\x74\x20\x69\x73\x20\x6e\x6f\x77\x20\x61\x63\x74\x69\x76\x65\x21/s and $virus = "W32/Giri.dr", last LINE;
 				/\x4e\x45\x54\x2e\x64\x6f\x74\x4e\x45\x54\x20\x62\x79\x20\x42\x65\x6e\x6e\x79\x2f\x32\x39\x41/s and $virus = "W32/Donut.dr", last LINE;
 			}
-			if($total>=2048 && $total<=4096) {
-				/\x36\x55\x39\x36\x55\x39\x3a\x55\x39\x36\x55\x43\x36\x55\x39\x36\x55\x0f\x39.{1,17}\x7c\x24\x28\x89\x7c\x24/s and $virus = "W32/Bagle.ai\@MM", last LINE;
-			}
 			if($total>=7168 && $total<8192) {
 				/\x4a\x54\x4d\x20\x2d\x20\x66\x72\x6f\x6d\x20\x65\x5b\x61\x78\x5d\x20\x74\x6f\x20\x48\x6f\x6d\x65\x72\x20\x54\x68\x61\x20\x50\x69\x6c\x65/s and $virus = "W32/HLL.ow.24590", last LINE;
+			}
+			if($total>=2048 && $total<=5120) {
+				/\x36\x55\x0f?\x39\x36\x55\x39\x3a\x55\x39\x36\x55\x43\x36\x55\x39\x36\x55\x0f\x39.{1,17}\x7c\x24\x28\x89\x7c\x24/s and $virus = "W32/Bagle.ai\@MM", last LINE;
 			}
 			if($total>=1024 && $total<=5120) {
 				/\xed.{0,13}\xe8.{0,17}\xe9.{0,12}\xff\xff\xff.{0,19}\x83/s and $virus = "W32/Netsky.c\@MM", last LINE;
