@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Fri Apr  2 16:05:24 WEST 2004
+# Last Modification: Mon Apr  5 15:29:29 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/04/02 16:17:48
+# generated in: 2004/04/05 15:33:53
 
 sub get_app_sign {
 	$_ = pop;
@@ -412,6 +412,9 @@ sub scan_binary {
 				if($total==9216) {
 					/\x6d\x6f\x76\x20\x5b\x77\xf0\xb7\x56\xb8\x00\x2e\x70\x6c\x57\xb7\x76\x69\x72\x75\x73\x2e\x9f\x6b\x77\xbf\x4d\x6d\x5d\x20\x2a\x2f\x37\x52\x65\x67\xf8\xc2\xa0/s and $virus = "BackDoor-CAG", last LINE;
 				}
+				if($total==6144 || $total==7168 || $total==9216) {
+					/\x2b\x0c\x01[\x54\xcc\x2c].{2,7}\x6f\x6b\x75\x6d\x65\x6e\x74/s and $virus = "W32/Sober\@MM", last LINE;
+				}
 				if($total==12288) {
 					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;
 				}
@@ -424,9 +427,6 @@ sub scan_binary {
 				if($total==37888) {
 					/\x91\xd9\x6f\x2d\x38\x38\x35\x39\x2d\xb9\x62\xb8\x44\x14\x4b\xe8\x07\xeb\xe9\xa7\x15\x25\x74\x2f\xad\x6d\x77\x77\x23\xe1\x35\x58\x2a\x8f\x27\x4d\x4b\x29\xa0\x21\xfa\x4d\x49\x4d\x45\x2d\x49\x3a\xca\xcd\x5a\x5a\xa1\x71\xaa\xfe\x2f\x5a\x58\x18\xee\x6d\x69\x78/s and $virus = "W32/Yaha.u\@MM", last LINE;
 					/\x5c\x49\x6e\x74\x65\x72\x66\x61\x63\x65\x73\x00\x00\x00\x43\x6f\x6e\x63\x65\x70\x74\x20\x56\x69\x72\x75\x73\x28\x43\x56\x29\x20\x56\x2e\d\x2c\x20\x43\x6f\x70\x79\x72\x69\x67\x68\x74\x28\x43\x29\d\d\d\d.{10,}\x4d\x49\x4d\x45\x2d\x56\x65\x72\x73\x69\x6f\x6e\x3a\x20\x31\x2e\x30/s and $virus = "W32/Nimda.gen\@MM", last LINE;
-				}
-				if($total==6144 || $total==9216) {
-					/\x2b\x0c\x01[\x54\xcc].{2,6}\x6f\x6b\x75\x6d\x65\x6e\x74/s and $virus = "W32/Sober\@MM", last LINE;
 				}
 				if($total>=1024 && $total<=5120) {
 					/\xed.{0,13}\xe8.{0,17}\xe9.{0,12}\xff\xff\xff.{0,19}\x83/s and $virus = "W32/Netsky.c\@MM", last LINE;
