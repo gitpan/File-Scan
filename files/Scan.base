@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Feb 14 13:26:10 WET 2002
+# Last Modification: Fri Feb 15 10:25:22 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $virustxt %keywords);
 
 @ISA = qw(Exporter);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 $ERROR = "";
 
@@ -106,7 +106,7 @@ File::Scan - Perl extension for Scanning files for Viruses
 =head1 DESCRIPTION
 
 This module is designed to allows users to scan files for known viruses.
-The purpose is to provide a perl module to make plattaform independent
+The purpose is to provide a perl module to make plataform independent
 virus scanners.
 
 =head1 METHODS

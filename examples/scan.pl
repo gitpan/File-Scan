@@ -2,15 +2,16 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Wed Feb 13 10:35:32 WET 2002
+# Last Change: Fri Feb 15 10:56:34 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
 use strict;
 use File::Scan;
 use Getopt::Long();
+use Benchmark;
 
-my $VERSION = "0.01";
+my $VERSION = "0.02";
 
 my $infected = 0;
 my $objects = 0;
@@ -37,9 +38,11 @@ Getopt::Long::GetOptions($opt,
 
 sub main {
 
-	my $ti = time();
+	my $start = new Benchmark;
 	&check_path(\@ARGV);
-	my $tf = time() - $ti;
+	my $finish = new Benchmark;
+	my $diff = timediff($finish, $start);
+	my $strtime = timestr($diff);
 
 	print <<ENDREPORT;
 
@@ -47,7 +50,7 @@ Results of virus scanning:
 --------------------------
 Objects scanned: $objects 
        Infected: $infected
-Scan Time (sec): $tf
+      Scan Time: $strtime
 
 ENDREPORT
 
@@ -61,10 +64,12 @@ sub display_msg {
 	my $virus = shift;
 
 	$objects++;
+	my $string = "...";
 	if($virus) {
 		$infected++;
-		print "$file Infection: $virus\n";
+		$string = "Infection: $virus";
 	}
+	print "$file $string\n";
 	return();
 }
 
@@ -100,10 +105,15 @@ sub dir_handle {
 	my $fs = shift;
 	my $dir_path = shift;
 
+	unless(-r $dir_path) {
+		print "Permission denied at $dir_path\n";
+		return();
+	}
 	opendir(DIRHANDLE, $dir_path) or die("can't opendir $dir_path: $!");
 	for my $item (readdir(DIRHANDLE)) {
 		next if($item =~ /^\./);
 		my $f = "$dir_path/$item";
+		next if(-l $f);
 		if(-d $f) {
 			&dir_handle($fs, $f);
 		} else {

@@ -85,15 +85,27 @@ sub make_module {
 sub get_code {
 	my $patterns = shift;
 
+	my $min_size = 0;
 	my $today = &string_date();
 	my $code = <<ENDOFCODE1;
 # last change: $today
 sub load_txt_signs() {
 	\$virustxt = {
 ENDOFCODE1
+	my $min = 0;
+	my $max = 0;
 	while(my($key, $value) = each(%{$patterns->{'0'}->{'0'}})) {
 		$value =~ s/\"/\\\"/g;
 		my @all = split(/}{/, $value);
+		my $ne = scalar(@all);
+		$min_size = $ne unless($min_size);
+		$min_size = $ne if($ne < $min_size);
+		for(@all) {
+			my $n = length($_);
+			$min = $max unless($min);
+			$max = $n if($n > $max);
+			$min = $n if($n < $min);
+		}
 		my $line = join('","', @all);
 		$code .= "\t\t\"$key\" => [\"$line\"],\n";
 	}
@@ -108,7 +120,7 @@ ENDOFCODE1
 sub scan_text {
 	my\$file = shift;
 
-	my \$pattern = '([\\w-\\.]{2,})';
+	my \$pattern = '([\\w-\\.]{$min,$max})';
 	my \%hash = ();
 	local \$/ = "\0";
 	open(FILE, "<\$file") or return(&set_error("\$!"));
@@ -119,6 +131,7 @@ sub scan_text {
 		}
 	}
 	close(FILE);
+	return() if(scalar(keys(\%hash)) < $min_size);
 	VIRUS: for my \$name (\%{\$virustxt}) {
 		my \$found = "";
 		for my \$sign (\@{\$virustxt->{\$name}}) {

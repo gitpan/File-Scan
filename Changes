@@ -1,5 +1,12 @@
 Revision history for Perl extension File::Scan.
 
+0.03  Fri Feb 15 13:28:34 WET 2002
+	- improved the speed of scan_text function in 24%
+	- examples/scan.pl: fixed the problem with symbolic links in
+	  dir_handle function
+	- examples/scan.pl: changed the report section to use Benchmark 
+	  module
+
 0.02  Thu Feb 14 13:24:19 2002
 	- fixed a 'bug' in scan_text function
 
