@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+1.15  Sat May 29 17:01:23 WEST 2004
+	- the W32/Mydoom@MM virus signature has been updated to detect
+	  W32/Mydoom.g@MM variant.
+
 1.14  Sat May 22 18:10:47 WEST 2004
 	- the W32/Netsky@MM virus signature has been updated.
 

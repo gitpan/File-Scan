@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat May 22 17:54:36 WEST 2004
+# Last Modification: Sat May 29 16:50:24 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.14';
+$VERSION = '1.15';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/05/22 18:11:14
+# generated in: 2004/05/29 17:02:00
 
 sub get_app_sign {
 	$_ = pop;
@@ -412,11 +412,11 @@ sub scan_binary {
 				if($total>=8192 && $total<=20480) {
 					/\x51.{1,3}\x54.{14,36}\x41.{1,7}\x52.{0,4}\x43.{3,7}\x4f\x3a.{2,6}\x4d\x41.{0,4}\x49\x4c/s and $virus = "W32/Mimail\@MM", last LINE;
 				}
-				if(($total>=10240 && $total<=15360) || $total==45056) {
-					/[\xee\x95\x00\x95\x2d]\x51\x55\x49\x54[\x8e\xfa\x0d\xa7\x83].{7,27}\x41.{6,35}\x20.{0,55}\x54[\x4f\x6f\x7e]/s and $virus = "W32/Mydoom\@MM", last LINE;
-				}
 				if($total==35840) {
 					/\x73\x6d\x74\x70\x2e\x79\x65\x61\x68\x2e\x6e\x65.+\x2d\x20\x47\x45\x54\x20\x4f\x49\x43\x51/s and $virus = "W32/GOP\@MM", last LINE;
+				}
+				if($total==5120 || ($total>=10240 && $total<=15360) || $total==45056) {
+					/[\xee\x95\x00\x95\x2d\x02][\x19\x51]\x55\x49\x54[\x8e\xfa\x0d\xa7\x83\xf3].{6,27}\x41.{6,35}\x20.{0,55}[\x54\x3e][\x4f\x6f\x7e]/s and $virus = "W32/Mydoom\@MM", last LINE;
 				}
 				if($total==102400) {
 					/\x90\x60\xe9\x3d\x04\x00\x00\x87\xc3\xa3\x9f\x9f\x8a\x9f\x5a\xcf\xd8\xe3\x9f\xa2\x7c\xca\x3c\x6f\xde\xe3\x9f\x22\x5c\x9b\xe8\xe3\x9f\x9f\x28\x3c\x9b\xe8\xe3\x9f\xae\x24\x05\xa2\x9f\x9f\x66\x24\xd2\xd8\xe3\x9f\x9f\x9f\x9f\x9f\x2c\x24\xa3\xe9\xe3\x9f\xef\x9e/s and $virus = "W32/Lovgate.g\@M", last LINE;
