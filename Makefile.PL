@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Sat Mar 23 10:06:23 WET 2002
+# Last Modification: Sat Mar 23 18:03:41 WET 2002
 
 use strict;
 
@@ -73,7 +73,7 @@ sub load_suspicious {
 		chomp();
 		my ($txt, $hex) = split(/::/);
 		$hex =~ s/$pattern/\\x$1/og;
-		push(@all, "\/$hex\/ios");
+		push(@all, "\/$hex\/os");
 	}
 	close(FILE);
 	return(join(" ||\n\t\t\t\t\t\t", @all));
@@ -152,13 +152,13 @@ sub scan_text {
 			if(\$buff =~ /^%PDF-/o) { \$skip = 1; last LINE; }
 		}
 		\$save .= \$buff;
-		\$_ = \$save;
 		unless(\$script) {
+			\$_ = lc(\$save);
 ENDOFCODE1
 	for my $sl (keys(%{$script_lang->{'in'}})) {
-		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/ios) { \$script = \"$sl\"; }\n";
+		$code .= "\t\t\tif(/" . $script_lang->{'in'}->{$sl} . "/os) { \$script = \"$sl\"; }\n";
 	}
-	$code .= "\t\t}\n\t\tif(\$script) {\n";
+	$code .= "\t\t}\n\t\t\$_ = \$save;\n\t\tif(\$script) {\n";
 	for my $sl (keys(%{$script_lang->{'in'}})) {
 		if(scalar(keys(%{$patterns->{$sl}->{'0'}}))) {
 			$code .= "\t\t\tif(\$script eq \"$sl\") {\n";
@@ -211,18 +211,20 @@ sub scan_binary {
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first);
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
+			\$_ = \$begin;
 ENDOFCODE2
 	while(my($key, $value) = each(%app_signatures)) {
-		$code .= "\t\t\tif(\$begin =~ /\^$value/so) \{ \$vtype = \"$key\"; \}\n";
+		$code .= "\t\t\tif(/\^$value/so) \{ \$vtype = \"$key\"; \}\n";
 	}
 	$code .= <<ENDOFCODE3;
 			unless(\$vtype) { \$skip = 1; last LINE; }
 		}
 		\$save .= \$buff;
-		\$_ = \$save;
 		unless(\$suspicious) {
+			\$_ = lc(\$save);
 			\$suspicious = 1 if($linesusp);
 		}
+		\$_ = \$save;
 ENDOFCODE3
 	my $lcode = "";
 	for my $idx (keys(%app_signatures)) {

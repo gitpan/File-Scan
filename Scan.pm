@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Mar 23 10:07:37 WET 2002
+# Last Modification: Sat Mar 23 18:03:16 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/03/23 11:03:18
+# generated in: 2002/03/23 18:21:46
 
 sub scan_text {
 	my $file = shift;
@@ -137,11 +137,12 @@ sub scan_text {
 			if($buff =~ /^%PDF-/o) { $skip = 1; last LINE; }
 		}
 		$save .= $buff;
-		$_ = $save;
 		unless($script) {
-			if(/< *script[^>]+language *=["' ]*vbscript["']*[^>]*>/ios) { $script = "HTMLVBS"; }
-			if(/< *script[^>]+language *=["' ]*javascript["']*[^>]*>/ios) { $script = "HTMLJS"; }
+			$_ = lc($save);
+			if(/< *script[^>]+language *=["' ]*vbscript["']*[^>]*>/os) { $script = "HTMLVBS"; }
+			if(/< *script[^>]+language *=["' ]*javascript["']*[^>]*>/os) { $script = "HTMLJS"; }
 		}
+		$_ = $save;
 		if($script) {
 			if($script eq "HTMLVBS") {
 				if(/\x4d\x73\x65\x6e\x64\x20\x28\x6d\x6d\x61\x69\x6c\x29.+\x45\x6e\x64\x20\x49\x66.+\x45\x6e\x64\x20\x53\x75\x62.+\x46\x75\x6e\x63\x74\x69\x6f\x6e\x20\x53\x63\x28\x53\x29.+\x6d\x4e\x20\x3d\x20.+\x52\x65\x6d\x20\x49\x20\x61\x6d\x20\x73\x6f\x72\x72\x79\x21\x20\x68\x61\x70\x70\x79\x20\x74\x69\x6d\x65.+/so) { $virus = "VBS/Haptime.a\@MM"; last LINE; }
@@ -185,27 +186,32 @@ sub scan_binary {
 		unless($save) {
 			my $begin = substr($buff, 0, 8);
 			unless(length($begin) >= 8) { $skip = 3; last LINE; }
-			if($begin =~ /^\x49\x54\x53\x46/so) { $vtype = "49545346"; }
-			if($begin =~ /^\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1/so) { $vtype = "d0cf11e0a1b11ae1"; }
-			if($begin =~ /^\x47\x45\x54/so) { $vtype = "474554"; }
-			if($begin =~ /^\xe9/so) { $vtype = "e9"; }
-			if($begin =~ /^\x4d\x5a/so) { $vtype = "4d5a"; }
+			$_ = $begin;
+			if(/^\x49\x54\x53\x46/so) { $vtype = "49545346"; }
+			if(/^\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1/so) { $vtype = "d0cf11e0a1b11ae1"; }
+			if(/^\x47\x45\x54/so) { $vtype = "474554"; }
+			if(/^\xe9/so) { $vtype = "e9"; }
+			if(/^\x4d\x5a/so) { $vtype = "4d5a"; }
 			unless($vtype) { $skip = 1; last LINE; }
 		}
 		$save .= $buff;
-		$_ = $save;
 		unless($suspicious) {
-			$suspicious = 1 if(/\x57\x6f\x72\x6d/ios ||
-						/\x56\x69\x72\x75\x73/ios ||
-						/\x5b[^\x5d]+\x5d\x20\x62\x79\x20\w+/ios ||
-						/\x62\x61\x63\x6b\x64\x6f\x6f\x72/ios ||
-						/\x70\x61\x72\x61\x73\x69\x74\x65/ios ||
-						/\w+\x20\x63\x6f\x64\x65\x64\x20\x62\x79\x20\w+/ios);
+			$_ = lc($save);
+			$suspicious = 1 if(/\x77\x6f\x72\x6d/os ||
+						/\x76\x69\x72\x75\x73/os ||
+						/\x5b[^\x5d]+\x5d\x20\x62\x79\x20\w+/os ||
+						/\x62\x61\x63\x6b\x64\x6f\x6f\x72/os ||
+						/\x70\x61\x72\x61\x73\x69\x74\x65/os ||
+						/\w+\x20\x63\x6f\x64\x65\x64\x20\x62\x79\x20\w+/os);
 		}
+		$_ = $save;
 		if($vtype eq "49545346") {
 			if(/\x48\x48\x41\x20\x56\x65\x72\x73\x69\x6f\x6e\x20\d+.\d+.\d+.+\x42\x72\x69\x74\x6e\x65\x79\x2e\x68\x74\x6d\x6c.+\x42\x72\x69\x74\x6e\x65\x79\x2d\x50\x69\x63\x73.+\x62\x72\x69\x74\x6e\x65\x79\x2d\x70\x69\x63\x73/so) { $virus = "VBS/BritneyPic\@MM"; last LINE; }
 		} elsif($vtype eq "d0cf11e0a1b11ae1") {
 			if(/\x57.*\x4d\x2e\x53\x70\x69\x72\x6f\x68\x65\x74\x61/so) { $virus = "W97M/Generic"; last LINE; }
+			if(/\x56\x4d\x50\x43\x4b\x20\x76\d+\x2e\d+\w*\x20\x5b[^\x5d]+\x5d/so) { $virus = "W97/VMPCK1.gen"; last LINE; }
+			if(/\x3c\x2d\x20\x74\x68\x69\x73\x20\x69\x73\x20[\w ]+\x20\x6d\x61\x72\x6b\x65\x72\x21/so) { $virus = "W97/Marker.gen"; last LINE; }
+			if(/\x54\x68\x75\x73.\x30+\x00\d+/so) { $virus = "W97/Thus.gen"; last LINE; }
 			if(/\x57\x6f\x72\x64\x32\x30\x30\x30\x2e\x47\x61\x72\x47\x6c\x65/so) { $virus = "W97M/Hope.gen"; last LINE; }
 		} elsif($vtype eq "474554") {
 			if(/\x48\x4f\x53\x54\x3a\x77\x77\x77\x2e\x77\x6f\x72\x6d\x2e\x63\x6f\x6d\x0a\x20\x41\x63\x63\x65\x70\x74\x3a\x20\x2a\x2f\x2a\x0a\x43\x6f\x6e\x74\x65\x6e\x74\x2d\x6c\x65\x6e\x67\x74\x68\x3a/so) { $virus = "W32/CodeRed.a.worm"; last LINE; }
@@ -394,7 +400,7 @@ Henrique Dias <hdias@esb.ucp.pt>
 =head1 CREDITS
 
 Thanks to Rui de Castro, Sergio Castro, Ricardo Oliveira, Antonio
-Campelo and Branca Silveira for the help.
+Campelo, Branca Silveira, Helena Gomes and Anita Afonso for the help.
 
 Thanks to Fernando Martins for the personal collection of viruses.
 

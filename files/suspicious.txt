@@ -1,5 +1,5 @@
-Worm::576f726d
-Virus::5669727573
+worm::776f726d
+virus::7669727573
 [text] by text::5b[^5d]+5d20627920\w+
 backdoor::6261636b646f6f72
 parasite::7061726173697465

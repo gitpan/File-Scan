@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+0.16  Sat Mar 23 18:21:13 WET 2002
+	- added more three new virus signatures
+	- improved the speed
+	- all suspicious words was changed to lowercase
+	- minor bugfixes
+
 0.15  Sat Mar 23 10:11:29 WET 2002
 	- added new virus signatures and PetTick virus signature
 	  was updated 
