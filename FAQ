@@ -11,3 +11,9 @@ The signatures are stored internally in Scan.pm file, but you can add new
 signatures to signatures.txt file in files directory and rebuild the 
 module.
 
+* Can anybody tell me how I can compile a stand alone virus scanner?
+
+$ cd examples
+$ perlcc -o virusscan scan.pl
+
+(Perl v5.8.0)

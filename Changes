@@ -1,5 +1,9 @@
 Revision history for Perl extension File::Scan.
 
+0.43  Mon Jan 13 12:22:16 WET 2003
+	- added W32/Sobig@MM virus signature.
+	- added new question/answer to FAQ.
+
 0.42  Fri Jan 10 15:34:57 WET 2003
 	- rename W32/Lirva.a@MM virus signature to W32/Lirva.gen@MM
 	- W32/Lirva.a@MM virus signatures was updated.
