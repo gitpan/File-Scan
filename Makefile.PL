@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Mon Apr 22 10:22:35 WEST 2002
+# Last Modification: Tue Jul  2 11:56:14 WEST 2002
 
 use strict;
 
@@ -11,20 +11,21 @@ my $min_txt_size = 0;
 my $signs = "files/signatures.txt";
 my $susp = "files/suspicious.txt";
 
+my @html_scripting = ("HTMLVBS", "HTMLJS");
 my $script_lang = {
 	'in'  => {
 		"HTMLVBS" => "< *script[^>]+language *=[\"' ]*vbscript[\"']*[^>]*\>",
-		"HTMLJS"  => "< *script[^>]+language *=[\"' ]*javascript[\"']*[^>]*\>",
+		"HTMLJS"  => "< *script[^>]*(language *=[\"' ]*javascript[\"']*)*[^>]*>",
 	},
 	'out' => {
 		"BAT"     => "Batch",
 		"JS"      => "JavaScript",
 		"VBS"     => "VBScript",
-		"TEST"    => "Test"
+		"TEST"    => "Test",
 	},
 	'mix' => {
-		"MIXVBS"  => "HTMLVBS/VBS"
-	}
+		"MIXVBS"  => "HTMLVBS/VBS",
+	},
 };
 
 my $app_signatures = {
@@ -194,14 +195,15 @@ sub scan_text {
 	LINE: while(read(FILE, \$buff, \$size)) {
 		unless(\$save) { last LINE if(\$skip = &exception(\$buff)); }
 		study;
-		\$save .= \$buff;
+		\$_ = (\$save .= \$buff);
 		unless(\$script) {
-			\$_ = lc(\$save);
+			TEST: {
+				local \$_ = lc(\$save);
 ENDOFCODE2
-	for my $sl (keys(%{$script_lang->{'in'}})) {
-		$code .= "\t\t\t/" . $script_lang->{'in'}->{$sl} . "/os and \$script = \"$sl\";\n";
+	for my $sl (@html_scripting) {
+		$code .= "\t\t\t\t/" . $script_lang->{'in'}->{$sl} . "/os and \$script = \"$sl\", last TEST;\n";
 	}
-	$code .= "\t\t}\n\t\t\$_ = \$save;\n\t\tif(\$script) {\n";
+	$code .= "\t\t\t}\n\t\t}\n\t\tif(\$script) {\n";
 	for my $sl (keys(%{$script_lang->{'in'}})) {
 		if(scalar(keys(%{$patterns->{$sl}->{'0'}}))) {
 			$code .= "\t\t\tif(\$script eq \"$sl\") {\n";
@@ -261,12 +263,11 @@ ENDOFCODE3
 			unless(\$type) { \$skip = 1; last LINE; }
 		}
 		study;
-		\$save .= \$buff;
+		\$_ = (\$save .= \$buff);
 		unless(\$suspicious) {
-			\$_ = lc(\$save);
+			local \$_ = lc(\$save);
 			\$suspicious = 1 if($linesusp);
 		}
-		\$_ = \$save;
 ENDOFCODE4
 	my $lcode = "";
 	for my $key (keys(%{$app_signatures})) {

@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+0.32  Mon Jul  8 11:52:39 WEST 2002
+	- added five new virus signatures (JS/Kak@M, W97M/Gorum,
+	  W32/Gorum.gen@MM, BSD/Scalper.worm and W97M/VMPCK.dd) and
+	  W32/SirCam@MM virus signature was updated
+	- minor feature enhancements in Makefile.PL
+	- Thanks to Teguh Kurniawan <wijaya99@plasa.com> for provide
+	  JS/Kak@M virus
+
 0.31  Tue Jun 25 11:10:58 WEST 2002
 	- added four new virus signatures (W32/Yaha.gen@MM, W32/Perrun,
 	  VBS/Chick.e@M and W32/Higuy@MM)
