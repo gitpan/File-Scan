@@ -1,5 +1,10 @@
 Revision history for Perl extension File::Scan.
 
+0.45  Sat Mar 29 18:37:28 WET 2003
+	- the problems with open function have been fixed. In perl version 
+	  5.6 or greater, now open function has three argument. In other
+	  versions the sysopen function is used.
+
 0.44  Sat Mar 15 16:08:24 WET 2003
 	- added VBS/Fourcourse virus signature.
 

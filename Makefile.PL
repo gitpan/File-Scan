@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Sat Dec 28 19:46:59 WET 2002
+# Last Modification: Sat Mar 29 17:27:14 WET 2003
 
 use strict;
 
@@ -77,7 +77,7 @@ sub load_suspicious {
 
 	my @all = ();
 	my $pattern = '(?<![\\{\\\\])([\\da-f]{2})(?!\\})';
-	open(FILE, "<$file") or die("$!");
+	open(FILE, "<$file") or die("Can't open $file: $!");
 	while(<FILE>) {
 		next if(/^#/);
 		chomp();
@@ -98,7 +98,7 @@ sub load_signatures {
 	@script{keys(%{$script_lang->{'out'}})} = ();
 
 	my $hash = {};
-	open(FILE, "<$file") or die("$!");
+	open(FILE, "<$file") or die("Can't open $file: $!");
 	while(<FILE>) {
 		next if(/^#/);
 		chomp;
@@ -128,8 +128,8 @@ sub load_signatures {
 sub make_module {
 	my $code = shift;
 
-	open(BASEFILE, "<files/Scan.base") or die("$!");
-	open(PMFILE, ">Scan.pm") or die("$!");
+	open(BASEFILE, "<files/Scan.base") or die("Can't open files/Scan.base: $!");
+	open(PMFILE, ">Scan.pm") or die("Can't open Scan.pm: $!");
 	while(<BASEFILE>) {
 		s/\$min_txt_size/$min_txt_size/;
 		print PMFILE $_;
@@ -192,7 +192,12 @@ sub scan_text {
 	my \$virus = "";
 	my \$script = "";
 	my \$size = $bufflen;
-	open(FILE, "<\$file") or return(&set_error("\$!"));
+ENDOFCODE2
+
+	$code .= ($] < 5.006) ? "\tsysopen(FILE, \$file, 0)" : "\topen(FILE, \"<\", \$file)";
+	$code .= " or return(&set_error(\"Can't open \$file: \$!\"));\n";
+
+	$code .= <<ENDOFCODE3;
 	LINE: while(read(FILE, \$buff, \$size)) {
 		unless(\$save) { last LINE if(\$skip = &exception(\$buff)); }
 		study;
@@ -200,7 +205,7 @@ sub scan_text {
 		unless(\$script) {
 			TEST: {
 				local \$_ = lc(\$save);
-ENDOFCODE2
+ENDOFCODE3
 	for my $sl (@html_scripting) {
 		$code .= "\t\t\t\t/" . $script_lang->{'in'}->{$sl} . "/os and \$script = \"$sl\", last TEST;\n";
 	}
@@ -230,7 +235,7 @@ ENDOFCODE2
 		}
 		$code .= "\t\t}\n";
 	}
-	$code .= <<ENDOFCODE3;
+	$code .= <<ENDOFCODE4;
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
 	close(FILE);
@@ -250,13 +255,19 @@ sub scan_binary {
 	my \$save = "";
 	my \$total = 0;
 	my \$size = $bufflen;
-	open(FILE, "<\$file") or return(&set_error("\$!"));
+ENDOFCODE4
+
+	$code .= ($] < 5.006) ? "\tsysopen(FILE, \$file, 0)" : "\topen(FILE, \"<\", \$file)";
+	$code .= " or return(&set_error(\"Can't open \$file: \$!\"));\n";
+
+	$code .= <<ENDOFCODE5;
 	binmode(FILE);
 	LINE: while(read(FILE, \$buff, \$size)) {
 		\$total += length(\$buff);
-ENDOFCODE3
-		$code .= "\t\tprint STDERR \"\$total\\n\";\n" if($debug);
-		$code .= <<ENDOFCODE4;
+ENDOFCODE5
+	$code .= "\t\tprint STDERR \"\$total\\n\";\n" if($debug);
+
+	$code .= <<ENDOFCODE6;
 		unless(\$save) {
 			my \$begin = substr(\$buff, 0, $first, "");
 			unless(length(\$begin) >= $first) { \$skip = 3; last LINE; }
@@ -269,7 +280,7 @@ ENDOFCODE3
 			local \$_ = lc(\$save);
 			\$suspicious = 1 if($linesusp);
 		}
-ENDOFCODE4
+ENDOFCODE6
 	my $lcode = "";
 	for my $key (keys(%{$app_signatures})) {
 		my $c = $conversion{$key};
@@ -289,7 +300,7 @@ ENDOFCODE4
 		$lcode .= &subgene($patterns->{$key}, "\t\t\t");
 	}
 	$code .= $lcode;
-	$code .= <<ENDOFCODE5;
+	$code .= <<ENDOFCODE7;
 		}
 		\$save = substr(\$buff, (length(\$buff)/2));
 	}
@@ -299,7 +310,7 @@ ENDOFCODE4
 	&set_suspicious(\$suspicious) if(\$suspicious);
 	return(\$virus);
 }
-ENDOFCODE5
+ENDOFCODE7
 	return($code);
 }
 
