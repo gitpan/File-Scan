@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Sat Mar  2 18:01:25 WET 2002
+# Last Change: Sat Mar 23 10:09:36 WET 2002
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>
 #
 #############################################################################
@@ -11,11 +11,12 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.07";
+my $VERSION = "0.08";
 
 my $infected = 0;
 my $objects = 0;
 my $skipped = 0;
+my $suspicious = 0;
 
 my $EXTENSION = "";
 my $CP_DIR = "";
@@ -68,6 +69,7 @@ Results of virus scanning:
 --------------------------
 Objects scanned: $objects 
         Skipped: $skipped
+     Suspicious: $suspicious
        Infected: $infected
       Scan Time: $strtime
 
@@ -113,12 +115,7 @@ sub check_path {
 			$p =~ s{\/+$}{}g;
 			&dir_handle($fs, $p);
 		} elsif(-e $p) {
-			my $res = $fs->scan($p);
-			if(my $e = $fs->error) { print"$e\n"; }
-			elsif(my $c = $fs->skipped) {
-				$skipped++;
-				print "$p File Skipped (" . $skipcodes{$c} . ")\n";
-			} else { &display_msg($p, $res); }
+			&check($fs, $p);
 		} else {
 			print "No such file or directory: $p\n";
 			exit(0);
@@ -145,15 +142,29 @@ sub dir_handle {
 		if(-d $f) {
 			&dir_handle($fs, $f);
 		} else {
-			my $res = $fs->scan($f);
-			if(my $e = $fs->error) { print"$e\n"; }
-			elsif(my $c = $fs->skipped) {
-				$skipped++;
-				print "$f File Skipped (" . $skipcodes{$c} . ")\n";
-			} else { &display_msg($f, $res); }
+			&check($fs, $f);
 		}
 	}
 	closedir(DIRHANDLE);
+	return();
+}
+
+#---check-------------------------------------------------------------------
+
+sub check {
+	my $fs = shift;
+	my $file = shift;
+
+	my $res = $fs->scan($file);
+	if(my $e = $fs->error) { print"$e\n"; }
+	elsif(my $c = $fs->skipped) {
+		$skipped++;
+		print "$file File Skipped (" . $skipcodes{$c} . ")\n";
+	} elsif($fs->suspicious) {
+		$suspicious++;
+		print "$file Suspicious file\n";
+	} else { &display_msg($file, $res); }
+
 	return();
 }
 

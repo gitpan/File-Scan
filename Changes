@@ -1,5 +1,15 @@
 Revision history for Perl extension File::Scan.
 
+0.15  Sat Mar 23 10:11:29 WET 2002
+	- added new virus signatures and PetTick virus signature
+	  was updated 
+	- added suspicious() method to test if the file is suspicious
+	- suspicious.txt file was added to files directory
+	- the Makefile.PL was changed
+	- examples/scan.pl: minor feature enhancements
+	- examples/scan.pl: the version was updated to 0.08
+	- documentation updates
+
 0.14  Tue Mar 19 14:01:57 WET 2002
 	- added new virus signature and LoveLetter virus signature
 	  was updated

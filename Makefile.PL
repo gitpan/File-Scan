@@ -1,13 +1,14 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Tue Mar 19 13:57:57 WET 2002
+# Last Modification: Sat Mar 23 10:06:23 WET 2002
 
 use strict;
 
 my $bufflen = 1024;
 my $min_txt_size = 0;
 my $signs = "files/signatures.txt";
+my $susp = "files/suspicious.txt";
 
 my $script_lang = {
 	'in'  => {
@@ -40,6 +41,7 @@ for my $k (keys(%app_signatures)) {
 }
 
 my $hash = &load_signatures($signs);
+my $linesusp = load_suspicious($susp);
 my $code = &get_code($hash);
 &make_module($code);
 
@@ -60,6 +62,22 @@ WriteMakefile(
 	@ppd,
 );
 
+sub load_suspicious {
+	my $file = shift;
+
+	my @all = ();
+	my $pattern = '(?<![\\{\\\\])([\\da-f]{2})(?!\\})';
+	open(FILE, "<$file") or die("$!");
+	while(<FILE>) {
+		next if(/^#/);
+		chomp();
+		my ($txt, $hex) = split(/::/);
+		$hex =~ s/$pattern/\\x$1/og;
+		push(@all, "\/$hex\/ios");
+	}
+	close(FILE);
+	return(join(" ||\n\t\t\t\t\t\t", @all));
+}
 
 sub load_signatures {
 	my $file = shift;
@@ -178,6 +196,7 @@ sub scan_binary {
 	my \$file = shift;
 
 	my \$skip = 0;
+	my \$suspicious = 0;
 	my \$vtype = "";
 	my \$virus = "";
 	my \$buff = "";
@@ -201,6 +220,9 @@ ENDOFCODE2
 		}
 		\$save .= \$buff;
 		\$_ = \$save;
+		unless(\$suspicious) {
+			\$suspicious = 1 if($linesusp);
+		}
 ENDOFCODE3
 	my $lcode = "";
 	for my $idx (keys(%app_signatures)) {
@@ -225,6 +247,8 @@ ENDOFCODE3
 	}
 	close(FILE);
 	&set_skip(\$skip) if(\$skip);
+	\$suspicious = 0 if(\$virus);
+	&set_suspicious(\$suspicious) if(\$suspicious);
 	return(\$virus);
 }
 ENDOFCODE4

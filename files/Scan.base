@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Tue Mar 19 14:03:57 WET 2002
+# Last Modification: Sat Mar 23 10:07:37 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -16,13 +16,14 @@ require Exporter;
 use File::Copy;
 use SelfLoader;
 
-use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED);
+use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 $ERROR = "";
 $SKIPPED = 0;
+$SUSPICIOUS = 0;
 
 SelfLoader->load_stubs();
 
@@ -49,6 +50,7 @@ sub scan {
 
 	&set_error();
 	&set_skip();
+	&set_suspicious();
 	return(&set_error("No such file or directory: $file")) unless(-e $file);
 	my $fsize = -s $file;
 	return(&set_skip(2)) unless($fsize);
@@ -105,8 +107,14 @@ sub set_skip {
 	return();
 }
 
+sub set_suspicious {
+	$SUSPICIOUS = shift || 0;
+	return();
+}
+
 sub error { $ERROR; }
 sub skipped { $SKIPPED; }
+sub suspicious { $SUSPICIOUS; }
 
 1;
 
@@ -126,6 +134,7 @@ File::Scan - Perl extension for Scanning files for Viruses
   $fs->scan([FILE]);
   if(my $e = $fs->error) { print "$e\n"; }
   if(my $c $fs->skipped) { print "file skipped ($c)\n"; }
+  if($fs->suspicious) { print "suspicious file\n"; }
 
 =head1 DESCRIPTION
 
@@ -212,6 +221,10 @@ the text file size is greater that the 'max_txt_size' argument
 the binary file size is greater that the 'max_bin_size' argument
 
 =back
+
+=head2 suspicious()
+
+This method return 1 if the file is suspicious and 0 if not.
 
 =head2 error()
 
