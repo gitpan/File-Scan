@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Wed May 19 14:14:34 WEST 2004
+# Last Modification: Sat May 22 17:54:36 WEST 2004
 #
 # Copyright (c) 2004 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS $CALLBACK);
 
 @ISA = qw(Exporter);
-$VERSION = '1.13';
+$VERSION = '1.14';
 
 ($ERROR, $SKIPPED, $SUSPICIOUS, $CALLBACK) = ("", 0, 0, "");
 
@@ -137,7 +137,7 @@ sub callback { $CALLBACK; }
 1;
 
 __DATA__
-# generated in: 2004/05/19 14:35:29
+# generated in: 2004/05/22 18:11:14
 
 sub get_app_sign {
 	$_ = pop;
@@ -433,6 +433,9 @@ sub scan_binary {
 				if($total<=4096) {
 					/\x70\x65\x6e\x74\x61\x67\x6f\x6e\x65/s and $virus = "W32/Goner\@MM", last LINE;
 				}
+				if($total==6144 || ($total>=14336 && $total<=22528)) {
+					/[\x7c\x4c\x02]\x05?[\x20\xfc\x77]\x46\x3c?\x52.{0,16}[\x4f\xaf][\x57\x4d][\x3a\x2b\x12\x11\xad\xb6].{12,49}\x54/s and $virus = "W32/Netsky\@MM", last LINE;
+				}
 				if($total==5120) {
 					/\x71\x9d\xcc\x1e\x2e\x77\xaa\x7a\x4d\x28\xd4\xa4\x00\xcd\xe3\xcd\xe4\x03\x8d\x15\x18\xb3\xd2\x7b\x64\x51\x32\xf1\x27\xc1\x76\x92\xeb\xe0\xd8\x54\x26\x0e\xda\x13\x57\xf3\x3f\xde\x09\x49\x5c\x0a/s and $virus = "W32/Sobig\@MM", last LINE;
 					/\x71\x32\x31\x36\x33\x30\x39\x00\x71\x32\x31\x36\x33\x30\x39\x00\x00\x71\x32\x31\x36\x33\x30\x39\x00\x00\x00\x00\xf4\x01\x00\x00\x34\x1c\x40/s and $virus = "W32/Gibe\@MM", last LINE;
@@ -492,9 +495,6 @@ sub scan_binary {
 				}
 				if($total==12288) {
 					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;
-				}
-				if($total>=14336 && $total<=18432) {
-					/[\x7c\x4c]\x05?[\x20\xfc]\x46\x3c?\x52.{0,4}\x4f[\x57\x4d][\x3a\x2b\x12\x11\xad\xb6].{12,49}\x54/s and $virus = "W32/Netsky\@MM", last LINE;
 				}
 				if($total==44032) {
 					/\xbd\xff\x57\x4f\x52\x4b\x2d\x53\x45\x58\x59\x33\x0f\x54\x55\x05\xa3\xde\x3b\x13\x4b\x61\x7a\x61\xd3\x5e\x07\x30\xe1\xef\x50\x9f\x76\x62\x73\x4b\x36\x94\x01\x68\x3a\x03/s and $virus = "W32/Oror.aa\@MM", last LINE;
