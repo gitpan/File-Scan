@@ -1,5 +1,8 @@
 Revision history for Perl extension File::Scan.
 
+0.70  Mon Nov  3 11:59:01 WET 2003
+	- added W32/Sober@MM virus signature
+
 0.69  Fri Oct 10 15:06:36 WEST 2003
 	- the W32/Swen@MM virus signature was updated
 

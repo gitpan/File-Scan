@@ -17,3 +17,8 @@ $ cd examples
 $ perlcc -o virusscan scan.pl
 
 (Perl v5.8.0 or greater)
+
+or try the Perl Archive Toolkit (PAR)
+
+$ cd examples
+$ pp -o scanner scan.pl
