@@ -2,7 +2,7 @@
 #############################################################################
 #
 # Virus Scanner
-# Last Change: Tue Apr 22 14:23:32 WEST 2003
+# Last Change: Fri Jun 20 11:47:59 WEST 2003
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>
 #
 #############################################################################
@@ -12,7 +12,7 @@ use File::Scan;
 use Getopt::Long();
 use Benchmark;
 
-my $VERSION = "0.11";
+my $VERSION = "0.12";
 
 my $infected = 0;
 my $objects = 0;
@@ -56,7 +56,7 @@ Getopt::Long::GetOptions($opt,
 
 sub main {
 
-	die(short_usage()) unless(scalar(@ARGV));
+	scalar(@ARGV) or die(short_usage());
 	my $start = new Benchmark;
 	&check_path(\@ARGV);
 	my $finish = new Benchmark;
@@ -156,7 +156,7 @@ sub check {
 	if(my $e = $fs->error) { print"$e\n"; }
 	elsif(my $c = $fs->skipped) {
 		$skipped++;
-		print "$file File Skipped (" . $skipcodes{$c} . ")\n";
+		print "$file File Skipped (", $skipcodes{$c}, ")\n";
 	} elsif($fs->suspicious) {
 		$suspicious++;
 		print "$file Suspicious file\n";

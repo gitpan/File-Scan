@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Jun  5 13:59:24 WEST 2003
+# Last Modification: Fri Jun 20 11:27:27 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,11 +19,9 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.56';
+$VERSION = '0.57';
 
-$ERROR = "";
-$SKIPPED = 0;
-$SUSPICIOUS = 0;
+($ERROR, $SKIPPED, $SUSPICIOUS) = ("", 0, 0);
 
 SelfLoader->load_stubs();
 
@@ -51,9 +49,10 @@ sub scan {
 	&set_error();
 	&set_skip();
 	&set_suspicious();
-	return(&set_error("No such file or directory: $file")) unless(-e $file);
+
+	(-e $file) or return(&set_error("No such file or directory: $file"));
 	my $fsize = -s $file;
-	return(&set_skip(2)) unless($fsize);
+	$fsize or return(&set_skip(2));
 	my $res = "";
 	if(-f $file && -T $file) {
 		return(&set_skip(3)) if($fsize < 23);
@@ -67,16 +66,16 @@ sub scan {
 	}
 	if($res) {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
-			my $newname = "$file\." . $self->{'extension'};
+			my $newname = join("\.", $file, $self->{'extension'});
 			if(move($file, $newname)) { $file = $newname; }
 			else { &set_error("Failed to move '$file' to '$newname'"); }
 		}
 		if($self->{'copy'}) {
 			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
-				mkdir($self->{'copy'}, $self->{'mkdir'}) or &set_error("Failed to create directory '" . $self->{'copy'} . "' $!");
+				mkdir($self->{'copy'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'copy'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $cpdir = $self->{'copy'} . "/$f";
+			my $cpdir = join("/", $self->{'copy'}, $f);
 			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
 		}
 		if($self->{'move'}) {
@@ -84,7 +83,7 @@ sub scan {
 				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $mvfile = $self->{'move'} . "/$f";
+			my $mvfile = join("/", $self->{'move'}, $f);
 			if(move($file, $mvfile)) { $file = $mvfile; }
 			else { &set_error("Failed to move '$file' to '$mvfile'"); }
 		}
@@ -119,7 +118,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2003/06/05 14:23:07
+# generated in: 2003/06/20 12:13:31
 
 sub get_app_sign {
 	$_ = pop;
@@ -146,11 +145,8 @@ sub exception {
 sub scan_text {
 	my $file = shift;
 
-	my $buff = "";
-	my $save = "";
+	my ($buff, $save, $virus, $script) = ("", "", "", "");
 	my $skip = 0;
-	my $virus = "";
-	my $script = "";
 	my $size = 1024;
 	open(FILE, "<", $file) or return(&set_error("Can't open $file: $!"));
 	LINE: while(read(FILE, $buff, $size)) {
@@ -173,6 +169,7 @@ sub scan_text {
 			}
 		} else {
 			/\x58\x35\x4f\x21\x50\x25\x40\x41\x50\x5b\x34\x5c\x50\x5a\x58\x35\x34\x28\x50\x5e\x29\x37\x43\x43\x29\x37\x7d\x24\x45\x49\x43\x41\x52\x2d\x53\x54\x41\x4e\x44\x41\x52\x44\x2d\x41\x4e\x54\x49\x56\x49\x52\x55\x53\x2d\x54\x45\x53\x54\x2d\x46\x49\x4c\x45\x21\x24\x48\x2b\x48\x2a/s and $virus = "EICAR-Test-File", last LINE;
+			/\x63\x6f\x70\x79\x20\x53\x53\x2e\x62\x61\x74\x20\x5c\x5c\x25\x31\x5c\x61\x64\x6d\x69\x6e\x24\x5c\x73\x79\x73\x74\x65\x6d\x33\x32\x20\x2f\x79\x0d\x0a\x73\x74\x61\x72\x74\x20\x2f\x69\x20\x2f\x6d\x69\x6e\x20\x2f\x77\x61\x69\x74\x20\x2f\x42\x20\x70\x73\x65\x78\x65\x63\x20\x5c\x5c\x25\x31\x20\x2d\x75\x20\x25\x32\x20\x2d\x70\x20\x25\x33\x20\x2d\x64\x20\x63\x6d\x64\x2e\x65\x78\x65\x20\x2f\x63\x20\x6e\x74\x73\x65\x72\x76\x69\x63\x65\x2e\x62\x61\x74/s and $virus = "BAT/Mumu.worm", last LINE;
 			/[\x20\x5c]\x73\x65\x72\x76\x69\x63\x65\x73\x2e\x65\x78\x65.+[\x20\x5c].+\x73\x71\x6c\x65\x78\x65\x63\x2e\x6a\x73.+[\x20\x5c]\x63\x6c\x65\x6d\x61\x69\x6c\x2e\x65\x78\x65.+[\x20\x5c]\x73\x71\x6c\x70\x72\x6f\x63\x65\x73\x73\x2e\x6a\x73.+[\x20\x5c]\x73\x71\x6c\x69\x6e\x73\x74\x61\x6c\x6c\x2e\x62\x61\x74.+[\x20\x5c]\x73\x71\x6c\x64\x69\x72\x2e\x6a\x73.+\x72\x75\x6e\x2e\x6a\x73.+[\x20\x5c]\x74\x69\x6d\x65\x72\x2e\x64\x6c\x6c.+[\x20\x5c]\x73\x61\x6d\x64\x75\x6d\x70\x2e\x64\x6c\x6c.+[\x20\x5c]\x70\x77\x64\x75\x6d\x70\x32\x2e\x65\x78\x65/s and $virus = "JS/SQL.Spida.worm.b", last LINE;
 			/\x65\x63\x68\x6f\x20\x2e\x42\x41\x54\x20\x76\x69\x72\x75\x73\x20\x27\x40\x40\x27\x20\x76\d+\x2e\d+.+\x4f\x52\x20\x43\x58\x2c\x43\x58.+\x4a\x5a\x20\x31\x30\x42.+\x4d\x4f\x56\x20\x44\x58\x2c\x31\x30\x43.+\x4d\x4f\x56\x20\x41\x48\x2c\x34\x31.+\x49\x4e\x54\x20\x32\x31.+\x49\x4e\x54\x20\x33.+\x44\x42.+\x66\x69\x6e\x64.+\x64\x65\x62\x75\x67.+\x65\x78\x69\x73\x74.+\x63\x6f\x70\x79.+\x66\x69\x6e\x64.+\x64\x6f\x20\x63\x61\x6c\x6c.+\x64\x65\x6c/s and $virus = "BAT/Double_At.B", last LINE;
 			/\x4d\x61\x64\x6f\x6e\x6e\x61.+\x4a\x61\x64\x72\x61\x71\x75\x65\x72\x20\x4b\x69\x6c\x6c\x65\x72/s and $virus = "VBS/Madonna", last LINE;
@@ -200,14 +197,8 @@ sub scan_text {
 sub scan_binary {
 	my $file = shift;
 
-	my $skip = 0;
-	my $suspicious = 0;
-	my $type = 0;
-	my $subtype = 0;
-	my $virus = "";
-	my $buff = "";
-	my $save = "";
-	my $total = 0;
+	my ($skip, $suspicious, $type, $subtype, $total) = (0, 0, 0, 0, 0);
+	my ($virus, $buff, $save) = ("", "", "");
 	my $size = 1024;
 	open(FILE, "<", $file) or return(&set_error("Can't open $file: $!"));
 	binmode(FILE);

@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Thu Jun  5 13:59:24 WEST 2003
+# Last Modification: Fri Jun 20 11:27:27 WEST 2003
 #
 # Copyright (c) 2003 Henrique Dias <hdias@aesbuc.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,11 +19,9 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.56';
+$VERSION = '0.57';
 
-$ERROR = "";
-$SKIPPED = 0;
-$SUSPICIOUS = 0;
+($ERROR, $SKIPPED, $SUSPICIOUS) = ("", 0, 0);
 
 SelfLoader->load_stubs();
 
@@ -51,9 +49,10 @@ sub scan {
 	&set_error();
 	&set_skip();
 	&set_suspicious();
-	return(&set_error("No such file or directory: $file")) unless(-e $file);
+
+	(-e $file) or return(&set_error("No such file or directory: $file"));
 	my $fsize = -s $file;
-	return(&set_skip(2)) unless($fsize);
+	$fsize or return(&set_skip(2));
 	my $res = "";
 	if(-f $file && -T $file) {
 		return(&set_skip(3)) if($fsize < $min_txt_size);
@@ -67,16 +66,16 @@ sub scan {
 	}
 	if($res) {
 		if($self->{'extension'} && $file !~ /\.$self->{'extension'}$/o) {
-			my $newname = "$file\." . $self->{'extension'};
+			my $newname = join("\.", $file, $self->{'extension'});
 			if(move($file, $newname)) { $file = $newname; }
 			else { &set_error("Failed to move '$file' to '$newname'"); }
 		}
 		if($self->{'copy'}) {
 			if(!(-d $self->{'copy'}) && $self->{'mkdir'}) {
-				mkdir($self->{'copy'}, $self->{'mkdir'}) or &set_error("Failed to create directory '" . $self->{'copy'} . "' $!");
+				mkdir($self->{'copy'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'copy'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $cpdir = $self->{'copy'} . "/$f";
+			my $cpdir = join("/", $self->{'copy'}, $f);
 			copy($file, $cpdir) or &set_error("Failed to copy '$file' to $cpdir");
 		}
 		if($self->{'move'}) {
@@ -84,7 +83,7 @@ sub scan {
 				mkdir($self->{'move'}, $self->{'mkdir'}) or &set_error(join("", "Failed to create directory '", $self->{'move'}, "' $!"));
 			}
 			my ($f) = ($file =~ /([^\/]+)$/o);
-			my $mvfile = $self->{'move'} . "/$f";
+			my $mvfile = join("/", $self->{'move'}, $f);
 			if(move($file, $mvfile)) { $file = $mvfile; }
 			else { &set_error("Failed to move '$file' to '$mvfile'"); }
 		}

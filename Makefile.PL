@@ -188,11 +188,8 @@ sub exception {
 sub scan_text {
 	my \$file = shift;
 
-	my \$buff = "";
-	my \$save = "";
+	my (\$buff, \$save, \$virus, \$script) = ("", "", "", "");
 	my \$skip = 0;
-	my \$virus = "";
-	my \$script = "";
 	my \$size = $bufflen;
 ENDOFCODE2
 
@@ -248,14 +245,8 @@ ENDOFCODE3
 sub scan_binary {
 	my \$file = shift;
 
-	my \$skip = 0;
-	my \$suspicious = 0;
-	my \$type = 0;
-	my \$subtype = 0;
-	my \$virus = "";
-	my \$buff = "";
-	my \$save = "";
-	my \$total = 0;
+	my (\$skip, \$suspicious, \$type, \$subtype, \$total) = (0, 0, 0, 0, 0);
+	my (\$virus, \$buff, \$save) = ("", "", "");
 	my \$size = $bufflen;
 ENDOFCODE4
 
