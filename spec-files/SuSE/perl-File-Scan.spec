@@ -1,7 +1,7 @@
 %define class File
 %define subclass Scan
-%define _version 0.37
-%define _release 2
+%define _version 0.38
+%define _release 1
 
 # Derived values
 %define module %{class}-%{subclass}
@@ -13,7 +13,7 @@
 
 %if suse
 %define suse_version %(grep VERSION /etc/SuSE-release|cut -f3 -d " ")
-%define suse_version_short %(echo %{susever}|tr -d '.')
+%define suse_version_short %(echo %{suse_version}|tr -d '.')
 %define distro_release %{_release}suse%{suse_version_short}
 %define distro_group Development/Languages/Perl
 %else
@@ -168,6 +168,9 @@ fi
 %endif
 
 %changelog
+* Fri Nov 12 2002 Henrique Dias <hdias@esb.ucp.pt>
+- Updated to 0.38
+- fixed a small bug in spec-file
 * Fri Oct 02 2002 Pascal Bleser <guru@unixtech.be>
 - Updated to 0.37
 - Use of __-macros everywhere

@@ -1,5 +1,11 @@
 Revision history for Perl extension File::Scan.
 
+0.38  Tue Nov 12 16:55:02 WET 2002
+	- added W32/Braid@MM virus signature.
+	- spec-files directory was added.
+	- fixed a small 'bug' in SuSE spec-file.
+	  Thanks to Pascal Bleser <guru@unixtech.be>
+
 0.37  Wed Oct  2 12:06:57 WEST 2002
 	- the README file was updated
 	- the spec-file was changed to work with SuSE distribution

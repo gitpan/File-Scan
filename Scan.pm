@@ -1,6 +1,6 @@
 #
 # Scan.pm
-# Last Modification: Sat Sep 28 18:43:20 WEST 2002
+# Last Modification: Tue Nov 12 16:26:52 WET 2002
 #
 # Copyright (c) 2002 Henrique Dias <hdias@esb.ucp.pt>. All rights reserved.
 # This module is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@ use SelfLoader;
 use vars qw($VERSION @ISA @EXPORT $ERROR $SKIPPED $SUSPICIOUS);
 
 @ISA = qw(Exporter);
-$VERSION = '0.37';
+$VERSION = '0.38';
 
 $ERROR = "";
 $SKIPPED = 0;
@@ -119,7 +119,7 @@ sub suspicious { $SUSPICIOUS; }
 1;
 
 __DATA__
-# generated in: 2002/10/02 12:08:34
+# generated in: 2002/11/12 16:55:57
 
 sub get_app_sign {
 	$_ = pop;
@@ -381,17 +381,20 @@ sub scan_binary {
 				if($total==18432) {
 					/\x4d\x61\x64\x65\x20\x62\x79\x20\x41\x78\x69\x61\x6c\x69\x73\x20\x41\x58\x2d\x49\x63\x6f\x6e\x20\d\x2e\d/s and $virus = "BackDoor-AJH", last LINE;
 				}
+				if($total==22528) {
+					/\x57\x00\x49\x00\x4e\x00\x4c\x00\x30\x00\x47\x00\x30\x00\x4e\x00\x2e\x00\x45\x00\x58\x00\x45/s and $virus = "W32/Shoho.gen\@MM", last LINE;
+				}
 				if($total==31744) {
 					/\x4e\x00\x61\x00\x76\x00\x69\x00\x64\x00\x61\x00\x64\x00\x20\x00\x56\x00\x65\x00\x72\x00\x73\x00\x69\x00\x6f\x00\x6e\x00\x20\x00\d+.+\x43\x00\x6f\x00\x70\x00\x79\x00\x72\x00\x69\x00\x67\x00\x68\x00\x74\x00\x20\x00\x28\x00\x43\x00\x29\x00\x20\x00\d\x00\d\x00\d\x00\d\x00/s and $virus = "W32/Navidad.gen\@M", last LINE;
 				}
 				if($total>8192 && $total<=20480) {
 					/\x44*\x65\x63.+\x4e*\x6f\x76.+\x4f*\x63\x74.+\x53*\x65\x70.+\x41*\x75\x67.+\x4a*\x75\x6c.+\x4d*\x61\x79.+\x46\x65\x62\x13\x61\x53\x61\x27\x46\x72\x69\x00\x54\x68\x75\x00.\x9d\x5b\xfe\x57\x65\x64\x00\x54\x75\x65\x6f\x17\x2f.+\x32\x75/s and $virus = "W32/BadTrans\@MM", last LINE;
 				}
-				if($total==22528) {
-					/\x57\x00\x49\x00\x4e\x00\x4c\x00\x30\x00\x47\x00\x30\x00\x4e\x00\x2e\x00\x45\x00\x58\x00\x45/s and $virus = "W32/Shoho.gen\@MM", last LINE;
-				}
 				if($total==35840) {
 					/\x73\x6d\x74\x70\x2e\x79\x65\x61\x68\x2e\x6e\x65.+\x2d\x20\x47\x45\x54\x20\x4f\x49\x43\x51/s and $virus = "W32/GOP\@MM", last LINE;
+				}
+				if($total==12288) {
+					/\x42\x72\x69\x64\x65\x00\x42\x72\x69\x64\x65\x00\x00\x42\x72\x69\x64\x65/s and $virus = "W32/Braid\@MM", last LINE;
 				}
 			}
 			if($total<=6144) {

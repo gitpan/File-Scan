@@ -11,8 +11,9 @@ files/signatures.txt
 files/suspicious.txt
 Makefile.PL
 MANIFEST
-perl-File-Scan.spec
 README
+spec-files/RedHat/perl-File-Scan.spec
+spec-files/SuSE/perl-File-Scan.spec
 Scan.pm
 t/scan.t
 TODO
