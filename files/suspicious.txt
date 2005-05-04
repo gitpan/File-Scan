@@ -5,3 +5,4 @@ trojan::74726f6a616e
 backdoor::6261636b646f6f72
 parasite::7061726173697465
 text coded by text::\w+20636f64656420627920\w+
+fuck::6675636b

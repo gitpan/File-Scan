@@ -1,5 +1,13 @@
 Revision history for Perl extension File::Scan.
 
+1.43  Wed May  4 17:07:43 WEST 2005
+	- a new word has been added to suspicious.txt file.
+	- minor feature enhancements in Makefile.PL.
+	- added two new virus signatures (W32/Sober.p@MM and
+	  W32/Mytob.gen@MM).
+	- the W32/Bagle.ai@MM virus signature has been updated again to
+	  detect W32/Bagle.bb@MM variant.
+
 1.42  Mon Mar  7 18:14:52 WET 2005
 	- added three new virus signatures (Downloader-PH,
 	  PWS-Banker.k.gen and W32_Mydoom.ba_MM).

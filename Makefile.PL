@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
-# Last Modification: Tue Dec 21 18:09:59 WET 2004
+# Last Modification: Wed May  4 12:45:56 WEST 2005
 
 use strict;
 
@@ -109,6 +109,7 @@ sub load_signatures {
 		next if(/^#/);
 		chomp;
 		my @elem = split(/::/);
+		scalar(@elem) == 5 or die("Wrong signature: $_");
 		$elem[2] =~ s/\@/\\\@/g;
 		$elem[3] =~ s/ +//g;
 		$elem[3] =~ s/eq/\=\=/ig;
