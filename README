@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution File-Scan,
-version 0.002:
+version 0.003:
 
   file parser intended for big files that doesn't fit into main memory.
 

@@ -27,4 +27,4 @@ resources:
   bugtracker: https://github.com/Weborama/File-Scan/issues
   homepage: https://github.com/Weborama/File-Scan/wiki
   repository: git://github.com/Weborama/File-Scan.git
-version: 0.002
+version: 0.003

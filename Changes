@@ -1,4 +1,4 @@
-$NEXT
+0.003     2014-03-20 23:55:06CET+0100 Europe/Paris
 
     * Initital version of File::Scan with test (slurp_line)
       (Alexis Sukrieh, Bin Shu)

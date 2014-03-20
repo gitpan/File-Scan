@@ -115,7 +115,7 @@ File::Scan - file parser intended for big files that doesn't fit into main memor
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 DESCRIPTION
 
