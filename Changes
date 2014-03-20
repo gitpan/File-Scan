@@ -1,0 +1,4 @@
+$NEXT
+
+    * Initital version of File::Scan with test (slurp_line)
+      (Alexis Sukrieh, Bin Shu)
